@@ -12,17 +12,26 @@ import type { HttpClient } from '../../shared/http.js';
 
 export const HAPI_BASE_URL = 'https://hapi.humdata.org/api/v2';
 
-/** Datasets this provider serves, mapped to HAPI endpoint paths. */
-export const THEME_PATHS = {
-  idps: 'affected-people/idps',
-  'conflict-events': 'coordination-context/conflict-events',
-  'humanitarian-funding': 'coordination-context/funding',
-  'food-security': 'food-security-nutrition-poverty/food-security',
+/**
+ * Datasets this provider serves, mapped to HAPI endpoint paths and the admin
+ * level that actually carries data (verified against the live API and its
+ * OpenAPI spec, 2026-07-10):
+ *  - idps / food-security publish national rows (admin 0);
+ *  - conflict-events (ACLED) exists ONLY at admin 2, monthly per event type —
+ *    requesting admin 0 returns nothing; normalize.ts sums the district rows
+ *    into country-years;
+ *  - funding is national appeals and accepts no admin_level parameter at all.
+ */
+export const THEME_CONFIG = {
+  idps: { path: 'affected-people/idps', adminLevel: 0 },
+  'conflict-events': { path: 'coordination-context/conflict-events', adminLevel: 2 },
+  'humanitarian-funding': { path: 'coordination-context/funding', adminLevel: undefined },
+  'food-security': { path: 'food-security-nutrition-poverty/food-security', adminLevel: 0 },
 } as const;
 
-export type HdxTheme = keyof typeof THEME_PATHS;
+export type HdxTheme = keyof typeof THEME_CONFIG;
 
-export const ALL_HDX_THEMES = Object.keys(THEME_PATHS) as HdxTheme[];
+export const ALL_HDX_THEMES = Object.keys(THEME_CONFIG) as HdxTheme[];
 
 /** Fields shared by every HAPI row this provider consumes. */
 export interface HapiRowBase {
@@ -62,9 +71,19 @@ export interface HapiLocationRow {
   name: string;
 }
 
-/** HAPI caps `limit` at 10,000 — one fetch covers a country's full series. */
-const PAGE_LIMIT = 10_000;
+/** HAPI caps `limit` at 10,000 per request; the provider paginates via offset. */
+export const HAPI_PAGE_LIMIT = 10_000;
 const LOCATIONS_TTL_SECONDS = 7 * 24 * 3600;
+
+export interface ThemeRequest {
+  /** ISO3 filter; omit for all countries. */
+  locationCode?: string;
+  /** Server-side reference-period window (start_date/end_date params). */
+  yearFrom?: number;
+  yearTo?: number;
+  /** Pagination offset in rows. */
+  offset?: number;
+}
 
 export class HdxClient {
   constructor(
@@ -76,7 +95,7 @@ export class HdxClient {
     const search = new URLSearchParams({
       app_identifier: this.appIdentifier,
       output_format: 'json',
-      limit: String(PAGE_LIMIT),
+      limit: String(HAPI_PAGE_LIMIT),
       offset: '0',
     });
     for (const [key, value] of Object.entries(params)) search.set(key, String(value));
@@ -99,13 +118,20 @@ export class HdxClient {
   }
 
   /**
-   * All national-level rows for a theme, optionally filtered to one ISO3.
-   * Year filtering happens in the provider (HAPI filters by reference
-   * period, which crosses year boundaries).
+   * One page of rows for a theme (up to {@link HAPI_PAGE_LIMIT}); the
+   * provider paginates via `offset` until a short page comes back. The year
+   * window is passed server-side — a client-side year filter after
+   * normalization stays as belt-and-braces, since reference periods can
+   * straddle the window edges.
    */
-  theme(theme: HdxTheme, locationCode?: string): Promise<unknown[]> {
-    const params: Record<string, string | number> = { admin_level: 0 };
-    if (locationCode) params['location_code'] = locationCode.toUpperCase();
-    return this.rows<unknown>(THEME_PATHS[theme], params);
+  theme(theme: HdxTheme, request: ThemeRequest = {}): Promise<unknown[]> {
+    const config = THEME_CONFIG[theme];
+    const params: Record<string, string | number> = {};
+    if (config.adminLevel !== undefined) params['admin_level'] = config.adminLevel;
+    if (request.locationCode) params['location_code'] = request.locationCode.toUpperCase();
+    if (request.yearFrom !== undefined) params['start_date'] = `${request.yearFrom}-01-01`;
+    if (request.yearTo !== undefined) params['end_date'] = `${request.yearTo}-12-31`;
+    if (request.offset) params['offset'] = request.offset;
+    return this.rows<unknown>(config.path, params);
   }
 }

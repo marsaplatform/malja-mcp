@@ -17,9 +17,17 @@ import type {
   ProviderMetadata,
   SearchQuery,
 } from '../types.js';
-import { ALL_HDX_THEMES, HAPI_BASE_URL, HdxClient } from './client.js';
+import { ALL_HDX_THEMES, HAPI_BASE_URL, HAPI_PAGE_LIMIT, HdxClient } from './client.js';
 import type { HapiLocationRow, HdxTheme } from './client.js';
 import { citationFor, normalizeTheme } from './normalize.js';
+
+/**
+ * Upper bound on offset pages per theme fetch (10 × 10,000 rows). Conflict
+ * events arrive as admin2 × month × event-type rows, so a decade for one
+ * country can run to tens of thousands — hitting this cap is logged, never
+ * silent.
+ */
+const MAX_THEME_PAGES = 10;
 
 /**
  * HDX/HAPI provider — the Humanitarian Data Exchange's normalized API.
@@ -74,6 +82,7 @@ export class HdxProvider implements HumanitarianProvider {
   readonly name = 'Humanitarian Data Exchange (HAPI)';
 
   private readonly client: HdxClient;
+  private readonly logger: Logger;
   private locationsPromise: Promise<HapiLocationRow[]> | undefined;
 
   constructor(config: Config, cache: InstrumentedCache, logger: Logger, appIdentifier: string) {
@@ -85,6 +94,7 @@ export class HdxProvider implements HumanitarianProvider {
       provider: this.id,
     });
     this.client = new HdxClient(http, appIdentifier);
+    this.logger = logger;
   }
 
   private async locations(): Promise<HapiLocationRow[]> {
@@ -124,7 +134,23 @@ export class HdxProvider implements HumanitarianProvider {
     // No origin/asylum distinction in these datasets: either filter is "the country".
     const iso3 = query.asylum_iso3 ?? query.origin_iso3;
 
-    const rows = await this.client.theme(theme, iso3);
+    const rows: unknown[] = [];
+    for (let pageIndex = 0; pageIndex < MAX_THEME_PAGES; pageIndex++) {
+      const batch = await this.client.theme(theme, {
+        ...(iso3 ? { locationCode: iso3 } : {}),
+        ...(query.yearFrom !== undefined ? { yearFrom: query.yearFrom } : {}),
+        ...(query.yearTo !== undefined ? { yearTo: query.yearTo } : {}),
+        offset: pageIndex * HAPI_PAGE_LIMIT,
+      });
+      rows.push(...batch);
+      if (batch.length < HAPI_PAGE_LIMIT) break;
+      if (pageIndex === MAX_THEME_PAGES - 1) {
+        this.logger.warn('hdx theme fetch hit the page cap — results may be partial', {
+          theme,
+          rows: rows.length,
+        });
+      }
+    }
     let records = this.normalize(rows, theme as DatasetId);
     if (query.yearFrom !== undefined) records = records.filter((r) => r.year >= query.yearFrom!);
     if (query.yearTo !== undefined) records = records.filter((r) => r.year <= query.yearTo!);

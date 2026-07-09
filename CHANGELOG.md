@@ -4,6 +4,31 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.5.1] — 2026-07-10
+
+Fixes from the first live verification round against HAPI with a real app
+identifier (all four themes now confirmed end-to-end with production data).
+
+### Fixed
+
+- **conflict-events returned nothing in production**: ACLED data exists in
+  HAPI only at admin level 2 (district × month × event type) — the provider
+  requested admin 0. Each theme now requests the admin level it actually
+  publishes, and district rows sum into country-years as before.
+- **Large themes were silently truncated**: theme fetches now pass the year
+  window server-side (`start_date`/`end_date`) and paginate via `offset`
+  until exhausted (capped at 100k rows with a logged warning, never silent).
+- `funding` no longer receives an `admin_level` parameter its endpoint does
+  not declare.
+
+### Verified live
+
+Sudan, production data: conflict 2023 = 6,967 events / 21,020 fatalities;
+IDPs 3.78M → 9.05M → 11.56M (2022–2024, latest-assessment semantics);
+IPC 3+ = 21.2M (2025); funding coverage 58.5% (2023) / 76.4% (2024);
+per-capita ranking live: Lebanon 130.7, Chad 63.0, Moldova 56.6 per 1,000
+residents. Arabic queries («السودان») resolve through the full stack.
+
 ## [0.5.0] — 2026-07-10
 
 The academic reproducibility release.

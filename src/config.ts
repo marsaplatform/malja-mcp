@@ -32,7 +32,7 @@ export interface Config {
 }
 
 export const SERVER_NAME = 'humanitarian-mcp';
-export const SERVER_VERSION = '0.5.0';
+export const SERVER_VERSION = '0.5.1';
 
 const LOG_LEVELS = ['debug', 'info', 'warn', 'error'] as const;
 

@@ -61,6 +61,39 @@ describe('HdxProvider', () => {
     for (const url of urls) expect(url).toContain(`app_identifier=${APP_ID}`);
   });
 
+  it('requests the admin level each theme actually publishes (live-verified)', async () => {
+    const { impl, urls } = stubFetch();
+    vi.stubGlobal('fetch', impl);
+    const provider = buildProvider();
+
+    // ACLED data exists only at admin 2 — admin 0 returns nothing upstream.
+    await provider.list({ dataset: 'conflict-events', asylum_iso3: 'SDN' });
+    expect(urls.at(-1)).toContain('admin_level=2');
+
+    // IDPs and food security publish national (admin 0) rows.
+    await provider.list({ dataset: 'idps', asylum_iso3: 'SDN' });
+    expect(urls.at(-1)).toContain('admin_level=0');
+
+    // Funding is national appeals — the endpoint has no admin_level parameter.
+    await provider.list({ dataset: 'humanitarian-funding', asylum_iso3: 'SDN' });
+    expect(urls.at(-1)).not.toContain('admin_level');
+  });
+
+  it('passes the year window server-side as start_date/end_date', async () => {
+    const { impl, urls } = stubFetch();
+    vi.stubGlobal('fetch', impl);
+    const provider = buildProvider();
+
+    await provider.list({
+      dataset: 'conflict-events',
+      asylum_iso3: 'SDN',
+      yearFrom: 2023,
+      yearTo: 2024,
+    });
+    expect(urls.at(-1)).toContain('start_date=2023-01-01');
+    expect(urls.at(-1)).toContain('end_date=2024-12-31');
+  });
+
   it('idps: the latest assessment per year wins — rounds are not summed', async () => {
     const { impl } = stubFetch();
     vi.stubGlobal('fetch', impl);

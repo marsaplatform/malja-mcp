@@ -127,7 +127,7 @@ Cite the data as UNHCR, Refugee Data Finder (year of extraction), and the
 tooling via GitHub's **"Cite this repository"** button (backed by
 [CITATION.cff](../CITATION.cff)), or as:
 
-> humanitarian-mcp (v0.5.0), open-source MCP server,
+> humanitarian-mcp (v0.5.1), open-source MCP server,
 > https://github.com/ahmedvnabil/humanitarian-mcp
 
 Every `export_data` call attaches an extraction manifest (exact arguments,
