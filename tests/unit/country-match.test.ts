@@ -7,6 +7,19 @@ describe('normalizeName', () => {
     expect(normalizeName("Cote d'Ivoire")).toBe('cote d ivoire');
     expect(normalizeName('  Syrian   Arab Rep. ')).toBe('syrian arab rep');
   });
+
+  it('folds Arabic spelling variants onto one form', () => {
+    // Definite article + hamza forms: الأردن / الاردن / اردن are the same country.
+    expect(normalizeName('الأردن')).toBe(normalizeName('الاردن'));
+    expect(normalizeName('الأردن')).toBe(normalizeName('اردن'));
+    // Taa marbuta vs taa/ha: سورية folds with سوريه.
+    expect(normalizeName('سورية')).toBe(normalizeName('سوريه'));
+    // Alef maqsura and harakat.
+    expect(normalizeName('مِصْر')).toBe(normalizeName('مصر'));
+    expect(normalizeName('عُمان')).toBe(normalizeName('عمان'));
+    // Arabic letters must survive normalization (not be stripped as punctuation).
+    expect(normalizeName('مصر')).not.toBe('');
+  });
 });
 
 describe('matchCountries', () => {
@@ -40,5 +53,18 @@ describe('matchCountries', () => {
   it('returns nothing for empty or unmatched queries', () => {
     expect(matchCountries('', candidates)).toEqual([]);
     expect(matchCountries('wakanda', candidates)).toEqual([]);
+  });
+
+  it('matches Arabic names and their spelling variants', () => {
+    const arabicCandidates = [
+      { value: 'EGY', names: ['Egypt', 'EGY', 'مصر'] },
+      { value: 'SYR', names: ['Syrian Arab Rep.', 'SYR', 'سوريا', 'سورية'] },
+      { value: 'JOR', names: ['Jordan', 'JOR', 'الأردن'] },
+    ];
+    expect(matchCountries('مصر', arabicCandidates)[0]).toEqual({ value: 'EGY', score: 1 });
+    expect(matchCountries('سوريا', arabicCandidates)[0]!.value).toBe('SYR');
+    expect(matchCountries('سورية', arabicCandidates)[0]!.value).toBe('SYR');
+    expect(matchCountries('الاردن', arabicCandidates)[0]).toEqual({ value: 'JOR', score: 1 });
+    expect(matchCountries('اردن', arabicCandidates)[0]).toEqual({ value: 'JOR', score: 1 });
   });
 });

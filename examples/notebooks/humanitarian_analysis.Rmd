@@ -1,0 +1,91 @@
+---
+title: "Humanitarian data analysis via humanitarian-mcp"
+output: html_document
+---
+
+Four reproducible research workflows against a local `humanitarian-mcp`
+server. Start it first: `npm run dashboard` (see `README.md` in this folder).
+
+```{r setup}
+library(httr2)
+library(jsonlite)
+
+SERVER <- "http://localhost:8642"
+
+# One MCP tool call via the dashboard bridge; returns structuredContent.
+call_tool <- function(tool, ...) {
+  payload <- request(paste0(SERVER, "/api/call")) |>
+    req_body_json(list(tool = tool, arguments = list(...))) |>
+    req_perform() |>
+    resp_body_json()
+  if (isTRUE(payload$isError)) stop(payload$content[[1]]$text)
+  payload$structuredContent
+}
+
+# export_data -> data.frame. The manifest rides in '#' comment lines.
+export_csv <- function(...) {
+  result <- call_tool("export_data", format = "csv", ...)
+  read.csv(text = result$data, comment.char = "#")
+}
+```
+
+## Workflow 1 — Event study: displacement from Sudan around April 2023
+
+```{r event-study}
+sudan <- export_csv(dataset = "population", country = "Sudan",
+                    role = "origin", year_from = 2010)
+yearly <- aggregate(refugees ~ year, data = sudan, FUN = sum)
+yearly$post <- as.integer(yearly$year >= 2023)
+yearly$t <- yearly$year - min(yearly$year)
+
+summary(lm(refugees ~ t * post, data = yearly))
+```
+
+## Workflow 2 — Recognition rates across host states
+
+```{r recognition-rates}
+rates <- do.call(rbind, lapply(c("Egypt", "Germany", "Kenya"), function(country) {
+  yearly <- call_tool("asylum_decisions", country = country, year_from = 2019)$yearly
+  data.frame(
+    country = country,
+    year = sapply(yearly, `[[`, "year"),
+    recognition_rate_pct = sapply(yearly, `[[`, "recognition_rate_pct")
+  )
+}))
+reshape(rates, idvar = "year", timevar = "country", direction = "wide")
+```
+
+## Workflow 3 — Hosting burden per capita
+
+```{r per-capita}
+ranking <- call_tool("top_host_countries", normalize_by = "population", limit = 10)
+per_capita <- data.frame(
+  country = sapply(ranking$ranking, `[[`, "country"),
+  value = sapply(ranking$ranking, `[[`, "value")
+)
+barplot(rev(per_capita$value), names.arg = rev(per_capita$country), horiz = TRUE,
+        las = 1, xlab = paste("refugees", ranking$unit, sprintf("(%d)", ranking$year)))
+```
+
+## Workflow 4 — Conflict × displacement (needs the `hdx` provider)
+
+```{r conflict, error=TRUE}
+conflict_records <- call_tool("conflict_events", country = "Sudan", year_from = 2018)$records
+conflict <- data.frame(
+  year = sapply(conflict_records, `[[`, "year"),
+  fatalities = sapply(conflict_records, `[[`, "fatalities")
+)
+displaced <- export_csv(dataset = "population", country = "Sudan",
+                        role = "origin", year_from = 2018)
+displaced_yearly <- aggregate(refugees ~ year, data = displaced, FUN = sum)
+merged <- merge(conflict, displaced_yearly, by = "year")
+merged
+cor(merged$fatalities, merged$refugees)
+```
+
+## Method notes
+
+- Figures are end-year stocks; UNHCR revises series retroactively — record your
+  extraction date (the manifest in every export does this for you).
+- `role = "asylum"` = hosted *in* the country; `role = "origin"` = displaced *from* it.
+- Add `include_codebook = TRUE` to any `export_data` call for a variable-level codebook.

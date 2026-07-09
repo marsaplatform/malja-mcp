@@ -4,6 +4,65 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.5.0] — 2026-07-10
+
+The academic reproducibility release.
+
+### Added
+
+- **Codebooks**: `export_data` accepts `include_codebook` — variable-level
+  documentation (meaning, unit, derivation) matching exactly the exported
+  columns, ready for a paper's data appendix.
+- **Runnable notebooks** (`examples/notebooks/`): Python and R walk-throughs
+  of four research workflows — event study, recognition rates, per-capita
+  rankings, conflict × displacement — against a local server.
+- **JOSS paper draft** (`paper/`): statement of need, comparison with
+  per-source clients, quality control. Pending owner review and submission.
+
+## [0.4.0] — 2026-07-10
+
+### Added
+
+- **HDX/HAPI provider** (`hdx`, opt-in via `HMCP_HDX_APP_ID`): internal
+  displacement (IOM DTM), conflict events (ACLED), humanitarian funding
+  (OCHA FTS) and food security (IPC), with per-theme aggregation semantics —
+  stocks take the latest assessment (never summed), funding coverage is
+  recomputed from summed appeals, IPC current analyses beat projections.
+  Every payload cites the original producer.
+- **Three crisis tools**: `conflict_events`, `food_security`,
+  `humanitarian_funding` (20 tools total).
+- **Docker image + compose** for organisational self-hosting (GHCR publish
+  on release; HTTP mode, persistent SQLite cache volume, healthcheck).
+
+## [0.3.0] — 2026-07-10
+
+### Added
+
+- **World Bank provider** (`worldbank`, enabled by default): national
+  population, GDP, GDP per capita and poverty as the `context-indicators`
+  dataset — no API key, CC BY 4.0.
+- **`normalize_by`** on `compare_countries`, `top_host_countries` and
+  `generate_chart`: values per 1,000 residents or per US$1bn GDP, with
+  per-year denominator matching and the denominator year disclosed on every
+  row. Rankings re-sort on the normalized value.
+
+## [0.2.0] — 2026-07-10
+
+### Added
+
+- **npm + one-click distribution**: release workflow publishing to npm with
+  provenance and attaching a Claude Desktop `.mcpb` bundle to every GitHub
+  release; `npx humanitarian-mcp` quick start.
+- **Arabic country names**: `search_country` and every country argument
+  resolve official UN Arabic names for 100% of countries served, plus common
+  variants — matching folds hamza/alef forms, taa marbuta, harakat and the
+  definite article («الأردن» = «الاردن» = «اردن»).
+- **Extraction manifests**: every `export_data` call attaches the exact
+  arguments, timestamp, server version and citation (CSV: `#` comment lines;
+  JSON/GeoJSON: a `manifest` member). Opt out with `include_manifest: false`.
+- **Citation metadata**: `CITATION.cff` (GitHub "Cite this repository"),
+  Zenodo-ready.
+
 ## [0.1.0] — 2026-07-09
 
 First public release.

@@ -4,7 +4,7 @@ import { loadConfig } from '../../src/config.js';
 describe('loadConfig', () => {
   it('applies sensible defaults with an empty environment', () => {
     const config = loadConfig({});
-    expect(config.providers).toEqual(['unhcr']);
+    expect(config.providers).toEqual(['unhcr', 'worldbank']);
     expect(config.cacheBackend).toBe('memory');
     expect(config.cacheTtlSeconds).toBe(3600);
     expect(config.offline).toBe(false);

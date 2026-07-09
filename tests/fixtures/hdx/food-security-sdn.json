@@ -1,0 +1,74 @@
+{
+  "data": [
+    {
+      "location_code": "SDN",
+      "location_name": "Sudan",
+      "ipc_phase": "1",
+      "ipc_type": "current",
+      "reference_period_start": "2024-06-01T00:00:00",
+      "reference_period_end": "2024-09-30T00:00:00",
+      "population_in_phase": 10000000,
+      "population_fraction_in_phase": 0.21
+    },
+    {
+      "location_code": "SDN",
+      "location_name": "Sudan",
+      "ipc_phase": "2",
+      "ipc_type": "current",
+      "reference_period_start": "2024-06-01T00:00:00",
+      "reference_period_end": "2024-09-30T00:00:00",
+      "population_in_phase": 12000000,
+      "population_fraction_in_phase": 0.25
+    },
+    {
+      "location_code": "SDN",
+      "location_name": "Sudan",
+      "ipc_phase": "3",
+      "ipc_type": "current",
+      "reference_period_start": "2024-06-01T00:00:00",
+      "reference_period_end": "2024-09-30T00:00:00",
+      "population_in_phase": 15000000,
+      "population_fraction_in_phase": 0.31
+    },
+    {
+      "location_code": "SDN",
+      "location_name": "Sudan",
+      "ipc_phase": "4",
+      "ipc_type": "current",
+      "reference_period_start": "2024-06-01T00:00:00",
+      "reference_period_end": "2024-09-30T00:00:00",
+      "population_in_phase": 8000000,
+      "population_fraction_in_phase": 0.17
+    },
+    {
+      "location_code": "SDN",
+      "location_name": "Sudan",
+      "ipc_phase": "5",
+      "ipc_type": "current",
+      "reference_period_start": "2024-06-01T00:00:00",
+      "reference_period_end": "2024-09-30T00:00:00",
+      "population_in_phase": 750000,
+      "population_fraction_in_phase": 0.02
+    },
+    {
+      "location_code": "SDN",
+      "location_name": "Sudan",
+      "ipc_phase": "3+",
+      "ipc_type": "current",
+      "reference_period_start": "2024-06-01T00:00:00",
+      "reference_period_end": "2024-09-30T00:00:00",
+      "population_in_phase": 23750000,
+      "population_fraction_in_phase": 0.5
+    },
+    {
+      "location_code": "SDN",
+      "location_name": "Sudan",
+      "ipc_phase": "3+",
+      "ipc_type": "projected",
+      "reference_period_start": "2024-10-01T00:00:00",
+      "reference_period_end": "2025-02-28T00:00:00",
+      "population_in_phase": 25000000,
+      "population_fraction_in_phase": 0.52
+    }
+  ]
+}

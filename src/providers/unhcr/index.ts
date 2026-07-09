@@ -16,7 +16,7 @@ import type {
   SearchQuery,
 } from '../types.js';
 import { UNHCR_BASE_URL, UnhcrClient } from './client.js';
-import type { UnhcrDataParams } from './client.js';
+import type { UnhcrDataEndpoint, UnhcrDataParams } from './client.js';
 import { CountryIndex } from './codes.js';
 import { normalizeRows } from './normalize.js';
 
@@ -123,6 +123,11 @@ export class UnhcrProvider implements HumanitarianProvider {
   }
 
   async list(query: ListQuery): Promise<Page<NormalizedRecord>> {
+    if (!DATASETS.some((d) => d.id === query.dataset)) {
+      return { items: [], page: query.page ?? 1, maxPages: 0, total: 0 };
+    }
+    const endpoint = query.dataset as UnhcrDataEndpoint;
+
     const params: UnhcrDataParams = {
       page: query.page ?? 1,
       limit: Math.min(query.limit ?? 100, 1000),
@@ -141,7 +146,7 @@ export class UnhcrProvider implements HumanitarianProvider {
     if (query.groupBy === 'asylum') params.coa_all = true;
     if (query.groupBy === 'origin') params.coo_all = true;
 
-    const envelope = await this.client.data(query.dataset, params);
+    const envelope = await this.client.data(endpoint, params);
     const items = this.normalize(envelope.items, query.dataset);
 
     const total =

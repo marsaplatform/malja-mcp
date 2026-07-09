@@ -28,6 +28,7 @@ import {
   roleFilter,
 } from './common.js';
 import type { CountryRole } from './common.js';
+import { NormalizeBySchema, fetchDenominators, normalizeValue } from './denominators.js';
 
 async function countrySeries(
   ctx: AppContext,
@@ -286,7 +287,7 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
     {
       title: 'Top host / origin countries',
       description:
-        'Rank countries by a displacement metric for a year. by="asylum" (default) ranks host countries; by="origin" ranks countries people fled from.',
+        'Rank countries by a displacement metric for a year. by="asylum" (default) ranks host countries; by="origin" ranks countries people fled from. Set normalize_by="population" to rank per 1,000 residents (or "gdp" per US$1bn) — the ranking that shows Lebanon and Chad ahead of large economies.',
       inputSchema: {
         year: z
           .number()
@@ -296,26 +297,32 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
           .describe('Year to rank (default: latest available)'),
         metric: z.string().optional().describe('Metric to rank by (default refugees)'),
         by: CountryRoleSchema.optional().describe('Rank hosts ("asylum") or origins ("origin")'),
+        normalize_by: NormalizeBySchema.optional(),
         limit: z.number().int().min(1).max(50).optional().describe('How many rows (default 10)'),
       },
       outputSchema: {
         year: z.number(),
         metric: z.string(),
         by: z.string(),
+        normalize_by: z.string(),
+        unit: z.string(),
         ranking: z.array(
           z.object({
             rank: z.number(),
             country: z.string(),
             country_code: z.string(),
             value: z.number(),
+            raw_value: z.number().optional(),
+            denominator_year: z.number().optional(),
           }),
         ),
         source: z.string(),
       },
     },
-    async ({ year, metric, by, limit }) => {
+    async ({ year, metric, by, normalize_by, limit }) => {
       const chosenMetric = metric ?? 'refugees';
       const chosenBy = by ?? 'asylum';
+      const normalizeBy = normalize_by ?? 'none';
       const topN = limit ?? 10;
       const { source, citation } = await datasetProvenance(ctx, 'population');
 
@@ -344,33 +351,92 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
         yearTo: rankYear,
       });
 
-      const ranking = records
+      const rawValues = records
         .map((r) => ({
           country: r.country,
           country_code: r.country_code,
           value: r.metrics[chosenMetric] ?? 0,
         }))
-        .filter((r) => r.value > 0 && r.country_code !== '')
+        .filter((r) => r.value > 0 && r.country_code !== '');
+
+      let unit = 'people';
+      let denominatorNote = '';
+      interface RankEntry {
+        country: string;
+        country_code: string;
+        value: number;
+        raw_value?: number;
+        denominator_year?: number;
+      }
+      let entries: RankEntry[] = rawValues;
+
+      if (normalizeBy !== 'none') {
+        const denominators = await fetchDenominators(ctx, normalizeBy, {
+          yearFrom: rankYear,
+          yearTo: rankYear,
+        });
+        const normalized: RankEntry[] = [];
+        let skipped = 0;
+        for (const entry of rawValues) {
+          const result = normalizeValue(denominators, entry.country_code, rankYear, entry.value);
+          if (result === null) {
+            skipped += 1;
+            continue;
+          }
+          normalized.push({
+            country: entry.country,
+            country_code: entry.country_code,
+            value: Number(result.value.toFixed(3)),
+            raw_value: entry.value,
+            denominator_year: result.denominator_year,
+          });
+        }
+        entries = normalized;
+        unit = denominators.unit;
+        denominatorNote =
+          `\n\n_Ranked ${unit} — ${denominators.kind} denominators from ${denominators.citation}. ` +
+          `Denominator years shown per row when they trail ${rankYear}._` +
+          (skipped > 0
+            ? `\n\n_${skipped} countries had no denominator data and were omitted._`
+            : '');
+      }
+
+      const ranking = entries
         .sort((a, b) => b.value - a.value)
         .slice(0, topN)
         .map((r, i) => ({ rank: i + 1, ...r }));
 
-      const table = markdownTable(
-        ['#', 'Country', chosenMetric],
-        ranking.map((r) => [r.rank, r.country, r.value]),
-      );
+      const normalizedColumns =
+        normalizeBy !== 'none'
+          ? {
+              headers: ['#', 'Country', `${chosenMetric} ${unit}`, chosenMetric, 'Denom. year'],
+              rows: ranking.map((r) => [
+                r.rank,
+                r.country,
+                r.value,
+                r.raw_value ?? null,
+                r.denominator_year ?? null,
+              ]),
+            }
+          : {
+              headers: ['#', 'Country', chosenMetric],
+              rows: ranking.map((r) => [r.rank, r.country, r.value]),
+            };
+      const table = markdownTable(normalizedColumns.headers, normalizedColumns.rows);
 
       return {
         content: [
           {
             type: 'text',
-            text: `Top ${ranking.length} ${chosenBy === 'asylum' ? 'host' : 'origin'} countries by **${chosenMetric}**, ${rankYear}\n\n${table}\n\n_Source: ${citation}_`,
+            text: `Top ${ranking.length} ${chosenBy === 'asylum' ? 'host' : 'origin'} countries by **${chosenMetric}**${normalizeBy !== 'none' ? ` (${unit})` : ''}, ${rankYear}\n\n${table}${denominatorNote}\n\n_Source: ${citation}_`,
           },
         ],
         structuredContent: {
           year: rankYear,
           metric: chosenMetric,
           by: chosenBy,
+          normalize_by: normalizeBy,
+          unit,
           ranking,
           source,
         },

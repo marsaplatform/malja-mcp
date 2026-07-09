@@ -1,0 +1,25 @@
+[
+  { "page": 1, "pages": 1, "per_page": 20000, "total": 2 },
+  [
+    {
+      "indicator": {
+        "id": "SI.POV.DDAY",
+        "value": "Poverty headcount ratio at $2.15 a day (2017 PPP) (% of population)"
+      },
+      "country": { "id": "EG", "value": "Egypt, Arab Rep." },
+      "countryiso3code": "EGY",
+      "date": "2023",
+      "value": null
+    },
+    {
+      "indicator": {
+        "id": "SI.POV.DDAY",
+        "value": "Poverty headcount ratio at $2.15 a day (2017 PPP) (% of population)"
+      },
+      "country": { "id": "EG", "value": "Egypt, Arab Rep." },
+      "countryiso3code": "EGY",
+      "date": "2022",
+      "value": 1.5
+    }
+  ]
+]

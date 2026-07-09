@@ -19,6 +19,7 @@ import {
   resolveCountry,
   roleFilter,
 } from './common.js';
+import { NormalizeBySchema, fetchDenominators, normalizeValue } from './denominators.js';
 
 export function registerChartTools(server: McpServer, ctx: AppContext): void {
   defineTool(
@@ -28,11 +29,12 @@ export function registerChartTools(server: McpServer, ctx: AppContext): void {
     {
       title: 'Generate chart',
       description:
-        'Render a displacement metric for one or more countries as a chart specification. Formats: "chartjs" (Chart.js v4 config JSON), "vega-lite" (v5 spec), "mermaid" (xychart block), "svg" (standalone image markup).',
+        'Render a displacement metric for one or more countries as a chart specification. Formats: "chartjs" (Chart.js v4 config JSON), "vega-lite" (v5 spec), "mermaid" (xychart block), "svg" (standalone image markup). Set normalize_by to plot per 1,000 residents or per US$1bn GDP.',
       inputSchema: {
         countries: z.array(countryInput).min(1).max(5).describe('Countries to plot'),
         metric: z.string().optional().describe('Metric to plot (default refugees)'),
         role: CountryRoleSchema.optional(),
+        normalize_by: NormalizeBySchema.optional(),
         format: z.enum(['chartjs', 'vega-lite', 'mermaid', 'svg']).describe('Output format'),
         kind: z.enum(['line', 'bar']).optional().describe('Chart type (default line)'),
         year_from: yearFromInput,
@@ -41,18 +43,20 @@ export function registerChartTools(server: McpServer, ctx: AppContext): void {
       outputSchema: {
         format: z.string(),
         title: z.string(),
+        unit: z.string(),
         /** The spec: an object for chartjs/vega-lite, a string for mermaid/svg. */
         spec: z.union([z.record(z.unknown()), z.string()]),
       },
     },
-    async ({ countries, metric, role, format, kind, year_from, year_to }) => {
+    async ({ countries, metric, role, normalize_by, format, kind, year_from, year_to }) => {
       const chosenMetric = metric ?? 'refugees';
       const chosenRole = role ?? 'asylum';
+      const normalizeBy = normalize_by ?? 'none';
       const { yearFrom, yearTo } = defaultYearRange(year_from, year_to);
       const { source } = await datasetProvenance(ctx, 'population');
 
-      const series: Series[] = await Promise.all(
-        countries.map(async (country): Promise<Series> => {
+      const resolved = await Promise.all(
+        countries.map(async (country) => {
           const ref = await resolveCountry(ctx, country);
           const { records } = await fetchAllRows(ctx, {
             dataset: 'population',
@@ -60,15 +64,35 @@ export function registerChartTools(server: McpServer, ctx: AppContext): void {
             yearFrom,
             yearTo,
           });
-          return {
-            label: ref.name,
-            points: metricSeries(aggregateByYear(records), chosenMetric).map((p) => ({
-              x: p.year,
-              y: p.value,
-            })),
-          };
+          return { ref, points: metricSeries(aggregateByYear(records), chosenMetric) };
         }),
       );
+
+      let unit = 'people';
+      let series: Series[];
+      if (normalizeBy !== 'none') {
+        const denominators = await fetchDenominators(
+          ctx,
+          normalizeBy,
+          { yearFrom, yearTo },
+          resolved.map((r) => r.ref.iso3),
+        );
+        unit = denominators.unit;
+        series = resolved.map(({ ref, points }) => ({
+          label: ref.name,
+          points: points.flatMap((p) => {
+            const normalized = normalizeValue(denominators, ref.iso3, p.year, p.value);
+            return normalized === null
+              ? []
+              : [{ x: p.year, y: Number(normalized.value.toFixed(3)) }];
+          }),
+        }));
+      } else {
+        series = resolved.map(({ ref, points }) => ({
+          label: ref.name,
+          points: points.map((p) => ({ x: p.year, y: p.value })),
+        }));
+      }
 
       if (series.every((s) => s.points.length === 0)) {
         return {
@@ -82,12 +106,13 @@ export function registerChartTools(server: McpServer, ctx: AppContext): void {
         };
       }
 
-      const title = `${chosenMetric} (${chosenRole} side), ${yearFrom}–${yearTo} — ${source.toUpperCase()}`;
+      const metricLabel = normalizeBy !== 'none' ? `${chosenMetric} ${unit}` : chosenMetric;
+      const title = `${metricLabel} (${chosenRole} side), ${yearFrom}–${yearTo} — ${source.toUpperCase()}`;
       const input: ChartSpecInput = {
         title,
         kind: kind ?? 'line',
         xLabel: 'Year',
-        yLabel: chosenMetric,
+        yLabel: metricLabel,
         series,
       };
 
@@ -114,7 +139,7 @@ export function registerChartTools(server: McpServer, ctx: AppContext): void {
 
       return {
         content: [{ type: 'text', text }],
-        structuredContent: { format, title, spec },
+        structuredContent: { format, title, unit, spec },
       };
     },
   );

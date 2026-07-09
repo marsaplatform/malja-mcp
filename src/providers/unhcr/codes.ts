@@ -1,4 +1,5 @@
 import { matchCountries } from '../../shared/country-match.js';
+import { arabicNamesFor } from '../../shared/country-names-ar.js';
 import type { CountryMatch, CountryRef } from '../types.js';
 import type { UnhcrClient, UnhcrCountryRaw } from './client.js';
 
@@ -84,6 +85,7 @@ export class CountryIndex {
         country.unhcrCode,
         ...(country.iso2 ? [country.iso2] : []),
         ...(EXTRA_ALIASES[country.iso3] ?? []),
+        ...arabicNamesFor(country.iso3),
       ],
     }));
     return matchCountries(query, candidates, limit).map((m) => ({ ...m.value, score: m.score }));

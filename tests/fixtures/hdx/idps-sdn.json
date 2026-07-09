@@ -1,0 +1,25 @@
+{
+  "data": [
+    {
+      "location_code": "SDN",
+      "location_name": "Sudan",
+      "reference_period_start": "2023-06-01T00:00:00",
+      "reference_period_end": "2023-06-30T00:00:00",
+      "population": 5000000
+    },
+    {
+      "location_code": "SDN",
+      "location_name": "Sudan",
+      "reference_period_start": "2023-12-01T00:00:00",
+      "reference_period_end": "2023-12-31T00:00:00",
+      "population": 6000000
+    },
+    {
+      "location_code": "SDN",
+      "location_name": "Sudan",
+      "reference_period_start": "2024-06-01T00:00:00",
+      "reference_period_end": "2024-06-30T00:00:00",
+      "population": 8000000
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+name: Release
+
+# Fires on version tags (v0.2.0, v1.0.0...). Publishes to npm when NPM_TOKEN
+# is configured, always builds the .mcpb one-click bundle and attaches it to
+# the GitHub release. Tag with: npm version <minor|patch> && git push --follow-tags
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+  id-token: write # npm provenance
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: npm ci
+      - run: npm run check
+      - run: npm run build
+
+      - name: Publish to npm (skipped until NPM_TOKEN secret is set)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::warning::NPM_TOKEN secret not configured — skipping npm publish"
+          else
+            npm publish --provenance --access public
+          fi
+
+      - name: Build .mcpb bundle for Claude Desktop
+        run: |
+          STAGE="$(mktemp -d)"
+          cp -r dist LICENSE README.md package.json package-lock.json manifest.json "$STAGE/"
+          # Sync manifest version with the tagged package version.
+          node -e "
+            const fs = require('fs');
+            const path = process.argv[1];
+            const m = JSON.parse(fs.readFileSync(path + '/manifest.json', 'utf8'));
+            m.version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version;
+            fs.writeFileSync(path + '/manifest.json', JSON.stringify(m, null, 2));
+          " "$STAGE"
+          (cd "$STAGE" && npm ci --omit=dev && npx --yes @anthropic-ai/mcpb pack . humanitarian-mcp.mcpb)
+          mv "$STAGE/humanitarian-mcp.mcpb" .
+
+      - name: GitHub release with bundle attached
+        uses: softprops/action-gh-release@v2
+        with:
+          files: humanitarian-mcp.mcpb
+          generate_release_notes: true
+
+  docker:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=raw,value=latest
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

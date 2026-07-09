@@ -21,6 +21,7 @@ import {
   resolveCountry,
   roleFilter,
 } from './common.js';
+import { NormalizeBySchema, fetchDenominators, normalizeValue } from './denominators.js';
 
 export function registerCountryTools(server: McpServer, ctx: AppContext): void {
   defineTool(
@@ -163,7 +164,7 @@ export function registerCountryTools(server: McpServer, ctx: AppContext): void {
     {
       title: 'Compare countries',
       description:
-        'Compare a displacement metric across 2–5 countries over a year range. Defaults to refugees hosted (role "asylum") over the last 10 years.',
+        'Compare a displacement metric across 2–5 countries over a year range. Defaults to refugees hosted (role "asylum") over the last 10 years. Set normalize_by to compare per 1,000 residents or per US$1bn GDP instead of absolute numbers.',
       inputSchema: {
         countries: z.array(countryInput).min(2).max(5).describe('Two to five countries to compare'),
         metric: z
@@ -171,12 +172,15 @@ export function registerCountryTools(server: McpServer, ctx: AppContext): void {
           .optional()
           .describe('Metric to compare, e.g. refugees, asylum_seekers, idps (default: refugees)'),
         role: CountryRoleSchema.optional(),
+        normalize_by: NormalizeBySchema.optional(),
         year_from: yearFromInput,
         year_to: yearToInput,
       },
       outputSchema: {
         metric: z.string(),
         role: z.string(),
+        normalize_by: z.string(),
+        unit: z.string(),
         series: z.array(
           z.object({
             country: z.string(),
@@ -184,17 +188,21 @@ export function registerCountryTools(server: McpServer, ctx: AppContext): void {
             points: z.array(YearValueSchema),
           }),
         ),
+        denominator: z
+          .object({ source: z.string(), citation: z.string(), metric: z.string() })
+          .optional(),
         source: z.string(),
       },
     },
-    async ({ countries, metric, role, year_from, year_to }) => {
+    async ({ countries, metric, role, normalize_by, year_from, year_to }) => {
       const chosenMetric = metric ?? 'refugees';
       const chosenRole = role ?? 'asylum';
+      const normalizeBy = normalize_by ?? 'none';
       const { yearFrom, yearTo } = defaultYearRange(year_from, year_to);
       const { source, citation } = await datasetProvenance(ctx, 'population');
 
       const refs = await Promise.all(countries.map((c) => resolveCountry(ctx, c)));
-      const series = await Promise.all(
+      let series = await Promise.all(
         refs.map(async (ref) => {
           const { records } = await fetchAllRows(ctx, {
             dataset: 'population',
@@ -209,6 +217,40 @@ export function registerCountryTools(server: McpServer, ctx: AppContext): void {
           };
         }),
       );
+
+      let unit = 'people';
+      let denominatorInfo: { source: string; citation: string; metric: string } | undefined;
+      let denominatorNote = '';
+      if (normalizeBy !== 'none') {
+        const denominators = await fetchDenominators(
+          ctx,
+          normalizeBy,
+          { yearFrom, yearTo },
+          refs.map((r) => r.iso3),
+        );
+        series = series.map((s) => ({
+          ...s,
+          points: s.points.flatMap((p) => {
+            const normalized = normalizeValue(denominators, s.country_code, p.year, p.value);
+            return normalized === null
+              ? []
+              : [{ year: p.year, value: Number(normalized.value.toFixed(3)) }];
+          }),
+        }));
+        unit = denominators.unit;
+        denominatorInfo = {
+          source: denominators.source,
+          citation: denominators.citation,
+          metric: denominators.metric,
+        };
+        const missing = refs.filter((r) => !denominators.series.has(r.iso3)).map((r) => r.iso3);
+        denominatorNote =
+          `\n\n_Values are ${unit} — ${denominators.kind} denominators matched per year ` +
+          `(${denominators.citation})._` +
+          (missing.length > 0
+            ? `\n\n_No denominator data for: ${missing.join(', ')} — omitted from normalized series._`
+            : '');
+      }
 
       const years = [...new Set(series.flatMap((s) => s.points.map((p) => p.year)))].sort();
       const table = markdownTable(
@@ -233,10 +275,18 @@ export function registerCountryTools(server: McpServer, ctx: AppContext): void {
         content: [
           {
             type: 'text',
-            text: `**${chosenMetric}** (${chosenRole} side), ${yearFrom}–${yearTo}\n\n${table}\n\nLatest (${latest ?? 'n/a'}): ${summary}\n\n_Source: ${citation}_`,
+            text: `**${chosenMetric}**${normalizeBy !== 'none' ? ` (${unit})` : ''} (${chosenRole} side), ${yearFrom}–${yearTo}\n\n${table}\n\nLatest (${latest ?? 'n/a'}): ${summary}${denominatorNote}\n\n_Source: ${citation}_`,
           },
         ],
-        structuredContent: { metric: chosenMetric, role: chosenRole, series, source },
+        structuredContent: {
+          metric: chosenMetric,
+          role: chosenRole,
+          normalize_by: normalizeBy,
+          unit,
+          series,
+          ...(denominatorInfo ? { denominator: denominatorInfo } : {}),
+          source,
+        },
       };
     },
   );

@@ -1,0 +1,54 @@
+{
+  "manifest_version": "0.2",
+  "name": "humanitarian-mcp",
+  "display_name": "Humanitarian Data",
+  "version": "0.5.0",
+  "description": "Refugee and humanitarian open data (UNHCR, World Bank, HDX) as semantic MCP tools — profiles, per-capita comparisons, trends, charts, exports.",
+  "long_description": "Gives Claude clean, semantic access to trusted humanitarian datasets: 75 years of UNHCR displacement statistics, World Bank denominators for per-capita views, and HDX crisis data (conflict, food security, funding) — normalized country codes (English and Arabic), provenance on every payload, charts, maps and reproducible CSV/JSON exports with manifests and codebooks. Read-only and rate-limited by design.",
+  "author": {
+    "name": "Ahmed Nabil",
+    "url": "https://github.com/ahmedvnabil"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ahmedvnabil/humanitarian-mcp"
+  },
+  "homepage": "https://humanitarian-mcp.zad.tools",
+  "documentation": "https://github.com/ahmedvnabil/humanitarian-mcp#readme",
+  "license": "MIT",
+  "keywords": ["humanitarian", "refugees", "unhcr", "open-data", "statistics"],
+  "server": {
+    "type": "node",
+    "entry_point": "dist/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/dist/index.js"],
+      "env": {
+        "HMCP_PROVIDERS": "${user_config.providers}",
+        "HMCP_CACHE": "${user_config.cache}"
+      }
+    }
+  },
+  "user_config": {
+    "providers": {
+      "type": "string",
+      "title": "Data providers",
+      "description": "Comma-separated provider ids to enable (see README).",
+      "default": "unhcr",
+      "required": false
+    },
+    "cache": {
+      "type": "string",
+      "title": "Cache backend",
+      "description": "\"memory\" (default) or \"sqlite\" for a persistent cache that enables offline use.",
+      "default": "memory",
+      "required": false
+    }
+  },
+  "compatibility": {
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": {
+      "node": ">=20.0.0"
+    }
+  }
+}

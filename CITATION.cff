@@ -1,0 +1,31 @@
+# This CITATION.cff file was generated with cffinit conventions.
+# Zenodo DOI: added automatically per release once the repository is linked
+# to Zenodo (Settings → GitHub → enable humanitarian-mcp, then tag a release).
+cff-version: 1.2.0
+message: >-
+  If you use this software in your research, please cite it using the
+  metadata below. Cite the underlying figures as UNHCR, Refugee Data Finder
+  (year of extraction).
+title: 'humanitarian-mcp: a Model Context Protocol server for humanitarian open data'
+type: software
+authors:
+  - family-names: Nabil
+    given-names: Ahmed
+    email: 11457224+ahmedvnabil@users.noreply.github.com
+repository-code: 'https://github.com/ahmedvnabil/humanitarian-mcp'
+url: 'https://humanitarian-mcp.zad.tools'
+abstract: >-
+  humanitarian-mcp exposes trusted humanitarian open datasets (UNHCR Refugee
+  Statistics today; World Bank and HDX/HAPI planned) to any Model Context
+  Protocol client through semantic, read-only tools with normalized records,
+  ISO3 country codes, provenance and reproducible extraction manifests.
+keywords:
+  - model-context-protocol
+  - humanitarian
+  - refugees
+  - unhcr
+  - open-data
+  - forced-displacement
+license: MIT
+version: 0.5.0
+date-released: '2026-07-10'

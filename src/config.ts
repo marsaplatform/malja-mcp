@@ -27,10 +27,12 @@ export interface Config {
   readonly httpHost: string;
   /** User-Agent sent with every outgoing request. */
   readonly userAgent: string;
+  /** HDX HAPI app identifier (required only when the hdx provider is enabled). */
+  readonly hdxAppIdentifier: string;
 }
 
 export const SERVER_NAME = 'humanitarian-mcp';
-export const SERVER_VERSION = '0.1.0';
+export const SERVER_VERSION = '0.5.0';
 
 const LOG_LEVELS = ['debug', 'info', 'warn', 'error'] as const;
 
@@ -52,7 +54,7 @@ function boolFromEnv(env: NodeJS.ProcessEnv, key: string, fallback: boolean): bo
 
 /** Build a {@link Config} from an environment (defaults to `process.env`). */
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
-  const providersRaw = env['HMCP_PROVIDERS'] ?? 'unhcr';
+  const providersRaw = env['HMCP_PROVIDERS'] ?? 'unhcr,worldbank';
   const providers = providersRaw
     .split(',')
     .map((p) => p.trim().toLowerCase())
@@ -87,5 +89,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     userAgent:
       env['HMCP_USER_AGENT'] ??
       `${SERVER_NAME}/${SERVER_VERSION} (+https://github.com/ahmedvnabil/humanitarian-mcp)`,
+    hdxAppIdentifier: env['HMCP_HDX_APP_ID']?.trim() ?? '',
   };
 }

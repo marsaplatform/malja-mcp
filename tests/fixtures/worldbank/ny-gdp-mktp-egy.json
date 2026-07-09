@@ -1,0 +1,19 @@
+[
+  { "page": 1, "pages": 1, "per_page": 20000, "total": 2 },
+  [
+    {
+      "indicator": { "id": "NY.GDP.MKTP.CD", "value": "GDP (current US$)" },
+      "country": { "id": "EG", "value": "Egypt, Arab Rep." },
+      "countryiso3code": "EGY",
+      "date": "2023",
+      "value": 395926000000
+    },
+    {
+      "indicator": { "id": "NY.GDP.MKTP.CD", "value": "GDP (current US$)" },
+      "country": { "id": "EG", "value": "Egypt, Arab Rep." },
+      "countryiso3code": "EGY",
+      "date": "2022",
+      "value": 476747000000
+    }
+  ]
+]

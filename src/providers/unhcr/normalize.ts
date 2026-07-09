@@ -75,7 +75,7 @@ const DECISION_METRICS = [
   'dec_total',
 ] as const;
 
-const METRIC_KEYS: Record<DatasetId, readonly string[]> = {
+const METRIC_KEYS: Partial<Record<DatasetId, readonly string[]>> = {
   population: POPULATION_METRICS,
   demographics: DEMOGRAPHIC_METRICS,
   'asylum-applications': APPLICATION_METRICS,
@@ -98,7 +98,7 @@ function parseRow(raw: unknown, dataset: DatasetId): ParsedRow | undefined {
   if (year === undefined) return undefined;
 
   const metrics: Record<string, number> = {};
-  for (const key of METRIC_KEYS[dataset]) {
+  for (const key of METRIC_KEYS[dataset] ?? []) {
     const value = toNumber(row[key]);
     if (value !== undefined) metrics[key] = value;
   }
@@ -116,6 +116,9 @@ function headline(dataset: DatasetId, metrics: Record<string, number>): number {
       return metrics['applied'] ?? 0;
     case 'asylum-decisions':
       return metrics['dec_total'] ?? 0;
+    default:
+      // Datasets UNHCR does not serve never reach normalization with rows.
+      return 0;
   }
 }
 

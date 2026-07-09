@@ -76,6 +76,22 @@ describe('UnhcrProvider', () => {
     expect(byIso?.name).toBe('Algeria');
   });
 
+  it('resolves Arabic country names through search() and get()', async () => {
+    const { impl } = stubFetch();
+    vi.stubGlobal('fetch', impl);
+    const { provider } = buildProvider();
+
+    const egypt = await provider.search({ query: 'مصر' });
+    expect(egypt[0]).toMatchObject({ iso3: 'EGY', score: 1 });
+
+    // Spelling variants: definite article and hamza forms fold together.
+    const jordan = await provider.search({ query: 'الاردن' });
+    expect(jordan[0]).toMatchObject({ iso3: 'JOR', score: 1 });
+
+    const sudanRef = await provider.get('السودان');
+    expect(sudanRef?.iso3).toBe('SDN');
+  });
+
   it('translates ISO3 to UNHCR-internal codes in list() queries (EGY → coa=ARE)', async () => {
     const { impl, urls } = stubFetch();
     vi.stubGlobal('fetch', impl);

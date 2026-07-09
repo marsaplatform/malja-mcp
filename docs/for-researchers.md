@@ -4,6 +4,11 @@ Reproducible workflows from research question to citable dataset. Everything
 below uses real UNHCR figures served by this MCP — ask the questions in plain
 language (Arabic or English) inside any connected assistant.
 
+Prefer code to chat? The same workflows run end-to-end in
+[Python and R notebooks](../examples/notebooks/) against a local server.
+Add `include_codebook: true` to any `export_data` call for a variable-level
+codebook ready for your data appendix.
+
 ## Why this beats hand-collecting from the Refugee Data Finder
 
 - **Clean identifiers**: every row carries ISO3 codes — joins against World
@@ -82,6 +87,28 @@ Age/sex buckets (`0–4, 5–11, 12–17, 18–59, 60+` × female/male) come
 normalized; `generate_chart(format: "svg")` produces a publication-ready
 figure. Note: UNHCR publishes demographics for recent years only.
 
+## Workflow 4 — Hosting burden, per capita
+
+_Question: which countries carry the largest hosting burden relative to their
+size?_ Absolute numbers hide it: Lebanon and Germany host similar refugee
+counts; per 1,000 residents they are worlds apart.
+
+```text
+top_host_countries({ year: 2024, normalize_by: "population" })
+→ ranked refugees per 1,000 residents, with each country's raw value and
+  the World Bank denominator year disclosed per row
+
+compare_countries({ countries: ["Lebanon", "Jordan", "Germany"],
+                    normalize_by: "population", year_from: 2015 })
+→ per-capita series, denominators matched per year (2015 refugees ÷ 2015
+  population — not today's population)
+```
+
+`normalize_by: "gdp"` gives the same views per US$1bn of GDP. Denominators
+come from the World Bank provider (`context-indicators` dataset, enabled by
+default); countries with no denominator data are omitted **and counted** in
+the output, never silently dropped.
+
 ## Method notes & caveats
 
 - Figures are **end-year stocks** (recent years may be mid-year preliminary);
@@ -97,10 +124,16 @@ figure. Note: UNHCR publishes demographics for recent years only.
 ## Citing
 
 Cite the data as UNHCR, Refugee Data Finder (year of extraction), and the
-tooling as:
+tooling via GitHub's **"Cite this repository"** button (backed by
+[CITATION.cff](../CITATION.cff)), or as:
 
-> humanitarian-mcp (v0.1.0), open-source MCP server,
+> humanitarian-mcp (v0.5.0), open-source MCP server,
 > https://github.com/ahmedvnabil/humanitarian-mcp
+
+Every `export_data` call attaches an extraction manifest (exact arguments,
+timestamp, server version, citation) — paste it in your appendix and anyone
+can reproduce the pull. In CSV it rides in `#` comment lines:
+`pd.read_csv("sudan.csv", comment="#")` / `read.csv("sudan.csv", comment.char="#")`.
 
 ## Offline fieldwork
 

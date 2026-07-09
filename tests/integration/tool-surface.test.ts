@@ -180,12 +180,186 @@ describe('tool surface', () => {
     expect(geojson.data.type).toBe('FeatureCollection');
   });
 
+  it('export_data attaches a reproducible extraction manifest by default', async () => {
+    const json = (await call('export_data', {
+      dataset: 'population',
+      format: 'json',
+      country: 'Jordan',
+      year_from: 2022,
+      year_to: 2023,
+    })) as {
+      manifest: {
+        tool: string;
+        arguments: Record<string, unknown>;
+        extracted_at: string;
+        server: string;
+        source: string;
+        citation: string;
+      };
+      data: { manifest?: unknown };
+    };
+    expect(json.manifest.tool).toBe('export_data');
+    expect(json.manifest.arguments).toMatchObject({
+      dataset: 'population',
+      format: 'json',
+      country: 'Jordan',
+      year_from: 2022,
+      year_to: 2023,
+    });
+    expect(json.manifest.extracted_at).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    expect(json.manifest.server).toMatch(/^humanitarian-mcp\//);
+    expect(json.manifest.source).toBe('mock');
+    expect(json.data.manifest).toBeDefined();
+
+    // CSV carries the manifest as # comment lines pandas/R can skip.
+    const csv = (await call('export_data', {
+      dataset: 'population',
+      format: 'csv',
+      country: 'Jordan',
+      year_from: 2023,
+      year_to: 2023,
+    })) as { data: string };
+    expect(csv.data).toMatch(/^# humanitarian-mcp extraction manifest/);
+    expect(csv.data).toContain('# citation:');
+
+    // Opt-out keeps payloads clean.
+    const bare = (await call('export_data', {
+      dataset: 'population',
+      format: 'csv',
+      country: 'Jordan',
+      year_from: 2023,
+      year_to: 2023,
+      include_manifest: false,
+    })) as { data: string; manifest?: unknown };
+    expect(bare.data).not.toContain('#');
+    expect(bare.manifest).toBeUndefined();
+  });
+
+  it('export_data attaches a codebook matching the exported columns on demand', async () => {
+    const result = (await call('export_data', {
+      dataset: 'population',
+      format: 'csv',
+      country: 'Jordan',
+      year_from: 2023,
+      year_to: 2023,
+      include_codebook: true,
+    })) as { codebook: { field: string; description: string; unit: string }[] };
+
+    const fields = result.codebook.map((entry) => entry.field);
+    expect(fields).toContain('refugees');
+    expect(fields).toContain('country_code');
+    expect(fields).toContain('population');
+    // Documents only exported columns — no IPC fields in a population export.
+    expect(fields).not.toContain('ipc_phase_3plus');
+    for (const entry of result.codebook) {
+      expect(entry.description.length).toBeGreaterThan(0);
+      expect(entry.unit.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('crisis tools: conflict, food security and funding read HDX-shaped datasets', async () => {
+    const conflict = (await call('conflict_events', {
+      country: 'Sudan',
+      year_from: 2023,
+      year_to: 2024,
+    })) as { records: { year: number; events: number; fatalities: number }[] };
+    expect(conflict.records).toHaveLength(2);
+    expect(conflict.records[0]!.fatalities).toBe(conflict.records[0]!.events * 2);
+
+    const food = (await call('food_security', { country: 'Sudan' })) as {
+      year: number;
+      people_crisis_or_worse: number;
+      phases: Record<string, number>;
+    };
+    expect(food.year).toBe(2024);
+    expect(food.people_crisis_or_worse).toBe(700_000);
+    expect(food.phases['ipc_phase_5']).toBe(20_000);
+
+    const funding = (await call('humanitarian_funding', {
+      country: 'Sudan',
+      year_from: 2023,
+      year_to: 2024,
+    })) as { records: { year: number; coverage_pct?: number }[] };
+    expect(funding.records.length).toBeGreaterThan(0);
+    expect(funding.records[0]!.coverage_pct).toBeGreaterThan(0);
+  });
+
+  it('generate_chart plots normalized values with the unit on the axis', async () => {
+    const chart = (await call('generate_chart', {
+      countries: ['Jordan'],
+      format: 'chartjs',
+      normalize_by: 'population',
+      year_from: 2023,
+      year_to: 2024,
+    })) as {
+      unit: string;
+      title: string;
+      spec: { options: { scales: { y: { title: { text: string } } } } };
+    };
+    expect(chart.unit).toBe('per 1,000 residents');
+    expect(chart.title).toContain('per 1,000 residents');
+  });
+
+  it('compare_countries normalizes per 1,000 residents with normalize_by', async () => {
+    const result = (await call('compare_countries', {
+      countries: ['Egypt', 'Jordan'],
+      normalize_by: 'population',
+      year_from: 2023,
+      year_to: 2024,
+    })) as {
+      normalize_by: string;
+      unit: string;
+      denominator: { source: string; metric: string };
+      series: { country_code: string; points: { year: number; value: number }[] }[];
+    };
+
+    expect(result.normalize_by).toBe('population');
+    expect(result.unit).toBe('per 1,000 residents');
+    expect(result.denominator).toMatchObject({ source: 'mock', metric: 'national_population' });
+
+    // EGY 2024: 190,000 refugees / 110M residents × 1000 = 1.727…
+    const egy = result.series.find((s) => s.country_code === 'EGY')!;
+    expect(egy.points.find((p) => p.year === 2024)!.value).toBeCloseTo(1.727, 2);
+    // JOR 2024: 690,000 / 11M × 1000 = 62.727…
+    const jor = result.series.find((s) => s.country_code === 'JOR')!;
+    expect(jor.points.find((p) => p.year === 2024)!.value).toBeCloseTo(62.727, 2);
+  });
+
+  it('top_host_countries reorders the ranking under normalize_by', async () => {
+    const raw = (await call('top_host_countries', { year: 2024, limit: 4 })) as {
+      ranking: { country_code: string }[];
+    };
+    // Absolute numbers: Sudan hosts most in the mock data.
+    expect(raw.ranking[0]!.country_code).toBe('SDN');
+
+    const normalized = (await call('top_host_countries', {
+      year: 2024,
+      limit: 4,
+      normalize_by: 'population',
+    })) as {
+      unit: string;
+      ranking: {
+        country_code: string;
+        value: number;
+        raw_value?: number;
+        denominator_year?: number;
+      }[];
+    };
+
+    // Per 1,000 residents Jordan leads (62.7) ahead of Sudan (18.5).
+    expect(normalized.unit).toBe('per 1,000 residents');
+    expect(normalized.ranking.map((r) => r.country_code)).toEqual(['JOR', 'SDN', 'SYR', 'EGY']);
+    expect(normalized.ranking[0]!.raw_value).toBe(690_000);
+    expect(normalized.ranking[0]!.denominator_year).toBe(2024);
+    expect(normalized.ranking[0]!.value).toBeCloseTo(62.727, 2);
+  });
+
   it('get_metadata and provider_health describe the mock provider', async () => {
     const metadata = (await call('get_metadata')) as {
       providers: { id: string; datasets: unknown[] }[];
     };
     expect(metadata.providers[0]!.id).toBe('mock');
-    expect(metadata.providers[0]!.datasets).toHaveLength(4);
+    expect(metadata.providers[0]!.datasets).toHaveLength(8);
 
     const health = (await call('provider_health')) as {
       healthy: boolean;

@@ -18,7 +18,7 @@ Give any MCP client — Claude Desktop, Claude Code, Cursor, or your own agent �
 "Export the top host countries as GeoJSON."
 ```
 
-Today it speaks to the **UNHCR Refugee Statistics API** (75 years of displacement data, no API key needed). The provider architecture is built for more: ReliefWeb, HDX, IOM, UNICEF, WHO, World Bank and Our World in Data each slot in as a self-contained module.
+Today it speaks to three sources: the **UNHCR Refugee Statistics API** (75 years of displacement data, no key needed), the **World Bank Indicators API** (population, GDP, poverty — the denominators behind `normalize_by`, so "refugees per 1,000 residents" is one argument away), and **HDX HAPI** (conflict events from ACLED, food security from IPC, humanitarian funding from OCHA FTS, IDP stocks from IOM DTM — free app identifier required). The provider architecture is built for more: ReliefWeb, UNICEF and WHO each slot in as a self-contained module.
 
 ---
 
@@ -35,7 +35,7 @@ An LLM pointed at the raw REST API burns tokens rediscovering these traps every 
 
 ## Features
 
-- **17 semantic tools** — search, profiles, comparisons, demographics, asylum statistics, rankings, trend analysis with anomaly detection, naive forecasting, full markdown reports, chart generation (Chart.js / Vega-Lite / Mermaid / SVG), GeoJSON maps, CSV/JSON/Markdown export, provider metadata and health.
+- **20 semantic tools** — search, profiles, comparisons (absolute or per-capita), demographics, asylum statistics, conflict events, food security, humanitarian funding, rankings, trend analysis with anomaly detection, naive forecasting, full markdown reports, chart generation (Chart.js / Vega-Lite / Mermaid / SVG), GeoJSON maps, CSV/JSON/Markdown export with reproducible manifests, provider metadata and health.
 - **11+ resources** — `country://EGY`, `report://SDN`, `chart://UGA`, `dataset://population`, `metadata://providers` and more, with URI-template completion.
 - **7 built-in prompts** — situation summaries, country comparison, donor briefing, trend explanation, anomaly hunt, executive report, infographic content.
 - **Structured outputs** — every tool declares an output schema and returns `structuredContent` alongside readable markdown.
@@ -50,11 +50,22 @@ An LLM pointed at the raw REST API burns tokens rediscovering these traps every 
 Requires Node.js ≥ 20 (SQLite cache uses the built-in `node:sqlite` on Node ≥ 22.5; older Nodes fall back to memory automatically).
 
 ```bash
+npx humanitarian-mcp        # from npm (v0.2.0+), no clone needed
+```
+
+Or from source:
+
+```bash
 git clone https://github.com/ahmedvnabil/humanitarian-mcp
 cd humanitarian-mcp
 npm install
 npm run build
 ```
+
+Claude Desktop users can skip the terminal entirely: download
+`humanitarian-mcp.mcpb` from the latest
+[release](https://github.com/ahmedvnabil/humanitarian-mcp/releases) and
+double-click it to install.
 
 ### Claude Desktop / Claude Code
 
@@ -97,6 +108,9 @@ npm run dashboard        # → http://localhost:8642 (dashboard), POST /mcp (MCP
 | `latest_statistics`       | Most recent figures, country or global                     |
 | `asylum_applications`     | Applications lodged per year                               |
 | `asylum_decisions`        | Decisions + recognition rate per year                      |
+| `conflict_events`         | Annual conflict events + fatalities (ACLED via HDX)        |
+| `food_security`           | IPC phases; headline = people in crisis or worse           |
+| `humanitarian_funding`    | Appeal requirements vs funded + coverage (OCHA FTS)        |
 | `trend_analysis`          | Series, YoY changes, slope/R², CAGR, anomalous years       |
 | `forecast`                | Naive linear projection (loudly caveated)                  |
 | `top_host_countries`      | Rankings by any metric, hosts or origins                   |
@@ -125,16 +139,17 @@ chart://{code}            Chart.js config, 10-year trend (chart://UGA)
 
 All optional — see [.env.example](.env.example) for the full list.
 
-| Variable              | Default     | Purpose                                                |
-| --------------------- | ----------- | ------------------------------------------------------ |
-| `HMCP_PROVIDERS`      | `unhcr`     | Enabled providers, comma-separated                     |
-| `HMCP_CACHE`          | `memory`    | `memory` or `sqlite`                                   |
-| `HMCP_CACHE_TTL`      | `3600`      | Seconds an entry is fresh                              |
-| `HMCP_OFFLINE`        | `0`         | `1` = serve cache only, never fetch                    |
-| `HMCP_RATE_LIMIT_RPS` | `4`         | Outgoing requests/second per provider                  |
-| `HMCP_LOG_LEVEL`      | `info`      | `debug` / `info` / `warn` / `error` (stderr)           |
-| `HMCP_HTTP_PORT`      | `8642`      | Port for `--http` mode                                 |
-| `HMCP_HTTP_HOST`      | `127.0.0.1` | Bind interface for `--http` mode (`0.0.0.0` to expose) |
+| Variable              | Default           | Purpose                                                |
+| --------------------- | ----------------- | ------------------------------------------------------ |
+| `HMCP_PROVIDERS`      | `unhcr,worldbank` | Enabled providers, comma-separated (`hdx` opt-in)      |
+| `HMCP_HDX_APP_ID`     | —                 | Free HAPI app identifier, needed for `hdx` only        |
+| `HMCP_CACHE`          | `memory`          | `memory` or `sqlite`                                   |
+| `HMCP_CACHE_TTL`      | `3600`            | Seconds an entry is fresh                              |
+| `HMCP_OFFLINE`        | `0`               | `1` = serve cache only, never fetch                    |
+| `HMCP_RATE_LIMIT_RPS` | `4`               | Outgoing requests/second per provider                  |
+| `HMCP_LOG_LEVEL`      | `info`            | `debug` / `info` / `warn` / `error` (stderr)           |
+| `HMCP_HTTP_PORT`      | `8642`            | Port for `--http` mode                                 |
+| `HMCP_HTTP_HOST`      | `127.0.0.1`       | Bind interface for `--http` mode (`0.0.0.0` to expose) |
 
 ## Architecture in one screen
 
@@ -195,14 +210,34 @@ The integration suite drives the real server through the official SDK client ove
 - Forecasts are naive statistical extrapolations, clearly labelled — never treat them as UNHCR planning figures.
 - These numbers represent people. Present them with the care they deserve.
 
+## Citing
+
+Researchers: click **"Cite this repository"** on GitHub (metadata lives in
+[CITATION.cff](CITATION.cff)), and cite the figures themselves as UNHCR,
+Refugee Data Finder (year of extraction). Reproducible workflows and method
+notes: [docs/for-researchers.md](docs/for-researchers.md).
+
 ## Roadmap
 
-- [ ] ReliefWeb provider (situation reports, disasters)
-- [ ] HDX / HAPI provider (food security, conflict events, funding)
-- [ ] IDMC internal displacement dataset
-- [ ] World Bank & Our World in Data indicators for denominator context
-- [ ] Redis cache backend
-- [ ] npm package + `npx humanitarian-mcp`
+Ordered by what researchers, MCP users and humanitarian organisations need
+first:
+
+- [x] npm package + `npx humanitarian-mcp`, one-click Claude Desktop bundle
+      (`.mcpb`) and citation metadata — ships with **v0.2.0**
+- [x] Arabic country names in search and resolution («مصر», «السودان»,
+      «الأردن» resolve like their English forms)
+- [x] Reproducible extraction manifests on every `export_data` call
+- [ ] World Bank context indicators + per-capita normalization
+      (`normalize_by: "population" | "gdp"`) — **v0.3.0**
+- [x] HDX/HAPI provider: internal displacement (IOM DTM), conflict events
+      (ACLED), humanitarian funding (FTS), food security (IPC) — **v0.4.0**
+- [x] Docker image + compose for organisational self-hosting
+- [x] Automatic codebooks + runnable [Python/R notebooks](examples/notebooks/) — **v0.5.0**
+- [ ] JOSS paper (draft ready in [paper/](paper/)) — submission, then **v1.0**
+
+Deferred, contributions welcome: ReliefWeb provider (situation reports,
+disasters, jobs — scaffold in `src/providers/reliefweb/`), full Arabic report
+generation (`locale: "ar"`), Redis cache backend.
 
 ## License
 

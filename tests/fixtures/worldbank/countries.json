@@ -1,0 +1,29 @@
+[
+  { "page": 1, "pages": 1, "per_page": 400, "total": 4 },
+  [
+    {
+      "id": "EGY",
+      "iso2Code": "EG",
+      "name": "Egypt, Arab Rep.",
+      "region": { "id": "MEA", "value": "Middle East & North Africa" }
+    },
+    {
+      "id": "JOR",
+      "iso2Code": "JO",
+      "name": "Jordan",
+      "region": { "id": "MEA", "value": "Middle East & North Africa" }
+    },
+    {
+      "id": "LBN",
+      "iso2Code": "LB",
+      "name": "Lebanon",
+      "region": { "id": "MEA", "value": "Middle East & North Africa" }
+    },
+    {
+      "id": "ARB",
+      "iso2Code": "1A",
+      "name": "Arab World",
+      "region": { "id": "NA", "value": "Aggregates" }
+    }
+  ]
+]

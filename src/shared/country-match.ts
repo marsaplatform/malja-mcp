@@ -14,13 +14,32 @@ export interface ScoredMatch<T> {
   score: number;
 }
 
+/**
+ * Arabic-specific folding so spelling variants compare equal: strips harakat
+ * and tatweel, unifies hamza/alef forms, taa marbuta and alef maqsura, and
+ * drops the definite article "ال" at the start of each token ("الأردن",
+ * "الاردن" and "اردن" all become "اردن"). Applied to names and queries alike,
+ * so the folding stays consistent on both sides of the comparison.
+ */
+function foldArabic(input: string): string {
+  return input
+    .replace(/[ً-ٰٟ]/g, '')
+    .replace(/ـ/g, '')
+    .replace(/[أإآٱ]/g, 'ا')
+    .replace(/ى/g, 'ي')
+    .replace(/ئ/g, 'ي')
+    .replace(/ؤ/g, 'و')
+    .replace(/ة/g, 'ه')
+    .replace(/(^|\s)ال(?=\S)/g, '$1');
+}
+
 /** Lowercase, strip diacritics and punctuation, collapse whitespace. */
 export function normalizeName(input: string): string {
-  return input
+  return foldArabic(input)
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
     .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/[^a-z0-9؀-ۿ\s]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
