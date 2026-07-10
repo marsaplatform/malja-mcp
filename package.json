@@ -50,7 +50,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm run test",
-    "landing:css": "tailwindcss -c docs/tailwind.config.js -i docs/tw.input.css -o docs/tw.css --minify"
+    "landing:css": "tailwindcss -c docs/tailwind.config.cjs -i docs/tw.input.css -o docs/tw.css --minify"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",

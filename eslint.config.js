@@ -3,7 +3,8 @@ import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['dist/', 'coverage/', 'node_modules/'] },
+  // docs/ holds the static landing page and its Tailwind build config (CJS).
+  { ignores: ['dist/', 'coverage/', 'node_modules/', 'docs/'] },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
