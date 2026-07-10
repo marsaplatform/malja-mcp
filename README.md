@@ -7,7 +7,7 @@
 [![CI](https://github.com/ahmedvnabil/humanitarian-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/ahmedvnabil/humanitarian-mcp/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/ahmedvnabil/humanitarian-mcp?color=2563eb)](https://github.com/ahmedvnabil/humanitarian-mcp/releases)
 [![Docker](https://img.shields.io/badge/docker-ghcr.io-0db7ed?logo=docker&logoColor=white)](https://github.com/ahmedvnabil/humanitarian-mcp/pkgs/container/humanitarian-mcp)
-[![npm](https://img.shields.io/badge/npm-coming%20soon-lightgrey?logo=npm)](https://github.com/ahmedvnabil/humanitarian-mcp/releases)
+[![npm](https://img.shields.io/npm/v/humanitarian-mcp?logo=npm&color=cb3837)](https://www.npmjs.com/package/humanitarian-mcp)
 [![Research: citable](<https://img.shields.io/badge/research-citable%20(CITATION.cff)-8b5cf6>)](CITATION.cff)
 [![MCP](https://img.shields.io/badge/protocol-Model%20Context%20Protocol-7c3aed)](https://modelcontextprotocol.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-16a34a.svg)](LICENSE)
@@ -183,6 +183,18 @@ Start here: [docs/for-researchers.md](docs/for-researchers.md) · [notebooks](ex
 
 Requires **Node.js ≥ 20** for source installs (SQLite cache uses built-in `node:sqlite` on Node ≥ 22.5; older Nodes fall back to memory automatically). Docker route needs only Docker.
 
+### From npm — no clone needed
+
+```bash
+npx humanitarian-mcp --version   # → humanitarian-mcp 0.5.1
+```
+
+Register it with Claude Code in one line:
+
+```bash
+claude mcp add humanitarian -- npx -y humanitarian-mcp
+```
+
 ### Claude Desktop — one click (no terminal)
 
 Download **`humanitarian-mcp.mcpb`** from the [latest release](https://github.com/ahmedvnabil/humanitarian-mcp/releases/latest) and double-click it. Done.
@@ -196,8 +208,6 @@ npm install
 npm run build
 node dist/index.js --version   # → humanitarian-mcp 0.5.1
 ```
-
-> **npm package:** publishing `humanitarian-mcp` to npm (for `npx humanitarian-mcp`) is imminent but **not live yet** — until then, use the source, `.mcpb` or Docker routes.
 
 ### Docker
 
@@ -336,12 +346,13 @@ Releases: bump the version, tag `v*`, push — CI publishes the GitHub release w
 - v0.4.0 — **HDX/HAPI provider** (conflict, food security, funding, IDPs) + 3 crisis tools + **Docker/GHCR**
 - v0.5.0 — codebooks, Python/R notebooks, JOSS paper draft
 - v0.5.1 — HDX fixes from the first live verification round (per-theme admin levels, server-side year windows, pagination)
+- **Published to npm** — `npx humanitarian-mcp` is live
 
 **🚧 In progress**
 
-- First npm publish (`npx humanitarian-mcp`) — automation ready, awaiting registry token
 - Zenodo DOI per release
 - JOSS paper review & submission
+- npm provenance signing on future releases (via the release workflow once its token is configured)
 
 **🔭 Future (contributions welcome)**
 

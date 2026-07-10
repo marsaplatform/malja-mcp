@@ -609,18 +609,13 @@
               dir="ltr"
               >Node.js</a
             >
-            و
-            <a
-              class="text-teal border-b border-teal hover:text-ink hover:border-ink"
-              href="https://git-scm.com"
-              dir="ltr"
-              >Git</a
-            >
-            إن لم يكونا على جهازك — برنامجان مجانيان بتثبيت عادي بالنقر.
+            إن لم يكن على جهازك — برنامج مجاني بتثبيت عادي بالنقر.
           </li>
           <li>
-            <strong class="font-head text-teal">٢ ·</strong> افتح تطبيق «الطرفية» (Terminal — موجود
-            في كل ماك وويندوز ولينكس)، والصق هذا السطر واضغط Enter:
+            <strong class="font-head text-teal">٢ ·</strong> الحزمة منشورة على npm — لا حاجة لأي
+            استنساخ أو بناء. يكفي أن يشير إعداد برنامجك (التبويب أدناه) إلى
+            <code class="font-mono text-ink" dir="ltr">npx humanitarian-mcp</code>. للتجربة السريعة
+            في «الطرفية»:
           </li>
         </ol>
 
@@ -628,8 +623,7 @@
           <code
             id="install"
             class="flex-1 px-4 py-3 text-sm font-mono text-ink overflow-x-auto whitespace-nowrap"
-            >git clone https://github.com/ahmedvnabil/humanitarian-mcp && cd humanitarian-mcp && npm
-            i && npm run build</code
+            >npx humanitarian-mcp --version</code
           >
           <button
             class="px-5 text-xs font-body bg-ink text-paper font-bold hover:bg-teal"
@@ -735,8 +729,8 @@
 {
   "mcpServers": {
     "humanitarian": {
-      "command": "node",
-      "args": ["/path/to/humanitarian-mcp/dist/index.js"]
+      "command": "npx",
+      "args": ["-y", "humanitarian-mcp"]
     }
   }
 }</pre>
@@ -756,7 +750,7 @@
               class="text-[13px] font-mono bg-paper border border-rule p-4 overflow-x-auto leading-6"
               dir="ltr"
             >
-claude mcp add humanitarian -- node /path/to/humanitarian-mcp/dist/index.js</pre>
+claude mcp add humanitarian -- npx -y humanitarian-mcp</pre>
             <p class="text-soft text-sm mt-5 mb-2">ثم جرّب:</p>
             <ul class="text-sm space-y-2 text-ink">
               <li>« اعمل تقريرًا إنسانيًا كاملًا عن السودان »</li>
@@ -1043,7 +1037,7 @@ demographics({ country: "Egypt" })
             href="https://github.com/ahmedvnabil/humanitarian-mcp/blob/main/docs/adding-providers.md"
             dir="ltr"
             >دليل إضافة مصدر خطوة بخطوة ↗</a
-          >. وقريبًا تثبيت أبسط بأمر واحد (<code class="font-mono text-ink" dir="ltr"
+          >. أو ثبّته بأمر واحد من npm (<code class="font-mono text-ink" dir="ltr"
             >npx humanitarian-mcp</code
           >).
         </p>
