@@ -1,10 +1,11 @@
 /**
- * Tailwind config for the landing page (docs/index.html) — mirrors the theme
- * that previously lived inline next to the CDN script. Regenerate tw.css
- * after editing index.html classes:  npm run landing:css
+ * Tailwind config for the landing pages (docs/index.html — English default,
+ * docs/ar/index.html — Arabic) — mirrors the theme that previously lived
+ * inline next to the CDN script. Regenerate tw.css after editing classes
+ * in either file:  npm run landing:css
  */
 module.exports = {
-  content: ['./docs/index.html'],
+  content: ['./docs/index.html', './docs/ar/index.html'],
   theme: {
     extend: {
       colors: {
