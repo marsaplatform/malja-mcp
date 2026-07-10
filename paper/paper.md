@@ -22,17 +22,18 @@ bibliography: paper.bib
 
 `humanitarian-mcp` is an open-source server that exposes trusted humanitarian
 open datasets to AI assistants and analysis scripts through the Model Context
-Protocol (MCP) [@mcp]. It currently serves three sources behind one uniform,
+Protocol (MCP) [@mcp]. It currently serves four sources behind one uniform,
 read-only interface: the UNHCR Refugee Statistics API [@unhcr_rdf] (75 years
 of forced-displacement statistics), the World Bank Indicators API
-[@worldbank] (population, GDP and poverty denominators), and HDX HAPI
+[@worldbank] (population, GDP and poverty denominators), HDX HAPI
 [@hapi] (conflict events from ACLED [@acled], IPC food-security phases
 [@ipc], OCHA FTS humanitarian funding and IOM DTM internal-displacement
-stocks).
+stocks), and ReliefWeb [@reliefweb] (situation-report counts and links that
+ground the statistics in published operational reporting).
 
-The server presents 20 semantic tools — country profiles, comparisons,
+The server presents 21 semantic tools — country profiles, comparisons,
 trend analysis with anomaly detection, per-capita normalization, rankings,
-charts, maps and exports — that return normalized records with consistent
+situation-report retrieval, charts, maps and exports — that return normalized records with consistent
 fields (`country_code` as ISO3, `year`, `population`, per-dataset `metrics`,
 `source`). Every export can attach an _extraction manifest_ (the exact tool
 arguments, timestamp, server version and citation) and a variable-level
@@ -61,21 +62,24 @@ as actionable text. Aggregation semantics that are easy to get wrong are
 encoded per dataset: internal-displacement assessment rounds are never
 summed (the latest round per year wins), funding coverage is recomputed from
 summed appeals rather than averaged, and IPC current analyses take
-precedence over projections.
+precedence over projections. Statistical anomalies flagged by the trend
+tools can be grounded in contemporaneous situation reports retrieved from
+ReliefWeb, so a detected break in a displacement series links directly to
+the operational reporting published at the time.
 
 The per-capita normalization addresses a recurring analytical error in
 public discussion of displacement: absolute hosting numbers dominate
 headlines, while the hosting _burden_ — refugees per 1,000 residents or per
 unit of GDP — reorders the picture toward countries such as Lebanon, Jordan
 and Chad. `humanitarian-mcp` matches denominators per year (2015 refugees
-over 2015 population) and disclosed the denominator year on every row.
+over 2015 population) and discloses the denominator year on every row.
 
 The intended users are (i) quantitative researchers in forced-migration
 studies, who gain reproducible, citable extractions that join cleanly with
 external panels on ISO3 codes; (ii) analysts in humanitarian organisations,
-who can self-host the server (a Docker image is provided) and query four
-crisis dimensions — displacement, conflict, hunger, funding — through one
-interface; and (iii) anyone using MCP-capable AI assistants, for whom the
+who can self-host the server (a Docker image is provided) and query five
+crisis dimensions — displacement, conflict, hunger, funding and situation
+reporting — through one interface; and (iii) anyone using MCP-capable AI assistants, for whom the
 assistant's answers inherit the server's normalization and provenance
 instead of improvising against raw APIs.
 
@@ -96,7 +100,7 @@ humanitarian statistical APIs.
 
 # Quality control
 
-The test suite (120+ tests) includes an MCP compliance suite that drives the
+The test suite (150+ tests) includes an MCP compliance suite that drives the
 real server through the official protocol SDK over an in-memory transport,
 provider suites that replay recorded upstream fixtures with no network
 access (covering code translation, malformed cells, aggregate filtering and
