@@ -6,7 +6,7 @@
     <title>humanitarian-mcp — trusted humanitarian data inside your AI assistant</title>
     <meta
       name="description"
-      content="Open-source MCP server that gives AI assistants clean, cited access to refugee and displacement data from UNHCR, the World Bank and HDX. Built for researchers, journalists and aid organizations. 20 tools, 7 one-click prompts, no API keys, works offline."
+      content="Open-source MCP server that gives AI assistants clean, cited access to refugee and displacement data from UNHCR, the World Bank and HDX. Built for researchers, journalists and aid organizations. 21 tools, 8 one-click prompts, no API keys, works offline."
     />
     <meta
       property="og:title"
@@ -243,22 +243,22 @@
             inside your <span class="text-amber">AI assistant</span>.
           </h1>
           <p class="mt-7 text-fog text-lg max-w-xl animate-fadeup" style="animation-delay: 0.1s">
-            <span class="font-mono text-paper">humanitarian-mcp</span> is an open-source MCP
-            server that lets Claude, Cursor, <span class="whitespace-nowrap">VS Code</span> and
-            any MCP client query the trusted humanitarian sources directly:
+            <span class="font-mono text-paper">humanitarian-mcp</span> is an open-source MCP server
+            that lets Claude, Cursor, <span class="whitespace-nowrap">VS Code</span> and any MCP
+            client query the trusted humanitarian sources directly:
             <strong class="text-paper">UNHCR</strong> for displacement and asylum, the
-            <strong class="text-paper">World Bank</strong> for population and economic context,
-            and <strong class="text-paper">HDX</strong> for conflict, food security and funding.
+            <strong class="text-paper">World Bank</strong> for population and economic context, and
+            <strong class="text-paper">HDX</strong> for conflict, food security and funding.
           </p>
           <p class="mt-3 text-fog text-lg max-w-xl animate-fadeup" style="animation-delay: 0.12s">
-            You type “compare refugee numbers in Egypt and Jordan” like any other message, and
-            back comes a table with the real figure, its year and its source. Built for research,
+            You type “compare refugee numbers in Egypt and Jordan” like any other message, and back
+            comes a table with the real figure, its year and its source. Built for research,
             journalism and aid work. No code, no spreadsheets.
           </p>
           <p class="mt-4 text-sm text-fog animate-fadeup" style="animation-delay: 0.14s">
-            20 read-only tools · 7 one-click prompts · a cited source in every answer · runs
-            hosted or fully local. Built on MCP, the open standard that gives your assistant safe
-            external tools.
+            21 read-only tools · 8 one-click prompts · a cited source in every answer · runs hosted
+            or fully local. Built on MCP, the open standard that gives your assistant safe external
+            tools.
             <a
               class="text-amber hover:text-paper"
               href="https://github.com/ahmedvnabil/humanitarian-mcp/blob/main/docs/how-mcp-works.md"
@@ -286,10 +286,12 @@
             class="mt-8 flex flex-wrap gap-x-9 gap-y-3 text-sm text-fog animate-fadeup"
             style="animation-delay: 0.2s"
           >
-            <span><strong class="text-paper font-head text-2xl">20</strong> tools</span>
+            <span><strong class="text-paper font-head text-2xl">21</strong> tools</span>
             <span><strong class="text-paper font-head text-2xl">75</strong> years of data</span>
             <span><strong class="text-paper font-head text-2xl">0</strong> API keys</span>
-            <span><strong class="text-paper font-head text-2xl">125</strong> data traps defused</span>
+            <span
+              ><strong class="text-paper font-head text-2xl">153</strong> data traps defused</span
+            >
           </div>
         </div>
 
@@ -304,8 +306,8 @@
               <span class="text-soft font-body text-sm font-normal">· millions</span>
             </div>
             <div class="text-xs text-soft mt-1">
-              Real output of <code class="font-mono">trend_analysis("Sudan")</code> — the surge
-              was flagged automatically
+              Real output of <code class="font-mono">trend_analysis("Sudan")</code> — the surge was
+              flagged automatically
             </div>
           </figcaption>
           <div>
@@ -376,8 +378,8 @@
               UNHCR <span class="text-soft text-xs font-body">· the UN Refugee Agency</span>
             </p>
             <p class="mt-1.5 text-sm text-soft leading-6">
-              Displacement and asylum since 1951 · demographics · asylum applications, decisions
-              and recognition rates
+              Displacement and asylum since 1951 · demographics · asylum applications, decisions and
+              recognition rates
             </p>
             <p class="mt-2 text-xs text-teal font-semibold">No keys — works instantly</p>
           </div>
@@ -430,8 +432,8 @@
             list, so the assistant answers with confidence: “no data.”
           </p>
           <p class="mt-4 text-ink font-semibold">
-            This server defused all of those traps once and for all — so your assistant queries
-            the official database the right way, every time.
+            This server defused all of those traps once and for all — so your assistant queries the
+            official database the right way, every time.
           </p>
         </div>
         <div class="border-2 border-ink min-w-0">
@@ -442,8 +444,8 @@
               Egypt?
             </p>
             <p class="mt-2 text-sm text-soft">
-              assistant › “Egypt hosts hundreds of thousands of refugees — likely around 300,000
-              as of my last data (2023), though the numbers may have changed…”
+              assistant › “Egypt hosts hundreds of thousands of refugees — likely around 300,000 as
+              of my last data (2023), though the numbers may have changed…”
             </p>
             <p class="mt-3 text-xs text-crisis font-semibold">
               A guess from memory: approximate, stale, unsourced.
@@ -455,8 +457,8 @@
             </p>
             <p class="text-sm"><span class="text-teal font-bold">you ›</span> The same question.</p>
             <p class="mt-2 text-sm text-fog">
-              assistant › “<strong class="text-amber">220,033</strong> registered refugees in
-              Egypt at the end of 2025 — source: UNHCR, Refugee Data Finder.”
+              assistant › “<strong class="text-amber">220,033</strong> registered refugees in Egypt
+              at the end of 2025 — source: UNHCR, Refugee Data Finder.”
             </p>
             <p class="mt-3 text-xs text-amber font-semibold">
               A live query: exact, dated, sourced.
@@ -519,13 +521,12 @@
             ⚙ conflict_events · export_data(idps) · humanitarian_funding · 3.4s
           </p>
           <p class="mt-3">
-            <span class="text-teal font-bold">claude ›</span> The April 2023 war shows in all
-            three series at once: conflict fatalities jumped from
-            <span class="font-mono">2,770</span> to
+            <span class="text-teal font-bold">claude ›</span> The April 2023 war shows in all three
+            series at once: conflict fatalities jumped from <span class="font-mono">2,770</span> to
             <span class="font-mono text-crisis">21,020</span>, internally displaced people from
             <span class="font-mono">3.8M</span> to
-            <span class="font-mono text-crisis">11.6M</span> by the end of 2024, while only 58.5%
-            of funding requirements were covered in 2023, then 76.4% in 2024.
+            <span class="font-mono text-crisis">11.6M</span> by the end of 2024, while only 58.5% of
+            funding requirements were covered in 2023, then 76.4% in 2024.
             <span class="text-soft text-sm">Sources: ACLED · IOM DTM · OCHA FTS via HDX.</span>
           </p>
         </div>
@@ -549,13 +550,13 @@
               Forced migration studies · political economy · conflict research
             </p>
             <p class="text-sm">
-              <span class="text-teal font-bold">Asks:</span> “Give me the series of people
-              displaced from Sudan 2010–2025 as CSV, with anomalous years flagged”
+              <span class="text-teal font-bold">Asks:</span> “Give me the series of people displaced
+              from Sudan 2010–2025 as CSV, with anomalous years flagged”
             </p>
             <p class="text-sm mt-2">
               <span class="text-teal font-bold">Gets:</span> clean data ready for R, Stata or
-              Python, with unified ISO codes and a documented source to cite — in seconds instead
-              of a day of data cleaning.
+              Python, with unified ISO codes and a documented source to cite — in seconds instead of
+              a day of data cleaning.
             </p>
           </div>
           <div class="bg-card p-7">
@@ -581,17 +582,15 @@
               situation in Chad, including the age structure of new arrivals”
             </p>
             <p class="text-sm mt-2">
-              <span class="text-teal font-bold">Gets:</span> a complete Markdown report through
-              the built-in <code class="font-mono text-ink">donor_briefing</code> prompt —
-              headline figures, a ten-year trend, women and children shares — ready to edit
-              instead of a week of manual compilation.
+              <span class="text-teal font-bold">Gets:</span> a complete Markdown report through the
+              built-in <code class="font-mono text-ink">donor_briefing</code> prompt — headline
+              figures, a ten-year trend, women and children shares — ready to edit instead of a week
+              of manual compilation.
             </p>
           </div>
           <div class="bg-card p-7">
             <p class="font-head font-bold text-xl mb-1">The student and the teacher</p>
-            <p class="text-sm text-soft mb-4">
-              Theses · presentations · data-science classes
-            </p>
+            <p class="text-sm text-soft mb-4">Theses · presentations · data-science classes</p>
             <p class="text-sm">
               <span class="text-teal font-bold">Asks:</span> “Explain the trend in Syrian asylum
               over the last ten years with a simple chart”
@@ -611,10 +610,9 @@
         <p class="font-mono text-teal text-sm mb-2">04</p>
         <h2 class="font-head font-bold text-3xl sm:text-4xl">Ready in two minutes.</h2>
         <p class="mt-4 text-soft max-w-2xl">
-          Fastest path: the <strong class="text-ink">“No install”</strong> tab below — a hosted
-          URL we run for you; paste it and start in seconds. Or install it on your machine in
-          three steps that need no programmer, and your questions and data stay entirely on your
-          device.
+          Fastest path: the <strong class="text-ink">“No install”</strong> tab below — a hosted URL
+          we run for you; paste it and start in seconds. Or install it on your machine in three
+          steps that need no programmer, and your questions and data stay entirely on your device.
         </p>
 
         <ol class="mt-7 space-y-3 text-sm max-w-2xl">
@@ -696,8 +694,8 @@
         <div class="mt-4 border-2 border-ink bg-card">
           <div x-show="tab==='hosted'" class="p-6">
             <p class="text-soft text-sm mb-4">
-              A ready hosted instance — no terminal, no install. Copy the URL and paste it into
-              your app:
+              A ready hosted instance — no terminal, no install. Copy the URL and paste it into your
+              app:
             </p>
             <div class="flex items-stretch border-2 border-ink bg-paper max-w-2xl">
               <code
@@ -715,8 +713,8 @@
             </div>
             <ul class="mt-5 text-sm space-y-3">
               <li>
-                <strong class="text-ink">In Claude (web or app):</strong> Settings →
-                Connectors → Add custom connector → paste the URL.
+                <strong class="text-ink">In Claude (web or app):</strong> Settings → Connectors →
+                Add custom connector → paste the URL.
               </li>
               <li>
                 <strong class="text-ink">In Claude Code:</strong>
@@ -736,8 +734,8 @@
           <div x-show="tab==='desktop'" class="p-6" style="display: none">
             <p class="text-soft text-sm mb-4">
               Add this to
-              <code class="font-mono text-ink">claude_desktop_config.json</code> and restart
-              Claude — then ask in your own words.
+              <code class="font-mono text-ink">claude_desktop_config.json</code> and restart Claude
+              — then ask in your own words.
             </p>
             <pre
               id="c-desktop"
@@ -809,8 +807,8 @@ curl -s -X POST http://localhost:8642/mcp \
 
           <div x-show="tab==='dash'" class="p-6" style="display: none">
             <p class="text-soft text-sm mb-4">
-              No MCP client? The built-in dashboard shows the providers, the catalogue and live
-              logs — and can run any tool from the browser.
+              No MCP client? The built-in dashboard shows the providers, the catalogue and live logs
+              — and can run any tool from the browser.
             </p>
             <pre
               class="text-[13px] font-mono bg-paper border border-rule p-4 overflow-x-auto leading-6"
@@ -819,9 +817,9 @@ npm run dashboard
 # → http://localhost:8642</pre>
             <p class="text-soft text-sm mt-4">
               Optional settings:
-              <code class="font-mono text-ink">HMCP_CACHE=sqlite</code> keeps data between
-              sessions · <code class="font-mono text-ink">HMCP_OFFLINE=1</code> serves from the
-              cache only — useful in the field where there is no connection.
+              <code class="font-mono text-ink">HMCP_CACHE=sqlite</code> keeps data between sessions
+              · <code class="font-mono text-ink">HMCP_OFFLINE=1</code> serves from the cache only —
+              useful in the field where there is no connection.
             </p>
           </div>
         </div>
@@ -850,11 +848,11 @@ npm run dashboard
                 1 · For the researcher: studying an event's impact
               </p>
               <p class="mt-3 text-fog text-sm leading-relaxed">
-                <strong class="text-paper">The question:</strong> what did the April 2023 war do
-                to the numbers displaced from Sudan?<br /><br />
+                <strong class="text-paper">The question:</strong> what did the April 2023 war do to
+                the numbers displaced from Sudan?<br /><br />
                 The trend tool gives you the full series, the linear fit,
-                <em class="text-paper">and flags the break years statistically</em> — then exports
-                a clean CSV that drops straight into your interrupted time-series model.
+                <em class="text-paper">and flags the break years statistically</em> — then exports a
+                clean CSV that drops straight into your interrupted time-series model.
               </p>
             </div>
             <div
@@ -884,9 +882,9 @@ df["post_war"] = (df.year >= 2023).astype(int)
               <p class="mt-3 text-fog text-sm leading-relaxed">
                 <strong class="text-paper">The question:</strong> an official says Uganda is among
                 the top five refugee-hosting countries — publish the claim as is?<br /><br />
-                The ranking tool returns the list updated with official UNHCR figures, and the
-                chart tool hands over a publish-ready SVG with the attribution line — before the
-                issue closes.
+                The ranking tool returns the list updated with official UNHCR figures, and the chart
+                tool hands over a publish-ready SVG with the attribution line — before the issue
+                closes.
               </p>
             </div>
             <div
@@ -910,12 +908,12 @@ generate_chart({ countries: ["Uganda"], format: "svg" })
                 3 · For the organization: a donor briefing from the built-in prompt
               </p>
               <p class="mt-3 text-fog text-sm leading-relaxed">
-                <strong class="text-paper">The question:</strong> a donor briefing on the
-                situation in Chad is due next week, not next month.<br /><br />
-                The built-in <span class="font-mono text-paper">donor_briefing</span> prompt
-                appears with one click in the prompt list and steers the assistant through the
-                right tool sequence — including the shares that protection and education programs
-                are built on and grants are written with.
+                <strong class="text-paper">The question:</strong> a donor briefing on the situation
+                in Chad is due next week, not next month.<br /><br />
+                The built-in <span class="font-mono text-paper">donor_briefing</span> prompt appears
+                with one click in the prompt list and steers the assistant through the right tool
+                sequence — including the shares that protection and education programs are built on
+                and grants are written with.
               </p>
             </div>
             <div
@@ -1062,39 +1060,39 @@ demographics({ country: "Egypt" })
         </p>
 
         <div class="mt-7 flex flex-wrap gap-2 text-sm">
-          <span class="px-4 py-1.5 border-2 border-teal text-teal font-bold"
-            >UNHCR — live now</span
-          >
+          <span class="px-4 py-1.5 border-2 border-teal text-teal font-bold">UNHCR — live now</span>
           <span class="px-4 py-1.5 border-2 border-teal text-teal font-bold"
             >World Bank — live now</span
           >
           <span class="px-4 py-1.5 border-2 border-teal text-teal font-bold"
             >HDX / HAPI — live (free identifier)</span
           >
-          <span class="px-4 py-1.5 border border-rule text-soft bg-card">ReliefWeb — coming</span>
+          <span class="px-4 py-1.5 border-2 border-teal text-teal font-bold"
+            >ReliefWeb — new in 0.6.0 (approved appname)</span
+          >
           <span class="px-4 py-1.5 border border-rule text-soft bg-card">OWID — coming</span>
         </div>
 
         <div class="mt-10 grid md:grid-cols-3 gap-px bg-rule border border-rule">
           <div class="bg-card p-6">
-            <p class="font-head font-bold text-lg">20 semantic tools</p>
+            <p class="font-head font-bold text-lg">21 semantic tools</p>
             <p class="mt-2 text-[13px] font-mono text-teal leading-6">
               search_country · country_profile · compare_countries · refugee_population ·
               demographics · latest_statistics · asylum_applications · asylum_decisions ·
-              conflict_events · food_security · humanitarian_funding · trend_analysis · forecast ·
-              top_host_countries · generate_chart · generate_map · generate_country_report ·
-              export_data · get_metadata · provider_health
+              conflict_events · food_security · humanitarian_funding · situation_reports ·
+              trend_analysis · forecast · top_host_countries · generate_chart · generate_map ·
+              generate_country_report · export_data · get_metadata · provider_health
             </p>
           </div>
           <div class="bg-card p-6">
-            <p class="font-head font-bold text-lg">7 one-click prompts</p>
+            <p class="font-head font-bold text-lg">8 one-click prompts</p>
             <p class="mt-2 text-sm text-soft">
-              Ready-made paths that appear in your client's prompt list — from a situation
-              summary to a donor briefing:
+              Ready-made paths that appear in your client's prompt list — from a situation summary
+              to a donor briefing:
             </p>
             <p class="mt-2 text-[13px] font-mono text-teal leading-6">
               summarize_situation · compare_two_countries · donor_briefing · explain_trends ·
-              find_anomalies · executive_report · infographic_summary
+              find_anomalies · executive_report · infographic_summary · crisis_overview
             </p>
           </div>
           <div class="bg-card p-6">
@@ -1111,7 +1109,7 @@ demographics({ country: "Egypt" })
 
         <p class="mt-6 text-sm text-soft max-w-3xl">
           Every tool declares its output schema and returns structured data alongside the text —
-          under 125 tests, including a full MCP compliance suite through the official SDK client.
+          under 153 tests, including a full MCP compliance suite through the official SDK client.
           <a
             class="text-teal border-b border-teal hover:text-ink hover:border-ink"
             href="https://github.com/ahmedvnabil/humanitarian-mcp/blob/main/docs/tools.md"
@@ -1171,9 +1169,8 @@ demographics({ country: "Egypt" })
             </summary>
             <p class="pb-5 text-sm text-soft leading-relaxed">
               Yes. The project is open source under the MIT license, and UNHCR data is public and
-              needs no API keys — the server itself costs nothing. The MCP client you choose
-              (Claude Desktop, for instance) has its own plans, and the server works with their
-              free tiers.
+              needs no API keys — the server itself costs nothing. The MCP client you choose (Claude
+              Desktop, for instance) has its own plans, and the server works with their free tiers.
             </p>
           </details>
 
@@ -1195,8 +1192,8 @@ demographics({ country: "Egypt" })
                 href="#usage"
                 >“Get running”</a
               >
-              section above walks through it step by step. After that everything happens in your
-              own words, inside the chat.
+              section above walks through it step by step. After that everything happens in your own
+              words, inside the chat.
             </p>
           </details>
 
@@ -1250,10 +1247,10 @@ demographics({ country: "Egypt" })
               >
             </summary>
             <p class="pb-5 text-sm text-soft leading-relaxed">
-              Ask in any language your assistant understands — Arabic included; even Arabic
-              country names («مصر», «السودان») resolve correctly. The tools themselves are
-              language-neutral and return structured data, and the assistant writes the answer in
-              the language of your question.
+              Ask in any language your assistant understands — Arabic included; even Arabic country
+              names («مصر», «السودان») resolve correctly. The tools themselves are language-neutral
+              and return structured data, and the assistant writes the answer in the language of
+              your question.
             </p>
           </details>
 
@@ -1294,9 +1291,9 @@ demographics({ country: "Egypt" })
           <a class="text-amber hover:text-paper" href="https://github.com/ahmedvnabil"
             >Ahmed Nabil</a
           >
-          <span class="font-mono">(@ahmedvnabil)</span> — an independent developer and the author
-          of Zad, the open Arabic typeface this page is set in. The repository is fully open under
-          the MIT license; contributions and reviews are welcome.
+          <span class="font-mono">(@ahmedvnabil)</span> — an independent developer and the author of
+          Zad, the open Arabic typeface this page is set in. The repository is fully open under the
+          MIT license; contributions and reviews are welcome.
         </p>
 
         <div class="mt-10 border-t border-inkline pt-8">

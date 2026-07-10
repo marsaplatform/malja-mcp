@@ -1,6 +1,6 @@
 {
   "name": "humanitarian-mcp",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "Model Context Protocol server for humanitarian open data — UNHCR today, ReliefWeb/HDX/IOM tomorrow. Semantic tools, resources and prompts over trusted public datasets.",
   "keywords": [
     "mcp",

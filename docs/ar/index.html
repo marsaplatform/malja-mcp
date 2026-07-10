@@ -6,7 +6,7 @@
     <title>humanitarian-mcp — بيانات إنسانية موثّقة داخل مساعدك الذكي</title>
     <meta
       name="description"
-      content="خادم MCP مفتوح المصدر يمنح المساعدات الذكية وصولًا نظيفًا وموثّقًا لبيانات اللجوء والنزوح من مفوضية الأمم المتحدة والبنك الدولي ومنصة HDX — للباحثين والصحفيين ومنظمات الإغاثة. ٢٠ أداة و٧ قوالب جاهزة، بلا مفاتيح، يعمل دون اتصال."
+      content="خادم MCP مفتوح المصدر يمنح المساعدات الذكية وصولًا نظيفًا وموثّقًا لبيانات اللجوء والنزوح من مفوضية الأمم المتحدة والبنك الدولي ومنصة HDX — للباحثين والصحفيين ومنظمات الإغاثة. ٢١ أداة و٨ قوالب جاهزة، بلا مفاتيح، يعمل دون اتصال."
     />
     <meta
       property="og:title"
@@ -258,7 +258,7 @@
             وسنته ومصدره — للبحث والصحافة والمنظمات. لا برمجة ولا حسابات.
           </p>
           <p class="mt-4 text-sm text-fog animate-fadeup" style="animation-delay: 0.14s">
-            ٢٠ أداة قراءة فقط · ٧ قوالب جاهزة · مصادر موثّقة في كل إجابة · يعمل مستضافًا أو محليًا.
+            ٢١ أداة قراءة فقط · ٨ قوالب جاهزة · مصادر موثّقة في كل إجابة · يعمل مستضافًا أو محليًا.
             يقوم على بروتوكول MCP — المعيار المفتوح الذي يمنح مساعدك أدوات خارجية آمنة.
             <a
               class="text-amber hover:text-paper"
@@ -287,10 +287,10 @@
             class="mt-8 flex flex-wrap gap-x-9 gap-y-3 text-sm text-fog animate-fadeup"
             style="animation-delay: 0.2s"
           >
-            <span><strong class="text-paper font-head text-2xl">20</strong> أداة</span>
+            <span><strong class="text-paper font-head text-2xl">21</strong> أداة</span>
             <span><strong class="text-paper font-head text-2xl">75</strong> عامًا من البيانات</span>
             <span><strong class="text-paper font-head text-2xl">0</strong> مفاتيح API</span>
-            <span><strong class="text-paper font-head text-2xl">125</strong> لغمًا معطَّلًا</span>
+            <span><strong class="text-paper font-head text-2xl">153</strong> لغمًا معطَّلًا</span>
           </div>
         </div>
 
@@ -1063,29 +1063,31 @@ demographics({ country: "Egypt" })
           <span class="px-4 py-1.5 border-2 border-teal text-teal font-bold"
             >HDX / HAPI — متاح (بمعرّف مجاني)</span
           >
-          <span class="px-4 py-1.5 border border-rule text-soft bg-card">ReliefWeb — قادم</span>
+          <span class="px-4 py-1.5 border-2 border-teal text-teal font-bold"
+            >ReliefWeb — جديد في 0.6.0 (بمعرّف معتمد)</span
+          >
           <span class="px-4 py-1.5 border border-rule text-soft bg-card">OWID — قادم</span>
         </div>
 
         <div class="mt-10 grid md:grid-cols-3 gap-px bg-rule border border-rule">
           <div class="bg-card p-6">
-            <p class="font-head font-bold text-lg">٢٠ أداة دلالية</p>
+            <p class="font-head font-bold text-lg">٢١ أداة دلالية</p>
             <p class="mt-2 text-[13px] font-mono text-teal leading-6" dir="ltr">
               search_country · country_profile · compare_countries · refugee_population ·
               demographics · latest_statistics · asylum_applications · asylum_decisions ·
-              conflict_events · food_security · humanitarian_funding · trend_analysis · forecast ·
-              top_host_countries · generate_chart · generate_map · generate_country_report ·
-              export_data · get_metadata · provider_health
+              conflict_events · food_security · humanitarian_funding · situation_reports ·
+              trend_analysis · forecast · top_host_countries · generate_chart · generate_map ·
+              generate_country_report · export_data · get_metadata · provider_health
             </p>
           </div>
           <div class="bg-card p-6">
-            <p class="font-head font-bold text-lg">٧ قوالب بنقرة واحدة</p>
+            <p class="font-head font-bold text-lg">٨ قوالب بنقرة واحدة</p>
             <p class="mt-2 text-sm text-soft">
               مسارات جاهزة تظهر في قائمة القوالب لدى العميل — من ملخص الوضع إلى مذكرة المانحين:
             </p>
             <p class="mt-2 text-[13px] font-mono text-teal leading-6" dir="ltr">
               summarize_situation · compare_two_countries · donor_briefing · explain_trends ·
-              find_anomalies · executive_report · infographic_summary
+              find_anomalies · executive_report · infographic_summary · crisis_overview
             </p>
           </div>
           <div class="bg-card p-6">
@@ -1101,7 +1103,7 @@ demographics({ country: "Egypt" })
         </div>
 
         <p class="mt-6 text-sm text-soft max-w-3xl">
-          وكل أداة تعلن مخططَ مخرجاتها وتعيد بيانات منظّمة إلى جانب النص — تحت ١٢٥ اختبارًا، منها
+          وكل أداة تعلن مخططَ مخرجاتها وتعيد بيانات منظّمة إلى جانب النص — تحت ١٥٣ اختبارًا، منها
           حزمة توافق MCP كاملة عبر عميل SDK الرسمي.
           <a
             class="text-teal border-b border-teal hover:text-ink hover:border-ink"

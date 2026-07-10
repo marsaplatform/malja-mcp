@@ -2,7 +2,7 @@
   "manifest_version": "0.2",
   "name": "humanitarian-mcp",
   "display_name": "Humanitarian Data",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "Refugee and humanitarian open data (UNHCR, World Bank, HDX, ReliefWeb) as semantic MCP tools — profiles, per-capita comparisons, trends, charts, exports.",
   "long_description": "Gives Claude clean, semantic access to trusted humanitarian datasets: 75 years of UNHCR displacement statistics, World Bank denominators for per-capita views, HDX crisis data (conflict, food security, funding) and ReliefWeb situation reports for narrative context — normalized country codes (English and Arabic), provenance on every payload, charts, maps and reproducible CSV/JSON exports with manifests and codebooks. Read-only and rate-limited by design.",
   "author": {
