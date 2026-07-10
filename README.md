@@ -12,18 +12,19 @@
 [![MCP](https://img.shields.io/badge/protocol-Model%20Context%20Protocol-7c3aed)](https://modelcontextprotocol.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-16a34a.svg)](LICENSE)
 
-```text
-"How many refugees does Jordan host right now?"
-"Top refugee-hosting countries per capita — not absolute numbers."
-"Relate Sudan's displacement to conflict fatalities since 2018."
-"Export that as citation-ready CSV with a codebook."          ← also works in Arabic: «قارن بين مصر والأردن»
-```
+<p align="center">
+  <img src="assets/demo-terminal.svg" width="900" alt="Animated demo — “Top refugee-hosting countries per capita?” returns Lebanon 130.7, Chad 63.0, Moldova 56.6, Jordan 55.7 per 1,000 residents with sources; «قارن بين اللاجئين في مصر والأردن» resolves Arabic country names; exports come back citation-ready with a manifest">
+</p>
+
+<p align="center">
+  <img src="assets/stats-strip.svg" width="900" alt="21 tools · 4 data sources · 8 prompts · 153 tests · 75 years of data">
+</p>
 
 ---
 
 ## What is Humanitarian MCP?
 
-Humanitarian MCP is an open-source server that gives AI assistants and analysis scripts **reliable, normalized, read-only access** to trusted humanitarian datasets: 75 years of UNHCR displacement statistics, World Bank context indicators, and HDX crisis data (conflict events, food security, humanitarian funding, internal displacement).
+Humanitarian MCP is an open-source server that gives AI assistants and analysis scripts **reliable, normalized, read-only access** to trusted humanitarian datasets: 75 years of UNHCR displacement statistics, World Bank context indicators, HDX crisis data (conflict events, food security, humanitarian funding, internal displacement), and ReliefWeb situation reports.
 
 **MCP in one paragraph:** the [Model Context Protocol](https://modelcontextprotocol.io) is an open standard — think "USB for AI tools" — that lets any AI application (Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, custom agents) plug into external systems through one protocol. A server like this one exposes _tools_ the model can call, _resources_ it can read, and _prompts_ it can reuse. Connect it once, and every question your assistant answers about displacement is grounded in the real numbers instead of its training data. New to MCP? Read [docs/how-mcp-works.md](docs/how-mcp-works.md).
 
@@ -47,6 +48,12 @@ Without a trusted middleware, an LLM pointed at raw humanitarian APIs re-discove
 
 ## Architecture
 
+<p align="center">
+  <img src="assets/data-flow.svg" width="900" alt="Animated data flow — UNHCR, World Bank, HDX and ReliefWeb feed Humanitarian MCP, which normalizes everything to ISO3 with one schema and a citation on every payload, then serves AI clients (Claude, Cursor, VS Code, custom agents) over stdio or HTTP, strictly read-only">
+</p>
+
+<details><summary><strong>Detailed component diagram</strong></summary>
+
 ```mermaid
 flowchart TD
     U["You"] --> C["Claude Desktop · Claude Code · Cursor · VS Code · Windsurf<br/>or your own MCP agent"]
@@ -62,6 +69,8 @@ flowchart TD
     H --> A3[("hapi.humdata.org")]
     H --> A4[("api.reliefweb.int")]
 ```
+
+</details>
 
 Three invariants hold everywhere: **(1)** nothing provider-specific leaks outside `src/providers/<id>/`; **(2)** every tool is read-only and annotated as such; **(3)** errors reach the model as actionable text, never stack traces. Deep dive: [docs/architecture.md](docs/architecture.md).
 
@@ -116,9 +125,9 @@ No API key is required today. The service is operated on a best-effort basis by 
 
 **Data access**
 
-- 20 semantic, read-only tools — [full reference](docs/tools.md): country profiles, comparisons, yearly series, demographics, asylum applications/decisions with recognition rates, conflict events, food security (IPC), humanitarian funding, rankings, trend analysis with anomaly detection, (loudly caveated) naive forecasts
+- 21 semantic, read-only tools — [full reference](docs/tools.md): country profiles, comparisons, yearly series, demographics, asylum applications/decisions with recognition rates, conflict events, food security (IPC), humanitarian funding, situation reports, rankings, trend analysis with anomaly detection, (loudly caveated) naive forecasts
 - 11+ MCP resources (`country://EGY`, `report://SDN`, `chart://UGA`, `metadata://providers`…) with URI autocompletion
-- 7 built-in prompts (situation summary, donor briefing, anomaly hunt…)
+- 8 built-in prompts (situation summary, donor briefing, crisis overview, anomaly hunt…)
 
 **Country intelligence**
 
@@ -186,7 +195,7 @@ Requires **Node.js ≥ 20** for source installs (SQLite cache uses built-in `nod
 ### From npm — no clone needed
 
 ```bash
-npx humanitarian-mcp --version   # → humanitarian-mcp 0.5.1
+npx humanitarian-mcp --version   # → humanitarian-mcp 0.6.0
 ```
 
 Register it with Claude Code in one line:
@@ -206,7 +215,7 @@ git clone https://github.com/ahmedvnabil/humanitarian-mcp
 cd humanitarian-mcp
 npm install
 npm run build
-node dist/index.js --version   # → humanitarian-mcp 0.5.1
+node dist/index.js --version   # → humanitarian-mcp 0.6.0
 ```
 
 ### Docker
@@ -332,7 +341,7 @@ used to exhaust the upstream quotas all providers share.
 | [`src/`](src/)                                              | The server. `providers/` (one directory per data source — the only place provider quirks may exist), `tools/`, `resources/`, `prompts/`, `shared/` (HTTP, cache, rate limiting, stats, country matching), `viz/`, `http/` (Streamable HTTP + dashboard)                                                                                                            |
 | [`docs/`](docs/)                                            | [tools.md](docs/tools.md) (tool reference) · [architecture.md](docs/architecture.md) · [for-researchers.md](docs/for-researchers.md) · [how-mcp-works.md](docs/how-mcp-works.md) (MCP primer) · [adding-providers.md](docs/adding-providers.md) · [development.md](docs/development.md) · `index.html` (Arabic landing page, served at humanitarian-mcp.zad.tools) |
 | [`examples/`](examples/)                                    | Client configs, worked conversations with tool traces, HTTP client recipes, runnable [Python/R notebooks](examples/notebooks/)                                                                                                                                                                                                                                     |
-| [`tests/`](tests/)                                          | 125 tests: MCP compliance suite (official SDK client ↔ real server), fixture-based provider suites (no network), unit tests                                                                                                                                                                                                                                        |
+| [`tests/`](tests/)                                          | 153 tests: MCP compliance suite (official SDK client ↔ real server), fixture-based provider suites (no network), unit tests                                                                                                                                                                                                                                        |
 | [`paper/`](paper/)                                          | JOSS paper draft (`paper.md` + `paper.bib`)                                                                                                                                                                                                                                                                                                                        |
 | [`marketing/`](marketing/)                                  | Launch kit: platform-native announcement drafts                                                                                                                                                                                                                                                                                                                    |
 | [`Dockerfile`](Dockerfile) / [`compose.yaml`](compose.yaml) | Organizational self-hosting (image published to GHCR on every release)                                                                                                                                                                                                                                                                                             |
@@ -360,6 +369,7 @@ Releases: bump the version, tag `v*`, push — CI publishes the GitHub release w
 - v0.4.0 — **HDX/HAPI provider** (conflict, food security, funding, IDPs) + 3 crisis tools + **Docker/GHCR**
 - v0.5.0 — codebooks, Python/R notebooks, JOSS paper draft
 - v0.5.1 — HDX fixes from the first live verification round (per-theme admin levels, server-side year windows, pagination)
+- v0.6.0 — **ReliefWeb provider** (situation reports + latest report links), `situation_reports` tool, `crisis_overview` prompt, hardened public HTTP mode (per-IP rate limiting, `GET /health`), bilingual landing page
 - **Published to npm** — `npx humanitarian-mcp` is live
 
 **🚧 In progress**
@@ -395,7 +405,7 @@ No. It is an independent open-source project. All data is © its original produc
 
 <details><summary><strong>Why not just let the AI call the UN APIs directly?</strong></summary>
 
-Because the failure mode is silent wrong answers: UNHCR's `ARE` is Egypt, but ISO's `ARE` is the UAE; empty results look like "no data"; `"-"` cells break math. This server encodes those traps once, with 125 tests. See [Why this project exists](#why-this-project-exists).
+Because the failure mode is silent wrong answers: UNHCR's `ARE` is Egypt, but ISO's `ARE` is the UAE; empty results look like "no data"; `"-"` cells break math. This server encodes those traps once, with 153 tests. See [Why this project exists](#why-this-project-exists).
 </details>
 
 <details><summary><strong>Is the data real-time?</strong></summary>
@@ -508,15 +518,15 @@ Software (also available via GitHub's **"Cite this repository"** button — [CIT
   author  = {Nabil, Ahmed},
   title   = {humanitarian-mcp: a Model Context Protocol server for humanitarian open data},
   year    = {2026},
-  version = {0.5.1},
+  version = {0.6.0},
   url     = {https://github.com/ahmedvnabil/humanitarian-mcp},
   license = {MIT}
 }
 ```
 
-**APA** — Nabil, A. (2026). _humanitarian-mcp: A Model Context Protocol server for humanitarian open data_ (Version 0.5.1) [Computer software]. https://github.com/ahmedvnabil/humanitarian-mcp
+**APA** — Nabil, A. (2026). _humanitarian-mcp: A Model Context Protocol server for humanitarian open data_ (Version 0.6.0) [Computer software]. https://github.com/ahmedvnabil/humanitarian-mcp
 
-**Chicago** — Nabil, Ahmed. _humanitarian-mcp: A Model Context Protocol Server for Humanitarian Open Data_. V. 0.5.1. Computer software, 2026. https://github.com/ahmedvnabil/humanitarian-mcp.
+**Chicago** — Nabil, Ahmed. _humanitarian-mcp: A Model Context Protocol Server for Humanitarian Open Data_. V. 0.6.0. Computer software, 2026. https://github.com/ahmedvnabil/humanitarian-mcp.
 
 Cite the **data** as its producers: UNHCR Refugee Data Finder; World Bank World Development Indicators (CC BY 4.0); ACLED / IPC / OCHA FTS / IOM DTM via HDX HAPI — every export's manifest carries the exact citation string for its dataset. Method notes: [docs/for-researchers.md](docs/for-researchers.md).
 

@@ -1,0 +1,69 @@
+<svg viewBox="0 0 900 400" xmlns="http://www.w3.org/2000/svg" font-family="'IBM Plex Mono','SF Mono',Menlo,Consolas,monospace" role="img" aria-label="Animated data flow: UNHCR, World Bank, HDX and ReliefWeb are normalized by Humanitarian MCP into one citable interface consumed by AI clients">
+  <rect x="0" y="0" width="900" height="400" fill="#141c2e"/>
+  <rect x="0.5" y="0.5" width="899" height="399" fill="none" stroke="#2c3a5c" stroke-width="1"/>
+
+  <!-- connector paths: sources -> MCP -->
+  <path id="p1" d="M230,67 C310,67 315,164 388,164" fill="none" stroke="#2c3a5c" stroke-width="1.5"/>
+  <path id="p2" d="M230,153 C310,153 315,188 388,188" fill="none" stroke="#2c3a5c" stroke-width="1.5"/>
+  <path id="p3" d="M230,239 C310,239 315,212 388,212" fill="none" stroke="#2c3a5c" stroke-width="1.5"/>
+  <path id="p4" d="M230,325 C310,325 315,236 388,236" fill="none" stroke="#2c3a5c" stroke-width="1.5"/>
+  <!-- connector: MCP -> clients -->
+  <path id="p5" d="M622,200 L698,200" fill="none" stroke="#2c3a5c" stroke-width="1.5"/>
+  <text x="660" y="190" font-size="11" fill="#9aa3bd" text-anchor="middle">MCP</text>
+  <text x="660" y="220" font-size="10" fill="#9aa3bd" text-anchor="middle">stdio · HTTP</text>
+
+  <!-- source boxes -->
+  <g>
+    <rect x="30" y="36" width="200" height="62" fill="#1d2742" stroke="#2c3a5c"/>
+    <rect x="46" y="54" width="10" height="10" fill="#3fc79f"/>
+    <text x="64" y="64" font-size="14" font-weight="bold" fill="#f6f1e7">UNHCR</text>
+    <text x="46" y="84" font-size="10.5" fill="#9aa3bd">displacement · asylum · 1951→</text>
+  </g>
+  <g>
+    <rect x="30" y="122" width="200" height="62" fill="#1d2742" stroke="#2c3a5c"/>
+    <rect x="46" y="140" width="10" height="10" fill="#e3a83a"/>
+    <text x="64" y="150" font-size="14" font-weight="bold" fill="#f6f1e7">World Bank</text>
+    <text x="46" y="170" font-size="10.5" fill="#9aa3bd">population · GDP · poverty</text>
+  </g>
+  <g>
+    <rect x="30" y="208" width="200" height="62" fill="#1d2742" stroke="#2c3a5c"/>
+    <rect x="46" y="222" width="10" height="10" fill="#d94f3d"/>
+    <text x="64" y="232" font-size="14" font-weight="bold" fill="#f6f1e7">HDX</text>
+    <text x="46" y="249" font-size="10.5" fill="#9aa3bd">conflict · hunger · IDPs</text>
+    <text x="46" y="263" font-size="10.5" fill="#9aa3bd">funding (ACLED·IPC·FTS·DTM)</text>
+  </g>
+  <g>
+    <rect x="30" y="294" width="200" height="62" fill="#1d2742" stroke="#2c3a5c"/>
+    <rect x="46" y="312" width="10" height="10" fill="#9aa3bd"/>
+    <text x="64" y="322" font-size="14" font-weight="bold" fill="#f6f1e7">ReliefWeb</text>
+    <text x="46" y="342" font-size="10.5" fill="#9aa3bd">situation reports</text>
+  </g>
+
+  <!-- MCP box with pulse -->
+  <rect x="382" y="128" width="246" height="144" fill="none" stroke="#e3a83a" stroke-width="1" opacity="0">
+    <animate attributeName="opacity" values="0;0.45;0" dur="3.5s" repeatCount="indefinite"/>
+  </rect>
+  <rect x="388" y="134" width="234" height="132" fill="#1d2742" stroke="#e3a83a" stroke-width="2"/>
+  <text x="505" y="162" font-size="15" font-weight="bold" fill="#f6f1e7" text-anchor="middle">HUMANITARIAN-MCP</text>
+  <text x="505" y="188" font-size="11.5" fill="#9aa3bd" text-anchor="middle">normalize &#8594; ISO3 · one schema</text>
+  <text x="505" y="208" font-size="11.5" fill="#9aa3bd" text-anchor="middle">citation on every payload</text>
+  <text x="505" y="228" font-size="11.5" fill="#9aa3bd" text-anchor="middle">cache · offline · rate-limit</text>
+  <text x="505" y="252" font-size="11.5" font-weight="bold" fill="#3fc79f" text-anchor="middle">strictly read-only</text>
+
+  <!-- client box -->
+  <rect x="700" y="155" width="170" height="90" fill="#1d2742" stroke="#2c3a5c"/>
+  <text x="785" y="185" font-size="14" font-weight="bold" fill="#f6f1e7" text-anchor="middle">AI clients</text>
+  <text x="785" y="207" font-size="11" fill="#9aa3bd" text-anchor="middle">Claude · Cursor</text>
+  <text x="785" y="225" font-size="11" fill="#9aa3bd" text-anchor="middle">VS Code · your agent</text>
+
+  <!-- flowing dots -->
+  <circle r="3.5" fill="#3fc79f"><animateMotion dur="3s" begin="0s" repeatCount="indefinite"><mpath href="#p1"/></animateMotion></circle>
+  <circle r="3.5" fill="#e3a83a"><animateMotion dur="3s" begin="0.75s" repeatCount="indefinite"><mpath href="#p2"/></animateMotion></circle>
+  <circle r="3.5" fill="#d94f3d"><animateMotion dur="3s" begin="1.5s" repeatCount="indefinite"><mpath href="#p3"/></animateMotion></circle>
+  <circle r="3.5" fill="#9aa3bd"><animateMotion dur="3s" begin="2.25s" repeatCount="indefinite"><mpath href="#p4"/></animateMotion></circle>
+  <circle r="3.5" fill="#e3a83a"><animateMotion dur="1.6s" begin="0s" repeatCount="indefinite"><mpath href="#p5"/></animateMotion></circle>
+  <circle r="3.5" fill="#e3a83a"><animateMotion dur="1.6s" begin="0.8s" repeatCount="indefinite"><mpath href="#p5"/></animateMotion></circle>
+
+  <!-- caption -->
+  <text x="450" y="384" font-size="12" fill="#9aa3bd" text-anchor="middle">four sources in · one normalized, citable interface out</text>
+</svg>

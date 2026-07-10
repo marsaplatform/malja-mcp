@@ -1,0 +1,99 @@
+<svg viewBox="0 0 900 470" xmlns="http://www.w3.org/2000/svg" font-family="'IBM Plex Mono','SF Mono',Menlo,Consolas,'Noto Sans Arabic',monospace" role="img" aria-label="Animated terminal demo: per-capita refugee rankings, Arabic country resolution, citation-ready exports">
+  <!-- frame -->
+  <rect x="0" y="0" width="900" height="470" fill="#141c2e"/>
+  <rect x="1.5" y="1.5" width="897" height="467" fill="none" stroke="#e3a83a" stroke-width="3"/>
+  <!-- header -->
+  <text x="36" y="30" font-size="14" font-weight="bold" fill="#f6f1e7">humanitarian-mcp</text>
+  <circle cx="712" cy="25" r="4" fill="#3fc79f">
+    <animate attributeName="opacity" values="1;0.3;1" dur="2.4s" repeatCount="indefinite"/>
+  </circle>
+  <text x="724" y="30" font-size="13" fill="#9aa3bd">connected · read-only</text>
+  <line x1="12" y1="46" x2="888" y2="46" stroke="#2c3a5c" stroke-width="1"/>
+
+  <!-- typing clips -->
+  <defs>
+    <clipPath id="type1">
+      <rect x="36" y="66" width="0" height="26">
+        <animate attributeName="width" values="0;0;560;560" keyTimes="0;0.02;0.15;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+    </clipPath>
+    <clipPath id="type3">
+      <rect x="36" y="374" width="0" height="26">
+        <animate attributeName="width" values="0;0;450;450" keyTimes="0;0.56;0.67;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+    </clipPath>
+  </defs>
+
+  <!-- content (fades out at loop end) -->
+  <g>
+    <animate attributeName="opacity" values="1;1;0;0" keyTimes="0;0.94;0.99;1" dur="16s" repeatCount="indefinite"/>
+
+    <!-- Q1: typed -->
+    <g clip-path="url(#type1)">
+      <text x="36" y="84" font-size="15" fill="#e3a83a">&#10095; <tspan fill="#f6f1e7">Top refugee-hosting countries — per capita, not absolute.</tspan></text>
+    </g>
+
+    <!-- tool call -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.17;0.19;1" dur="16s" repeatCount="indefinite"/>
+      <text x="36" y="116" font-size="13" fill="#9aa3bd">&#9881; top_host_countries { normalize_by: "population" }</text>
+    </g>
+
+    <!-- ranked bars -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.21;0.23;1" dur="16s" repeatCount="indefinite"/>
+      <text x="36" y="156" font-size="15" fill="#f6f1e7">Lebanon</text>
+      <text x="208" y="156" font-size="15" fill="#f6f1e7" text-anchor="end" font-weight="bold">130.7</text>
+      <rect x="226" y="144" height="14" fill="#3fc79f" width="0">
+        <animate attributeName="width" values="0;0;340;340" keyTimes="0;0.22;0.27;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.23;0.25;1" dur="16s" repeatCount="indefinite"/>
+      <text x="36" y="187" font-size="15" fill="#f6f1e7">Chad</text>
+      <text x="208" y="187" font-size="15" fill="#f6f1e7" text-anchor="end" font-weight="bold">63.0</text>
+      <rect x="226" y="175" height="14" fill="#3fc79f" width="0">
+        <animate attributeName="width" values="0;0;164;164" keyTimes="0;0.24;0.29;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.25;0.27;1" dur="16s" repeatCount="indefinite"/>
+      <text x="36" y="218" font-size="15" fill="#f6f1e7">Moldova</text>
+      <text x="208" y="218" font-size="15" fill="#f6f1e7" text-anchor="end" font-weight="bold">56.6</text>
+      <rect x="226" y="206" height="14" fill="#3fc79f" width="0">
+        <animate attributeName="width" values="0;0;147;147" keyTimes="0;0.26;0.31;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.27;0.29;1" dur="16s" repeatCount="indefinite"/>
+      <text x="36" y="249" font-size="15" fill="#f6f1e7">Jordan</text>
+      <text x="208" y="249" font-size="15" fill="#f6f1e7" text-anchor="end" font-weight="bold">55.7</text>
+      <rect x="226" y="237" height="14" fill="#3fc79f" width="0">
+        <animate attributeName="width" values="0;0;145;145" keyTimes="0;0.28;0.33;1" dur="16s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.33;0.35;1" dur="16s" repeatCount="indefinite"/>
+      <text x="36" y="280" font-size="13" fill="#9aa3bd">per 1,000 residents · UNHCR + World Bank · denominator year disclosed on every row</text>
+    </g>
+
+    <!-- Q2: Arabic -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.40;0.43;1" dur="16s" repeatCount="indefinite"/>
+      <text x="36" y="322" font-size="15" fill="#e3a83a">&#10095; <tspan fill="#f6f1e7">&#171;&#1602;&#1575;&#1585;&#1606; &#1576;&#1610;&#1606; &#1575;&#1604;&#1604;&#1575;&#1580;&#1574;&#1610;&#1606; &#1601;&#1610; &#1605;&#1589;&#1585; &#1608;&#1575;&#1604;&#1571;&#1585;&#1583;&#1606;&#187;</tspan></text>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.47;0.49;1" dur="16s" repeatCount="indefinite"/>
+      <text x="36" y="352" font-size="13" fill="#3fc79f">&#10003; &#1605;&#1589;&#1585; &#8594; EGY · &#1575;&#1604;&#1571;&#1585;&#1583;&#1606; &#8594; JOR <tspan fill="#9aa3bd">— country names resolve in Arabic &amp; English</tspan></text>
+    </g>
+
+    <!-- Q3: typed -->
+    <g clip-path="url(#type3)">
+      <text x="36" y="392" font-size="15" fill="#e3a83a">&#10095; <tspan fill="#f6f1e7">Export as citation-ready CSV with a codebook.</tspan></text>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.70;0.72;1" dur="16s" repeatCount="indefinite"/>
+      <text x="36" y="424" font-size="13" fill="#3fc79f">&#10003; export_data <tspan fill="#9aa3bd">— manifest attached: arguments · timestamp · version · citation (UNHCR Refugee Data Finder)</tspan></text>
+    </g>
+  </g>
+</svg>
