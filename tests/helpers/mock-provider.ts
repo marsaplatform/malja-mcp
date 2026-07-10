@@ -3,6 +3,8 @@ import type {
   CountryMatch,
   CountryRef,
   DatasetId,
+  DocumentItem,
+  DocumentQuery,
   HumanitarianProvider,
   ListQuery,
   NormalizedRecord,
@@ -207,6 +209,24 @@ export class MockProvider implements HumanitarianProvider {
           dataset: 'food-security',
         });
       }
+    } else if (query.dataset === 'situation-reports') {
+      const iso3 = (query.asylum_iso3 ?? query.origin_iso3 ?? 'SDN').toUpperCase();
+      const country = COUNTRIES.find((c) => c.iso3 === iso3);
+      if (country) {
+        for (let year = yearFrom; year <= yearTo; year++) {
+          const reports = 12 + (year - 2015);
+          records.push({
+            country: country.name,
+            country_code: country.iso3,
+            year,
+            population: reports,
+            metrics: { reports },
+            source: 'mock',
+            last_updated: '2026-01-01T00:00:00.000Z',
+            dataset: 'situation-reports',
+          });
+        }
+      }
     } else if (query.dataset === 'demographics') {
       const iso3 = (query.asylum_iso3 ?? query.origin_iso3 ?? 'EGY').toUpperCase();
       const country = COUNTRIES.find((c) => c.iso3 === iso3);
@@ -294,6 +314,7 @@ export class MockProvider implements HumanitarianProvider {
           'conflict-events',
           'humanitarian-funding',
           'food-security',
+          'situation-reports',
         ] as DatasetId[]
       ).map((id) => ({
         id,
@@ -305,6 +326,22 @@ export class MockProvider implements HumanitarianProvider {
       attribution: 'Mock data — tests only',
       terms: 'https://example.test/terms',
     });
+  }
+
+  documents(query: DocumentQuery): Promise<DocumentItem[]> {
+    const iso3 = (query.iso3 ?? 'SDN').toUpperCase();
+    const country = COUNTRIES.find((c) => c.iso3 === iso3);
+    if (!country) return Promise.resolve([]);
+    const year = Math.min(query.yearTo ?? 2024, 2024);
+    const items = [1, 2, 3].map((n) => ({
+      title: `${country.name} Situation Report No. ${n}${query.query ? ` — ${query.query}` : ''}`,
+      url: `https://example.test/report/${iso3.toLowerCase()}/${year}-${n}`,
+      source: 'MOCK',
+      date: `${year}-0${n}-01T00:00:00+00:00`,
+      country_code: iso3,
+      format: 'Situation Report',
+    }));
+    return Promise.resolve(items.slice(0, query.limit ?? 5));
   }
 
   health(): Promise<ProviderHealth> {

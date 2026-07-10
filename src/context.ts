@@ -5,7 +5,7 @@ import type { Config } from './config.js';
 import { Logger } from './logger.js';
 import { HdxProvider } from './providers/hdx/index.js';
 import { ProviderRegistry } from './providers/registry.js';
-import { reliefwebNotImplemented } from './providers/reliefweb/index.js';
+import { ReliefWebProvider } from './providers/reliefweb/index.js';
 import { UnhcrProvider } from './providers/unhcr/index.js';
 import { WorldBankProvider } from './providers/worldbank/index.js';
 import { Analytics } from './shared/analytics.js';
@@ -43,7 +43,14 @@ export async function createContext(config: Config = loadConfig()): Promise<AppC
         registry.register(new HdxProvider(config, cache, logger, config.hdxAppIdentifier));
         break;
       case 'reliefweb':
-        reliefwebNotImplemented();
+        if (!config.reliefwebAppname) {
+          throw new Error(
+            'The reliefweb provider needs HMCP_RELIEFWEB_APPNAME — a pre-approved ReliefWeb API appname. ' +
+              'Request one via the short form at https://apidoc.reliefweb.int/parameters#appname ' +
+              '(ReliefWeb reviews it and replies by email), then set HMCP_RELIEFWEB_APPNAME=<appname>.',
+          );
+        }
+        registry.register(new ReliefWebProvider(config, cache, logger));
         break;
       default:
         throw new Error(

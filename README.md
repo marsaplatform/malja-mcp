@@ -50,16 +50,17 @@ Without a trusted middleware, an LLM pointed at raw humanitarian APIs re-discove
 ```mermaid
 flowchart TD
     U["You"] --> C["Claude Desktop · Claude Code · Cursor · VS Code · Windsurf<br/>or your own MCP agent"]
-    C -->|"MCP (stdio or Streamable HTTP)"| S["Humanitarian MCP<br/>20 tools · 11+ resources · 7 prompts"]
+    C -->|"MCP (stdio or Streamable HTTP)"| S["Humanitarian MCP<br/>21 tools · 11+ resources · 8 prompts"]
     S --> R["Provider registry<br/>(tools never see provider internals)"]
     R --> P1["UNHCR provider<br/>displacement · demographics · asylum"]
     R --> P2["World Bank provider<br/>population · GDP · poverty"]
     R --> P3["HDX/HAPI provider<br/>conflict · food security · funding · IDPs"]
-    R -.-> P4["ReliefWeb (planned — help wanted)"]
-    P1 & P2 & P3 --> H["Shared HTTP layer<br/>retry · backoff · rate limit · ETag · cache · offline mode"]
+    R --> P4["ReliefWeb provider<br/>situation reports · narrative context"]
+    P1 & P2 & P3 & P4 --> H["Shared HTTP layer<br/>retry · backoff · rate limit · ETag · cache · offline mode"]
     H --> A1[("api.unhcr.org")]
     H --> A2[("api.worldbank.org")]
     H --> A3[("hapi.humdata.org")]
+    H --> A4[("api.reliefweb.int")]
 ```
 
 Three invariants hold everywhere: **(1)** nothing provider-specific leaks outside `src/providers/<id>/`; **(2)** every tool is read-only and annotated as such; **(3)** errors reach the model as actionable text, never stack traces. Deep dive: [docs/architecture.md](docs/architecture.md).
@@ -147,13 +148,12 @@ No API key is required today. The service is operated on a best-effort basis by 
 
 ## Live data sources
 
-| Provider                               | Datasets                                                        | What it contributes                                                                                                                                                                                    | Key                                                |
-| -------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------- |
-| **UNHCR Refugee Statistics** (default) | population, demographics, asylum-applications, asylum-decisions | The displacement backbone: refugees, asylum-seekers, IDPs, stateless and others of concern, 1951–present, by origin and asylum country; age/sex breakdowns; asylum decisions with recognition rates    | none                                               |
-| **World Bank Indicators** (default)    | context-indicators                                              | The denominators: national population, GDP, GDP per capita, extreme-poverty rates — what turns "how many" into "how heavy a burden"                                                                    | none                                               |
-| **HDX HAPI** (opt-in)                  | conflict-events, food-security, humanitarian-funding, idps      | The crisis context, citing original producers: conflict events & fatalities (**ACLED**), IPC food-insecurity phases (**IPC**), appeal requirements vs funding (**OCHA FTS**), IDP stocks (**IOM DTM**) | free app identifier ([.env.example](.env.example)) |
-
-Planned, contributions welcome: **ReliefWeb** (situation reports, disasters, jobs) — scaffold with implementation notes in `src/providers/reliefweb/`.
+| Provider                               | Datasets                                                        | What it contributes                                                                                                                                                                                      | Key                                                 |
+| -------------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| **UNHCR Refugee Statistics** (default) | population, demographics, asylum-applications, asylum-decisions | The displacement backbone: refugees, asylum-seekers, IDPs, stateless and others of concern, 1951–present, by origin and asylum country; age/sex breakdowns; asylum decisions with recognition rates      | none                                                |
+| **World Bank Indicators** (default)    | context-indicators                                              | The denominators: national population, GDP, GDP per capita, extreme-poverty rates — what turns "how many" into "how heavy a burden"                                                                      | none                                                |
+| **HDX HAPI** (opt-in)                  | conflict-events, food-security, humanitarian-funding, idps      | The crisis context, citing original producers: conflict events & fatalities (**ACLED**), IPC food-insecurity phases (**IPC**), appeal requirements vs funding (**OCHA FTS**), IDP stocks (**IOM DTM**)   | free app identifier ([.env.example](.env.example))  |
+| **ReliefWeb** (opt-in)                 | situation-reports                                               | The narrative context: situation-report counts per country-year plus the latest report titles, publishers and links (**UN OCHA / ReliefWeb**) — what grounds trends and anomalies in published reporting | pre-approved appname ([.env.example](.env.example)) |
 
 ## Example questions
 
@@ -302,6 +302,15 @@ curl 'https://hapi.humdata.org/api/v2/encode_app_identifier?application=<your-ap
 HMCP_PROVIDERS=unhcr,worldbank,hdx HMCP_HDX_APP_ID=<identifier> node dist/index.js
 ```
 
+### Enable ReliefWeb situation reports (optional)
+
+```bash
+# one-time: request a pre-approved appname (short form, reviewed by ReliefWeb)
+# https://apidoc.reliefweb.int/parameters#appname
+
+HMCP_PROVIDERS=unhcr,worldbank,reliefweb HMCP_RELIEFWEB_APPNAME=<appname> node dist/index.js
+```
+
 All configuration knobs: [.env.example](.env.example).
 
 ### Verify without any client
@@ -356,7 +365,7 @@ Releases: bump the version, tag `v*`, push — CI publishes the GitHub release w
 
 **🔭 Future (contributions welcome)**
 
-- ReliefWeb provider (situation reports, disasters, jobs) — scaffold ready
+- ReliefWeb disasters dataset (the situation-reports pipeline already shipped)
 - Full Arabic report generation (`locale: "ar"`)
 - UNHCR Operational Data Portal situations
 - Sturdier statistics (confidence intervals, changepoint detection)
@@ -466,7 +475,7 @@ See [Citation](#citation) below — BibTeX/APA/Chicago provided, plus GitHub's "
 
 <details><summary><strong>How do I add a new data source?</strong></summary>
 
-One directory, one interface, fixture-based tests — the full worked guide is [docs/adding-providers.md](docs/adding-providers.md), and there's a provider-request issue template. ReliefWeb is the most-wanted next provider.
+One directory, one interface, fixture-based tests — the full worked guide is [docs/adding-providers.md](docs/adding-providers.md), and there's a provider-request issue template. IOM DTM and UNHCR ODP situations are the most-wanted next providers.
 </details>
 
 <details><summary><strong>Can my NGO run this internally?</strong></summary>
@@ -481,7 +490,7 @@ No. Everything is aggregate national statistics from public sources. Still: thes
 
 ## Contributing
 
-Contributions welcome — most wanted: the **ReliefWeb provider**, country-alias corrections, and documentation in more languages. Start with [CONTRIBUTING.md](CONTRIBUTING.md); the golden rules: read-only always, provider isolation, no network in tests, attribution is not optional.
+Contributions welcome — most wanted: **new providers** (IOM DTM, UNHCR ODP situations), country-alias corrections, and documentation in more languages. Start with [CONTRIBUTING.md](CONTRIBUTING.md); the golden rules: read-only always, provider isolation, no network in tests, attribution is not optional.
 
 ## Citation
 

@@ -1,0 +1,72 @@
+{
+  "time": 9,
+  "href": "https://api.reliefweb.int/v2/reports?appname=test",
+  "totalCount": 42,
+  "count": 5,
+  "data": [
+    {
+      "id": "4102001",
+      "fields": {
+        "title": "Sudan Humanitarian Update, June 2024",
+        "url": "https://reliefweb.int/report/sudan/sudan-humanitarian-update-june-2024",
+        "date": { "original": "2024-06-28T00:00:00+00:00" },
+        "source": [
+          {
+            "name": "UN Office for the Coordination of Humanitarian Affairs",
+            "shortname": "OCHA"
+          }
+        ],
+        "country": [
+          { "iso3": "sdn", "name": "Sudan", "primary": true },
+          { "iso3": "tcd", "name": "Chad" }
+        ],
+        "format": [{ "name": "Situation Report" }]
+      }
+    },
+    {
+      "id": "3900110",
+      "fields": {
+        "title": "Sudan: Conflict Displacement Flash Update No. 12",
+        "url": "https://reliefweb.int/report/sudan/flash-update-12",
+        "date": { "original": "2023-05-15T00:00:00+00:00" },
+        "source": [
+          { "name": "International Organization for Migration", "shortname": "IOM" },
+          { "name": "Displacement Tracking Matrix", "shortname": "DTM" }
+        ],
+        "country": [
+          { "iso3": "egy", "name": "Egypt" },
+          { "iso3": "sdn", "name": "Sudan", "primary": true }
+        ],
+        "format": [{ "name": "Situation Report" }]
+      }
+    },
+    {
+      "id": "3900500",
+      "fields": {
+        "title": "Sudan Situation Report with no publication date",
+        "url": "https://reliefweb.int/report/sudan/no-date",
+        "source": [{ "shortname": "WFP" }],
+        "country": [{ "iso3": "sdn", "primary": true }],
+        "format": [{ "name": "Situation Report" }]
+      }
+    },
+    {
+      "id": "3900600",
+      "fields": {
+        "title": "Regional overview with no country tag",
+        "url": "https://reliefweb.int/report/world/regional-overview",
+        "date": { "created": "2023-11-02T00:00:00+00:00" },
+        "source": [],
+        "format": [{ "name": "Situation Report" }]
+      }
+    },
+    {
+      "id": "3900700",
+      "fields": {
+        "title": "Broken row without a url",
+        "date": { "original": "2023-01-10T00:00:00+00:00" },
+        "country": [{ "iso3": "sdn", "primary": true }]
+      }
+    }
+  ]
+}

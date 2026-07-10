@@ -3,7 +3,8 @@
 A provider is one directory under `src/providers/<id>/` implementing one
 interface. Nothing else in the codebase changes except a `switch` arm in
 `src/context.ts`. This guide walks through a hypothetical **World Bank**
-provider; the ReliefWeb and HDX stubs in the tree follow the same plan.
+provider; the real World Bank, HDX and ReliefWeb providers in the tree all
+followed this exact plan.
 
 ## 0. Ground rules
 

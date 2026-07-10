@@ -25,6 +25,7 @@ const EXPECTED_TOOLS = [
   'conflict_events',
   'food_security',
   'humanitarian_funding',
+  'situation_reports',
   'trend_analysis',
   'forecast',
   'top_host_countries',
@@ -44,6 +45,7 @@ const EXPECTED_PROMPTS = [
   'find_anomalies',
   'executive_report',
   'infographic_summary',
+  'crisis_overview',
 ];
 
 describe('MCP compliance', () => {

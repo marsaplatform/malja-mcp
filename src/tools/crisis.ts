@@ -13,10 +13,10 @@ import {
 } from './common.js';
 
 /**
- * Crisis-context tools over the HDX/HAPI datasets: conflict events (ACLED),
- * food security (IPC) and humanitarian funding (OCHA FTS). Provider-agnostic
- * like every other tool — they ask the registry for whoever serves the
- * dataset and surface the original source's citation.
+ * Crisis-context tools: conflict events (ACLED), food security (IPC),
+ * humanitarian funding (OCHA FTS) and situation reports (ReliefWeb).
+ * Provider-agnostic like every other tool — they ask the registry for
+ * whoever serves the dataset and surface the original source's citation.
  */
 
 export function registerCrisisTools(server: McpServer, ctx: AppContext): void {
@@ -256,6 +256,123 @@ export function registerCrisisTools(server: McpServer, ctx: AppContext): void {
           country: ref.name,
           country_code: ref.iso3,
           records: rows,
+          source,
+        },
+      };
+    },
+  );
+
+  defineTool(
+    server,
+    ctx,
+    'situation_reports',
+    {
+      title: 'Situation reports',
+      description:
+        'Situation reports published about a country: yearly counts plus the most recent report titles and links (ReliefWeb). Use it to ground trends and anomalies from other tools in what was actually reported at the time.',
+      inputSchema: {
+        country: countryInput,
+        year_from: yearFromInput,
+        year_to: yearToInput,
+        query: z
+          .string()
+          .optional()
+          .describe(
+            'Free-text filter for the listed reports (e.g. "cholera") — yearly counts stay unfiltered',
+          ),
+        max_reports: z
+          .number()
+          .int()
+          .min(1)
+          .max(20)
+          .optional()
+          .describe('How many of the most recent reports to list (default 5)'),
+      },
+      outputSchema: {
+        country: z.string(),
+        country_code: z.string(),
+        records: z.array(z.object({ year: z.number(), reports: z.number() })),
+        latest: z.array(
+          z.object({
+            title: z.string(),
+            url: z.string(),
+            source: z.string(),
+            date: z.string(),
+          }),
+        ),
+        source: z.string(),
+      },
+    },
+    async ({ country, year_from, year_to, query, max_reports }) => {
+      const ref = await resolveCountry(ctx, country);
+      const { yearFrom, yearTo } = defaultYearRange(year_from, year_to);
+      const { source, citation } = await datasetProvenance(ctx, 'situation-reports');
+
+      const provider = await ctx.registry.forDataset('situation-reports');
+      const [{ records }, documents] = await Promise.all([
+        fetchAllRows(ctx, {
+          dataset: 'situation-reports',
+          asylum_iso3: ref.iso3,
+          yearFrom,
+          yearTo,
+        }),
+        provider.documents
+          ? provider.documents({
+              iso3: ref.iso3,
+              ...(query !== undefined ? { query } : {}),
+              yearFrom,
+              yearTo,
+              limit: max_reports ?? 5,
+            })
+          : Promise.resolve([]),
+      ]);
+
+      const rows = aggregateByYear(records).map((aggregate) => ({
+        year: aggregate.year,
+        reports: aggregate.metrics['reports'] ?? aggregate.population,
+      }));
+
+      if (rows.length === 0 && documents.length === 0) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `No situation reports found for ${ref.name} in ${yearFrom}–${yearTo}. ReliefWeb coverage varies by crisis; try a wider year range, or check provider_health if this persists.`,
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      const table = markdownTable(
+        ['Year', 'Reports'],
+        rows.map((r) => [String(r.year), r.reports]),
+      );
+      const latest = documents.map((d) => ({
+        title: d.title,
+        url: d.url,
+        source: d.source,
+        date: d.date,
+      }));
+      const latestList = latest
+        .map(
+          (d) =>
+            `- ${d.date.slice(0, 10) || 'undated'} — [${d.title}](${d.url})${d.source ? ` (${d.source})` : ''}`,
+        )
+        .join('\n');
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Situation reports — **${ref.name}**, ${yearFrom}–${yearTo}\n\n${table}\n\n**Latest reports**${query ? ` matching "${query}"` : ''}\n\n${latestList || '_none in range_'}\n\n_Source: ${citation}_`,
+          },
+        ],
+        structuredContent: {
+          country: ref.name,
+          country_code: ref.iso3,
+          records: rows,
+          latest,
           source,
         },
       };

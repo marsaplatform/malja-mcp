@@ -52,6 +52,7 @@ const HEADLINE: Partial<Record<DatasetId, string>> = {
   'conflict-events': 'Conflict events recorded in the year.',
   'humanitarian-funding': 'Humanitarian funding received (current US$).',
   'food-security': 'People in IPC phase 3 or worse (crisis or worse).',
+  'situation-reports': 'Situation reports published about the country in the year.',
 };
 
 const METRIC_FIELDS: Partial<Record<DatasetId, CodebookEntry[]>> = {
@@ -186,6 +187,13 @@ const METRIC_FIELDS: Partial<Record<DatasetId, CodebookEntry[]>> = {
       field: 'analyzed_population',
       description: 'Population covered by the IPC analysis.',
       unit: 'persons',
+    },
+  ],
+  'situation-reports': [
+    {
+      field: 'reports',
+      description: 'Situation reports published on ReliefWeb for the country-year.',
+      unit: 'reports',
     },
   ],
 };

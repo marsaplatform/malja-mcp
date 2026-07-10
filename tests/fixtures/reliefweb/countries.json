@@ -1,0 +1,16 @@
+{
+  "time": 6,
+  "href": "https://api.reliefweb.int/v2/countries?appname=test",
+  "totalCount": 5,
+  "count": 5,
+  "data": [
+    { "id": "13", "fields": { "name": "Egypt", "shortname": "Egypt", "iso3": "egy" } },
+    { "id": "129", "fields": { "name": "Jordan", "shortname": "Jordan", "iso3": "jor" } },
+    { "id": "216", "fields": { "name": "Sudan", "shortname": "Sudan", "iso3": "sdn" } },
+    {
+      "id": "226",
+      "fields": { "name": "Syrian Arab Republic", "shortname": "Syria", "iso3": "syr" }
+    },
+    { "id": "254", "fields": { "name": "World" } }
+  ]
+}

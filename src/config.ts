@@ -29,6 +29,8 @@ export interface Config {
   readonly userAgent: string;
   /** HDX HAPI app identifier (required only when the hdx provider is enabled). */
   readonly hdxAppIdentifier: string;
+  /** Pre-approved ReliefWeb API appname (required only when the reliefweb provider is enabled). */
+  readonly reliefwebAppname: string;
 }
 
 export const SERVER_NAME = 'humanitarian-mcp';
@@ -90,5 +92,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
       env['HMCP_USER_AGENT'] ??
       `${SERVER_NAME}/${SERVER_VERSION} (+https://github.com/ahmedvnabil/humanitarian-mcp)`,
     hdxAppIdentifier: env['HMCP_HDX_APP_ID']?.trim() ?? '',
+    reliefwebAppname: env['HMCP_RELIEFWEB_APPNAME']?.trim() ?? '',
   };
 }

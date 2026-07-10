@@ -284,6 +284,23 @@ describe('tool surface', () => {
     expect(funding.records[0]!.coverage_pct).toBeGreaterThan(0);
   });
 
+  it('situation_reports pairs yearly counts with the latest report links', async () => {
+    const reports = (await call('situation_reports', {
+      country: 'Sudan',
+      year_from: 2023,
+      year_to: 2024,
+    })) as {
+      records: { year: number; reports: number }[];
+      latest: { title: string; url: string; source: string; date: string }[];
+      source: string;
+    };
+    expect(reports.records).toHaveLength(2);
+    expect(reports.records[0]!.reports).toBe(20); // mock: 12 + (2023 − 2015)
+    expect(reports.latest.length).toBeGreaterThan(0);
+    expect(reports.latest[0]!.url).toMatch(/^https:\/\//);
+    expect(reports.source).toBe('mock');
+  });
+
   it('generate_chart plots normalized values with the unit on the axis', async () => {
     const chart = (await call('generate_chart', {
       countries: ['Jordan'],
@@ -359,7 +376,7 @@ describe('tool surface', () => {
       providers: { id: string; datasets: unknown[] }[];
     };
     expect(metadata.providers[0]!.id).toBe('mock');
-    expect(metadata.providers[0]!.datasets).toHaveLength(8);
+    expect(metadata.providers[0]!.datasets).toHaveLength(9);
 
     const health = (await call('provider_health')) as {
       healthy: boolean;

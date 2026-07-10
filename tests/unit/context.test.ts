@@ -29,10 +29,19 @@ describe('createContext', () => {
     expect(['sqlite', 'memory']).toContain(ctx.cache.backend);
   });
 
-  it('fails loudly for scaffolded-but-unimplemented providers', async () => {
+  it('requires a pre-approved appname for the reliefweb provider, with guidance', async () => {
     await expect(
       createContext(loadConfig({ HMCP_PROVIDERS: 'reliefweb', HMCP_LOG_LEVEL: 'error' })),
-    ).rejects.toThrow(/not implemented/);
+    ).rejects.toThrow(/HMCP_RELIEFWEB_APPNAME/);
+
+    const ctx = await createContext(
+      loadConfig({
+        HMCP_PROVIDERS: 'reliefweb',
+        HMCP_RELIEFWEB_APPNAME: 'hmcp-test-abc123',
+        HMCP_LOG_LEVEL: 'error',
+      }),
+    );
+    expect(ctx.registry.ids()).toEqual(['reliefweb']);
   });
 
   it('requires an app identifier for the hdx provider, with guidance', async () => {

@@ -4,6 +4,34 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **ReliefWeb provider** (`reliefweb`, opt-in): serves the new
+  `situation-reports` dataset — one normalized record per published situation
+  report, so year aggregation yields report counts — plus a `documents()`
+  capability returning the actual report titles, publishers and links.
+  Built on the ReliefWeb **v2** API (v1 is decommissioned); requires a
+  pre-approved appname (`HMCP_RELIEFWEB_APPNAME`) per ReliefWeb's
+  November 2025 policy, and `health()` explains a 403 accordingly.
+- **`situation_reports` tool**: yearly report counts plus the latest report
+  links for a country, with an optional free-text filter — the narrative
+  companion to `trend_analysis`/`find_anomalies`.
+- **`crisis_overview` prompt**: one-click integrated displacement + conflict
+  - food security + funding + latest-reporting brief.
+- Optional `documents()` method on the provider contract (like `countries()`).
+
+### Changed
+
+- Server instructions now describe the full multi-provider platform (UNHCR,
+  World Bank, HDX, ReliefWeb) instead of "currently UNHCR refugee statistics",
+  and tell clients to cite each payload's `source` rather than attributing
+  everything to UNHCR.
+- All prompts updated for the multi-source reality: per-source citations,
+  per-capita comparisons via `normalize_by`, crisis tools where relevant, and
+  anomaly explanations grounded in `conflict_events` + `situation_reports`.
+
 ## [0.5.1] — 2026-07-10
 
 Fixes from the first live verification round against HAPI with a real app

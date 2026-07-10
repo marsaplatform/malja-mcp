@@ -17,7 +17,8 @@ export type DatasetId =
   | 'idps'
   | 'conflict-events'
   | 'humanitarian-funding'
-  | 'food-security';
+  | 'food-security'
+  | 'situation-reports';
 
 export const ALL_DATASETS: readonly DatasetId[] = [
   'population',
@@ -29,6 +30,7 @@ export const ALL_DATASETS: readonly DatasetId[] = [
   'conflict-events',
   'humanitarian-funding',
   'food-security',
+  'situation-reports',
 ];
 
 /**
@@ -133,6 +135,31 @@ export interface ProviderMetadata {
   terms: string;
 }
 
+/** Query for human-readable documents (situation reports, ...). */
+export interface DocumentQuery {
+  /** Restrict to documents about one country (ISO3). */
+  iso3?: string;
+  /** Free-text query over the document title and body. */
+  query?: string;
+  yearFrom?: number;
+  yearTo?: number;
+  /** Max documents to return (provider may clamp). */
+  limit?: number;
+}
+
+/** One human-readable document, e.g. a situation report on ReliefWeb. */
+export interface DocumentItem {
+  title: string;
+  /** Canonical public URL of the document. */
+  url: string;
+  /** Publishing organisation(s), comma-joined. */
+  source: string;
+  /** ISO date of original publication (empty when the source omits it). */
+  date: string;
+  country_code?: string;
+  format?: string;
+}
+
 export interface ProviderHealth {
   provider: string;
   ok: boolean;
@@ -158,6 +185,12 @@ export interface HumanitarianProvider {
 
   /** Full country reference list, when the provider can enumerate one. */
   countries?(): Promise<CountryRef[]>;
+
+  /**
+   * Human-readable documents (situation reports, ...), newest first, when the
+   * provider serves any. Optional like {@link countries} — tools must check.
+   */
+  documents?(query: DocumentQuery): Promise<DocumentItem[]>;
 
   /** List normalized records for a dataset, with filters and pagination. */
   list(query: ListQuery): Promise<Page<NormalizedRecord>>;

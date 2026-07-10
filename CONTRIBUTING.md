@@ -13,13 +13,13 @@ npm run check        # typecheck + lint + format + tests must pass
 
 ## What we're looking for
 
-1. **New providers** — most wanted: **ReliefWeb** (situation reports,
-   disasters, jobs — a documented scaffold with implementation notes already
-   sits in `src/providers/reliefweb/`). Also welcome: UNHCR ODP situations,
-   OWID, UNICEF, WHO. Follow
+1. **New providers** — most wanted: **IOM DTM** and **UNHCR ODP
+   situations**. Also welcome: OWID, UNICEF, WHO, and the ReliefWeb
+   disasters dataset. Follow
    [docs/adding-providers.md](docs/adding-providers.md) end to end; PRs
-   without fixture-based tests won't be merged. (UNHCR, World Bank and
-   HDX/HAPI are already live — study them as worked examples.)
+   without fixture-based tests won't be merged. (UNHCR, World Bank,
+   HDX/HAPI and ReliefWeb are already live — study them as worked
+   examples.)
 2. **Data-quality fixes** — normalization edge cases, better country aliases
    (English and Arabic — see `src/shared/country-names-ar.ts`), centroid
    corrections.

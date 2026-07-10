@@ -18,7 +18,8 @@ Conventions shared by every tool:
 - Source figures are end-year stocks from the UNHCR Refugee Data Finder;
   context indicators come from the World Bank (CC BY 4.0); crisis datasets
   (conflict, food security, funding, IDPs) come via HDX HAPI and cite their
-  original producers (ACLED, IPC, OCHA FTS, IOM DTM).
+  original producers (ACLED, IPC, OCHA FTS, IOM DTM); situation reports come
+  from ReliefWeb (UN OCHA) and remain © their publishing organisations.
 
 ---
 
@@ -85,6 +86,15 @@ the headline is phase 3+ — people in crisis or worse. Source: IPC via HDX.
 → `{ country, records: [{ year, requirements_usd, funding_usd, coverage_pct? }] }`
 Appeals are summed per year and coverage recomputed from the sums (never
 averaged). Source: OCHA FTS via HDX.
+
+### situation_reports
+
+`country` · `year_from` · `year_to` · `query?` · `max_reports?` (1–20, default 5) — requires the `reliefweb` provider
+→ `{ country, country_code, records: [{ year, reports }], latest: [{ title, url, source, date }], source }`
+Yearly counts of published situation reports plus the most recent titles and
+links. `query` filters the listed reports only (e.g. `"cholera"`) — the yearly
+counts stay unfiltered. Use it to ground trends and anomalies from other tools
+in what was actually reported. Source: ReliefWeb (UN OCHA).
 
 ### trend_analysis
 
