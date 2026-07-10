@@ -11,8 +11,9 @@ import { ReliefWebProvider } from '../../src/providers/reliefweb/index.js';
  * GET parameter encoding (appname, AND-combined filter conditions, date
  * ranges) and the report→record normalization, without touching the network.
  *
- * Fixtures follow the documented v2 envelope (https://apidoc.reliefweb.int/);
- * live recording requires a pre-approved appname — re-record once granted.
+ * Fixtures follow the documented v2 envelope (https://apidoc.reliefweb.int/),
+ * with synthetic hostile rows the live API rarely serves. Shape verified
+ * against the real v2 API with an approved appname on 2026-07-10.
  */
 
 const FIXTURES = join(import.meta.dirname, '..', 'fixtures', 'reliefweb');

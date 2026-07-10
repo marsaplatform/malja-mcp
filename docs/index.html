@@ -6,7 +6,7 @@
     <title>humanitarian-mcp — trusted humanitarian data inside your AI assistant</title>
     <meta
       name="description"
-      content="Open-source MCP server that gives AI assistants clean, cited access to refugee and displacement data from UNHCR, the World Bank and HDX. Built for researchers, journalists and aid organizations. 21 tools, 8 one-click prompts, no API keys, works offline."
+      content="Open-source MCP server that gives AI assistants clean, cited access to refugee and displacement data from UNHCR, the World Bank, HDX and ReliefWeb. Built for researchers, journalists and aid organizations. 21 tools, 8 one-click prompts, no API keys, works offline."
     />
     <meta
       property="og:title"
@@ -233,7 +233,7 @@
       >
         <div>
           <p class="text-amber text-sm font-semibold mb-5 animate-fadeup">
-            Free · Open source · Three trusted sources: UNHCR · World Bank · HDX
+            Free · Open source · Four trusted sources: UNHCR · World Bank · HDX · ReliefWeb
           </p>
           <h1
             class="font-head font-bold leading-[1.18] animate-fadeup"
@@ -247,8 +247,10 @@
             that lets Claude, Cursor, <span class="whitespace-nowrap">VS Code</span> and any MCP
             client query the trusted humanitarian sources directly:
             <strong class="text-paper">UNHCR</strong> for displacement and asylum, the
-            <strong class="text-paper">World Bank</strong> for population and economic context, and
-            <strong class="text-paper">HDX</strong> for conflict, food security and funding.
+            <strong class="text-paper">World Bank</strong> for population and economic context,
+            <strong class="text-paper">HDX</strong> for conflict, food security and funding, and
+            <strong class="text-paper">ReliefWeb</strong> for the situation reports that tell the
+            story behind the numbers.
           </p>
           <p class="mt-3 text-fog text-lg max-w-xl animate-fadeup" style="animation-delay: 0.12s">
             You type “compare refugee numbers in Egypt and Jordan” like any other message, and back
@@ -372,7 +374,7 @@
     <!-- ━━ 00 The three sources ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
     <section id="sources" class="border-b border-rule">
       <div class="max-w-6xl mx-auto px-6 py-10">
-        <div class="grid md:grid-cols-3 gap-px bg-rule border border-rule">
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-px bg-rule border border-rule">
           <div class="bg-card p-5">
             <p class="font-head font-bold">
               UNHCR <span class="text-soft text-xs font-body">· the UN Refugee Agency</span>
@@ -403,6 +405,19 @@
             </p>
             <p class="mt-2 text-xs text-soft font-semibold">
               Optional — with a free identifier <span class="text-teal">(not a secret key)</span>
+            </p>
+          </div>
+          <div class="bg-card p-5">
+            <p class="font-head font-bold">
+              ReliefWeb <span class="text-soft text-xs font-body">· situation reports</span>
+            </p>
+            <p class="mt-1.5 text-sm text-soft leading-6">
+              Report counts per country and year + the latest report titles and links (UN OCHA) —
+              the narrative behind the numbers
+            </p>
+            <p class="mt-2 text-xs text-soft font-semibold">
+              Optional — with a pre-approved appname
+              <span class="text-teal">(free, reviewed by ReliefWeb)</span>
             </p>
           </div>
         </div>
@@ -478,8 +493,8 @@
         <h2 class="font-head font-bold text-3xl leading-snug">Watch it answer.</h2>
         <p class="mt-5 text-soft">
           You only type the question — no commands, no syntax. The gray line is what the assistant
-          does behind the scenes automatically, and the numbers are live from all three sources:
-          UNHCR, the World Bank and HDX.
+          does behind the scenes automatically, and the numbers are live from the connected sources:
+          UNHCR, the World Bank, HDX and ReliefWeb.
         </p>
       </div>
       <div class="border-2 border-ink bg-card min-w-0">
@@ -1044,8 +1059,8 @@ demographics({ country: "Egypt" })
       <div class="max-w-6xl mx-auto px-6 py-16 lg:py-20">
         <p class="font-mono text-teal text-sm mb-2">07</p>
         <h2 class="font-head font-bold text-3xl sm:text-4xl">
-          Today: UNHCR + World Bank + HDX.
-          <span class="text-teal">Next: ReliefWeb</span> and beyond.
+          Today: UNHCR + World Bank + HDX + ReliefWeb.
+          <span class="text-teal">Next: OWID</span> and beyond.
         </h2>
         <p class="mt-4 text-soft max-w-3xl">
           The server is designed to accept new data sources as self-contained modules — for
@@ -1068,7 +1083,7 @@ demographics({ country: "Egypt" })
             >HDX / HAPI — live (free identifier)</span
           >
           <span class="px-4 py-1.5 border-2 border-teal text-teal font-bold"
-            >ReliefWeb — new in 0.6.0 (approved appname)</span
+            >ReliefWeb — live (pre-approved appname)</span
           >
           <span class="px-4 py-1.5 border border-rule text-soft bg-card">OWID — coming</span>
         </div>

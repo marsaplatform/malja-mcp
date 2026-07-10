@@ -5,8 +5,11 @@ import { normalizeReports, toDocuments } from '../../src/providers/reliefweb/nor
 
 /**
  * Fixtures were authored from the documented v2 envelope
- * (https://apidoc.reliefweb.int/) — live recording requires a pre-approved
- * appname. Re-record them against the real API once one is granted.
+ * (https://apidoc.reliefweb.int/) and deliberately include hostile rows the
+ * live API rarely serves (missing dates, missing urls, no country tag).
+ * Shape verified against the real v2 API with an approved appname on
+ * 2026-07-10: envelope keys, lowercase iso3, `primary` flags and
+ * date.original/created all match production.
  */
 
 const FIXTURES = join(import.meta.dirname, '..', 'fixtures', 'reliefweb');
