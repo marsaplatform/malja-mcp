@@ -110,6 +110,18 @@ typechecking, linting and the full suite on Node 20, 22 and 24. Runnable
 Python and R notebooks reproduce four research workflows end-to-end against
 a local server.
 
+# AI usage disclosure
+
+Generative AI (Anthropic Claude, 2025–2026 model family) was used
+substantially throughout this project: code generation and refactoring,
+test scaffolding, documentation, and drafting of this manuscript. The
+author framed the problem, set the design invariants and architectural
+decisions (provider isolation, read-only semantics, per-dataset
+aggregation rules), reviewed, edited and validated all AI-assisted
+outputs, and verified results against the live upstream APIs. The author
+takes full responsibility for the accuracy, originality and licensing of
+all submitted materials.
+
 # Acknowledgements
 
 This project builds on the public data infrastructure maintained by UNHCR,
