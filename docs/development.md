@@ -27,15 +27,20 @@ on older versions it falls back to memory with a warning.
 
 ```
 tests/
-├── fixtures/unhcr/        recorded API responses (the upstream contract)
+├── fixtures/              recorded API responses (the upstream contracts)
+│   ├── unhcr/  worldbank/  hdx/
 ├── helpers/
 │   ├── mock-provider.ts   deterministic provider for integration tests
 │   └── context.ts         AppContext wired for tests (silent, memory-only)
 ├── unit/                  normalize · stats · cache · http-client ·
-│                          rate-limiter · country-match · viz · config
+│                          rate-limiter · country-match · country-names-ar ·
+│                          viz · config
 └── integration/
-    ├── mcp-compliance.test.ts   real SDK client ↔ real server, in-memory
-    └── unhcr-provider.test.ts   provider ↔ fixture-stubbed fetch
+    ├── mcp-compliance.test.ts      real SDK client ↔ real server, in-memory
+    ├── tool-surface.test.ts        every tool against the mock provider
+    ├── unhcr-provider.test.ts      ┐
+    ├── worldbank-provider.test.ts  ├ provider ↔ fixture-stubbed fetch
+    └── hdx-provider.test.ts        ┘
 ```
 
 Principles:
@@ -76,9 +81,25 @@ curl -s -X POST http://localhost:8642/api/call \
 
 ## Release
 
-```bash
-npm run check && npm run build
-node dist/index.js --version
-```
+Releases are tag-driven and automated (`.github/workflows/release.yml`):
+
+1. Bump the version in **four places** (they must stay in sync):
+   `package.json` (`npm version x.y.z --no-git-tag-version`),
+   `SERVER_VERSION` in `src/config.ts`, `manifest.json` (the `.mcpb`
+   manifest), and `CITATION.cff`.
+2. Add a `CHANGELOG.md` section.
+3. Sanity check locally:
+
+   ```bash
+   npm run check && npm run build
+   node dist/index.js --version
+   ```
+
+4. Tag and push: `git tag -a vX.Y.Z -m "…" && git push origin vX.Y.Z`.
+
+The workflow then runs the full check and publishes: the GitHub release with
+`humanitarian-mcp.mcpb` attached, the Docker image to
+`ghcr.io/ahmedvnabil/humanitarian-mcp` (version + `latest`), and — once the
+`NPM_TOKEN` repository secret exists — the npm package with provenance.
 
 `files` in package.json ships only `dist`, README and LICENSE.

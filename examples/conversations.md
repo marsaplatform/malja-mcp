@@ -5,6 +5,64 @@ Tool traces show what happens under the hood.
 
 ---
 
+## "Which countries carry the heaviest refugee-hosting burden — per capita, not absolute?"
+
+**Tool trace**
+
+```
+top_host_countries({ normalize_by: "population", limit: 6 })
+```
+
+**Assistant (excerpt — production data, 2024)**
+
+> Per 1,000 residents the picture inverts — small and low-income countries
+> lead, not large economies:
+>
+> | #   | Country         | per 1,000 residents | raw       |
+> | --- | --------------- | ------------------- | --------- |
+> | 1   | Lebanon         | 130.7               | 758,642   |
+> | 2   | Chad            | 63.0                | 1,278,866 |
+> | 3   | Rep. of Moldova | 56.6                | 135,941   |
+> | 4   | Jordan          | 55.7                | 643,641   |
+>
+> _Denominators: World Bank population, matched per year (2024); the
+> denominator year is disclosed on every row._
+
+---
+
+## "Relate Sudan's conflict to its displacement since 2022." _(needs the `hdx` provider)_
+
+**Tool trace**
+
+```
+conflict_events({ country: "Sudan", year_from: 2022, year_to: 2024 })
+export_data({ dataset: "idps", country: "Sudan", year_from: 2022, year_to: 2024, format: "json" })
+```
+
+**Assistant (excerpt — production data)**
+
+> The April 2023 war is unmistakable in both series. Conflict fatalities
+> (ACLED): 2,770 (2022) → 21,020 (2023) → 22,987 (2024). Internally
+> displaced people (IOM DTM, latest assessment per year): 3.78M → 9.05M →
+> 11.56M. Humanitarian funding covered 58.5% of appeal requirements in 2023
+> and 76.4% in 2024 (OCHA FTS)…
+
+---
+
+## «قارن بين عدد اللاجئين في مصر والأردن» — Arabic works too
+
+**Tool trace**
+
+```
+compare_countries({ countries: ["مصر", "الأردن"], year_from: 2020 })
+```
+
+Country resolution is bilingual: «مصر», «الأردن», «السودان» resolve exactly
+like "Egypt", "Jordan", "Sudan" — including spelling variants («الاردن»,
+«اردن»).
+
+---
+
 ## "Compare refugee populations in Egypt and Jordan over the last five years."
 
 **Tool trace**

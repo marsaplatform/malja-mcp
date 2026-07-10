@@ -8,7 +8,7 @@ plug into language servers via LSP. One protocol, any client, any server.
 
 ### Tools — "things the model can do"
 
-A tool is a typed function the model may call. This server registers 17, e.g.:
+A tool is a typed function the model may call. This server registers 20, e.g.:
 
 ```
 tools/call → { name: "refugee_population",

@@ -15,20 +15,22 @@ src/
 │   ├── types.ts        HumanitarianProvider contract + NormalizedRecord
 │   ├── registry.ts     lookup by dataset; tools never import providers
 │   ├── unhcr/          client.ts · codes.ts · normalize.ts · index.ts
-│   ├── reliefweb/      documented stub
-│   └── hdx/            documented stub
+│   ├── worldbank/      client.ts · normalize.ts · index.ts (context indicators)
+│   ├── hdx/            client.ts · normalize.ts · index.ts (4 HAPI themes)
+│   └── reliefweb/      documented stub — help wanted
 │
 ├── shared/             cross-provider infrastructure
 │   ├── http.ts         fetch + retry + backoff + ETag + SWR + offline
 │   ├── rate-limiter.ts token bucket per provider
-│   ├── country-match.ts fuzzy name scoring (provider-reusable)
+│   ├── country-match.ts fuzzy name scoring, Arabic-aware (provider-reusable)
+│   ├── country-names-ar.ts Arabic names/aliases per ISO3
 │   ├── stats.ts        regression, YoY, CAGR, anomaly detection
 │   ├── analytics.ts    in-memory usage counters (dashboard)
 │   └── geo.ts          ISO3 → centroid table for GeoJSON
 │
 ├── cache/              Cache interface · memory (LRU) · sqlite (node:sqlite)
 ├── schemas/            shared zod fragments for tool I/O
-├── tools/              17 tools in 8 focused files + common.ts plumbing
+├── tools/              20 tools in focused files + common.ts, denominators.ts, codebook.ts
 ├── resources/          static + templated resources
 ├── prompts/            7 built-in prompt templates
 ├── viz/                table · csv · chartjs · vega · mermaid · svg · geojson
@@ -78,12 +80,22 @@ Every provider must emit this shape (see `src/providers/types.ts`):
 
 `population` semantics per dataset:
 
-| dataset             | headline                                                 |
-| ------------------- | -------------------------------------------------------- |
-| population          | refugees + asylum_seekers + idps + stateless + ooc + oip |
-| demographics        | `total`                                                  |
-| asylum-applications | `applied`                                                |
-| asylum-decisions    | `dec_total`                                              |
+| dataset              | headline                                                 |
+| -------------------- | -------------------------------------------------------- |
+| population           | refugees + asylum_seekers + idps + stateless + ooc + oip |
+| demographics         | `total`                                                  |
+| asylum-applications  | `applied`                                                |
+| asylum-decisions     | `dec_total`                                              |
+| context-indicators   | `national_population` (World Bank)                       |
+| idps                 | IDP stock, latest assessment of the year (IOM DTM)       |
+| conflict-events      | events in the year (ACLED)                               |
+| humanitarian-funding | funding received, US$ (OCHA FTS)                         |
+| food-security        | people in IPC phase 3+ ("crisis or worse")               |
+
+Aggregation semantics that are easy to get wrong are encoded per provider:
+IDP assessment rounds are never summed (latest wins), funding coverage is
+recomputed from summed appeals (never averaged), IPC current analyses beat
+projections, and conflict district×month rows sum into country-years.
 
 ## Caching strategy
 
