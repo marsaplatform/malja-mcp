@@ -1,5 +1,5 @@
 import { createServer as createNodeServer } from 'node:http';
-import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { IncomingMessage, Server, ServerResponse } from 'node:http';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
@@ -7,10 +7,12 @@ import { SERVER_NAME, SERVER_VERSION } from '../config.js';
 import type { AppContext } from '../context.js';
 import { createServer } from '../server.js';
 import { DASHBOARD_HTML } from './dashboard-html.js';
+import { InboundRateLimiter } from './rate-limit.js';
 
 /**
  * HTTP mode: one process serving
  *   POST /mcp        — stateless streamable HTTP MCP endpoint
+ *   GET  /health     — liveness probe (no upstream calls, never rate limited)
  *   GET  /           — demo dashboard (static, self-contained)
  *   GET  /api/status — providers, health, tool/resource/prompt catalogue, stats
  *   GET  /api/logs   — recent structured log entries
@@ -18,9 +20,24 @@ import { DASHBOARD_HTML } from './dashboard-html.js';
  *
  * The dashboard talks to a real MCP client connected over an in-memory
  * transport, so what it displays is exactly what any MCP client would see.
+ *
+ * Everything except /health is rate limited per client IP
+ * (HMCP_HTTP_RATE_LIMIT_RPM, 0 = off) so one caller cannot exhaust the
+ * upstream quotas every enabled provider shares. Behind a reverse proxy the
+ * client is read from X-Forwarded-For — the proxy must set that header; when
+ * exposing the port directly, clients able to forge it can dodge the limiter.
  */
 
 const MAX_BODY_BYTES = 1024 * 1024;
+/** /api/status fans out to every provider — memoize it briefly. */
+const STATUS_CACHE_TTL_MS = 15_000;
+
+/** Client identity for rate limiting: first X-Forwarded-For hop, else socket. */
+function clientKey(req: IncomingMessage): string {
+  const forwarded = req.headers['x-forwarded-for'];
+  const first = (Array.isArray(forwarded) ? forwarded[0] : forwarded)?.split(',')[0]?.trim();
+  return first || req.socket.remoteAddress || 'unknown';
+}
 
 async function readBody(req: IncomingMessage): Promise<string> {
   const chunks: Buffer[] = [];
@@ -39,12 +56,15 @@ function sendJson(res: ServerResponse, status: number, payload: unknown): void {
   res.end(body);
 }
 
-export async function startHttpServer(ctx: AppContext, port: number): Promise<void> {
+export async function startHttpServer(ctx: AppContext, port: number): Promise<Server> {
   // In-process MCP pair backing the dashboard API.
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
   const inProcessServer = createServer(ctx);
   const client = new Client({ name: `${SERVER_NAME}-dashboard`, version: SERVER_VERSION });
   await Promise.all([inProcessServer.connect(serverTransport), client.connect(clientTransport)]);
+
+  const limiter = new InboundRateLimiter(ctx.config.httpRateLimitRpm);
+  let statusCache: { at: number; body: string } | undefined;
 
   const httpServer = createNodeServer((req, res) => {
     void route(req, res).catch((err: unknown) => {
@@ -58,6 +78,34 @@ export async function startHttpServer(ctx: AppContext, port: number): Promise<vo
 
   async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
     const url = new URL(req.url ?? '/', `http://localhost:${port}`);
+
+    // Liveness first: monitoring must never burn budget or hit providers.
+    if (url.pathname === '/health' && req.method === 'GET') {
+      sendJson(res, 200, {
+        status: 'ok',
+        name: SERVER_NAME,
+        version: SERVER_VERSION,
+        uptime_s: Math.round(process.uptime()),
+      });
+      return;
+    }
+
+    const key = clientKey(req);
+    if (!limiter.allow(key)) {
+      const retryAfter = limiter.retryAfterSeconds(key) || 60;
+      ctx.logger.warn('http: rate limited', { client: key, path: url.pathname });
+      res.setHeader('retry-after', String(retryAfter));
+      if (url.pathname === '/mcp') {
+        sendJson(res, 429, {
+          jsonrpc: '2.0',
+          error: { code: -32000, message: `Rate limited — retry in ${retryAfter}s` },
+          id: null,
+        });
+      } else {
+        sendJson(res, 429, { error: `rate limited — retry in ${retryAfter}s` });
+      }
+      return;
+    }
 
     if (url.pathname === '/mcp') {
       await handleMcp(req, res);
@@ -120,6 +168,14 @@ export async function startHttpServer(ctx: AppContext, port: number): Promise<vo
   }
 
   async function handleStatus(res: ServerResponse): Promise<void> {
+    // Memoized: refresh-spamming the dashboard must not fan out to
+    // provider health probes on every hit.
+    if (statusCache && Date.now() - statusCache.at < STATUS_CACHE_TTL_MS) {
+      res.writeHead(200, { 'content-type': 'application/json; charset=utf-8' });
+      res.end(statusCache.body);
+      return;
+    }
+
     const providers = await Promise.all(
       ctx.registry.all().map(async (provider) => ({
         metadata: await provider.metadata(),
@@ -133,7 +189,7 @@ export async function startHttpServer(ctx: AppContext, port: number): Promise<vo
       client.listPrompts(),
       ctx.cache.size(),
     ]);
-    sendJson(res, 200, {
+    const body = JSON.stringify({
       server: { name: SERVER_NAME, version: SERVER_VERSION },
       endpoint: `http://localhost:${port}/mcp`,
       config: {
@@ -141,6 +197,7 @@ export async function startHttpServer(ctx: AppContext, port: number): Promise<vo
         cache: ctx.cache.backend,
         offline: ctx.config.offline,
         rateLimitRps: ctx.config.rateLimitRps,
+        httpRateLimitRpm: ctx.config.httpRateLimitRpm,
         cacheTtlSeconds: ctx.config.cacheTtlSeconds,
       },
       providers,
@@ -153,6 +210,9 @@ export async function startHttpServer(ctx: AppContext, port: number): Promise<vo
       cache: { backend: ctx.cache.backend, entries: cacheSize, ...ctx.cache.stats },
       analytics: ctx.analytics.snapshot(),
     });
+    statusCache = { at: Date.now(), body };
+    res.writeHead(200, { 'content-type': 'application/json; charset=utf-8' });
+    res.end(body);
   }
 
   async function handleCall(req: IncomingMessage, res: ServerResponse): Promise<void> {
@@ -187,5 +247,7 @@ export async function startHttpServer(ctx: AppContext, port: number): Promise<vo
     host,
     dashboard: `http://localhost:${port}/`,
     mcpEndpoint: `http://localhost:${port}/mcp`,
+    rateLimitRpm: ctx.config.httpRateLimitRpm,
   });
+  return httpServer;
 }

@@ -22,6 +22,12 @@ adheres to [Semantic Versioning](https://semver.org/).
   - food security + funding + latest-reporting brief.
 - Optional `documents()` method on the provider contract (like `countries()`).
 
+- Hardened `--http` mode: per-client-IP inbound rate limiting on `/mcp` and
+  `/api/*` (`HMCP_HTTP_RATE_LIMIT_RPM`, default 120/min, 0 disables; 429 +
+  `Retry-After`, JSON-RPC-shaped for `/mcp`), a new lightweight `GET /health`
+  liveness endpoint (no upstream calls, never rate limited), and `/api/status`
+  memoized for 15 s so it cannot amplify into provider health probes.
+
 ### Changed
 
 - Server instructions now describe the full multi-provider platform (UNHCR,

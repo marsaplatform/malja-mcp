@@ -25,6 +25,8 @@ export interface Config {
   readonly httpPort: number;
   /** Interface to bind in --http mode. Default localhost; set 0.0.0.0 to expose directly. */
   readonly httpHost: string;
+  /** Max inbound requests per minute per client in --http mode (0 = unlimited). */
+  readonly httpRateLimitRpm: number;
   /** User-Agent sent with every outgoing request. */
   readonly userAgent: string;
   /** HDX HAPI app identifier (required only when the hdx provider is enabled). */
@@ -88,6 +90,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     analytics: boolFromEnv(env, 'HMCP_ANALYTICS', true),
     httpPort: intFromEnv(env, 'HMCP_HTTP_PORT', 8642),
     httpHost: env['HMCP_HTTP_HOST']?.trim() || '127.0.0.1',
+    httpRateLimitRpm: intFromEnv(env, 'HMCP_HTTP_RATE_LIMIT_RPM', 120),
     userAgent:
       env['HMCP_USER_AGENT'] ??
       `${SERVER_NAME}/${SERVER_VERSION} (+https://github.com/ahmedvnabil/humanitarian-mcp)`,

@@ -8,8 +8,11 @@ import { Analytics } from '../../src/shared/analytics.js';
 import { MockProvider } from './mock-provider.js';
 
 /** AppContext wired for tests: silent logger, memory cache, mock provider. */
-export function buildTestContext(provider: HumanitarianProvider = new MockProvider()): AppContext {
-  const config = loadConfig({ HMCP_PROVIDERS: provider.id, HMCP_LOG_LEVEL: 'error' });
+export function buildTestContext(
+  provider: HumanitarianProvider = new MockProvider(),
+  env: NodeJS.ProcessEnv = {},
+): AppContext {
+  const config = loadConfig({ HMCP_PROVIDERS: provider.id, HMCP_LOG_LEVEL: 'error', ...env });
   const registry = new ProviderRegistry();
   registry.register(provider);
   return {

@@ -133,6 +133,11 @@ older Node versions.
   session store. The same process serves the demo dashboard, which talks to an
   in-process MCP client over `InMemoryTransport` — the dashboard displays
   exactly what a real client negotiates, not a parallel implementation.
+  Everything except `GET /health` (the no-upstream liveness probe) is rate
+  limited per client IP (`HMCP_HTTP_RATE_LIMIT_RPM`, default 120, 0 = off) so
+  one caller cannot exhaust the upstream quotas all providers share, and
+  `/api/status` is memoized for 15 s so dashboard refreshes never fan out to
+  provider health probes.
 
 ## Design invariants
 

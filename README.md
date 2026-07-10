@@ -320,6 +320,11 @@ npm run dashboard   # → http://localhost:8642 — providers, health, live logs
 npm run inspect     # → official MCP Inspector
 ```
 
+In `--http` mode, `GET /health` is a dependency-free liveness probe for uptime
+monitors, and every other route is rate limited per client IP
+(`HMCP_HTTP_RATE_LIMIT_RPM`, default 120/min) so a public endpoint cannot be
+used to exhaust the upstream quotas all providers share.
+
 ## Repository tour
 
 | Path                                                        | What lives there                                                                                                                                                                                                                                                                                                                                                   |
