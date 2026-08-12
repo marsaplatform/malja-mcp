@@ -108,7 +108,10 @@ export async function startHttpServer(ctx: AppContext, port: number): Promise<Se
     }
 
     // Public transparency — aggregate usage, no auth, never rate limited.
+    // CORS-open because it is non-sensitive public data meant to be embedded
+    // (e.g. a transparency page on another origin).
     if (url.pathname === '/api/usage' && req.method === 'GET') {
+      res.setHeader('access-control-allow-origin', '*');
       sendJson(res, 200, usage.summary());
       return;
     }
