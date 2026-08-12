@@ -20,6 +20,8 @@
  */
 
 import { randomBytes, createHash } from 'node:crypto';
+import { mkdirSync } from 'node:fs';
+import { dirname } from 'node:path';
 import {
   ingestUsage,
   resolveEntitlement,
@@ -58,6 +60,11 @@ function monthKey(): string {
 
 async function openDb(path: string): Promise<Db | null> {
   try {
+    try {
+      mkdirSync(dirname(path), { recursive: true });
+    } catch {
+      /* dir may already exist */
+    }
     const sqlite = (await import('node:sqlite')) as { DatabaseSync: new (p: string) => Db };
     return new sqlite.DatabaseSync(path);
   } catch {
