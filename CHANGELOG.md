@@ -4,6 +4,23 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.7.0] — 2026-08-12
+
+Usage measurement for an open, free service — privacy-first, no paywall.
+
+### Added
+- **Anonymous aggregate metrics** (always on): per-day, per-tool request counts
+  split keyed vs anonymous, plus a same-day unique-client estimate. Uniqueness
+  uses a per-day in-memory salt so stored hashes cannot be linked across days or
+  back to an IP; raw IPs are never written. Exposed at `GET /api/usage`.
+- **Free API keys** (optional): a one-field email sign-up issues `hm_…` keys that
+  attribute usage to a subject and lift the anonymous rate limit up to a monthly
+  ceiling (default 50,000). Stateless HMAC keys — no key database. Account status
+  at `GET /api/my-usage`.
+- Keyed usage is reported to an optional SaaSpress control plane in idempotent
+  batches for storefront analytics; unset `SAASPRESS_*` disables reporting with no
+  other effect. Storage is `node:sqlite` (durable) with in-memory fallback.
+
 ## [0.6.0] — 2026-07-10
 
 The narrative release: ReliefWeb situation reports join the platform, every

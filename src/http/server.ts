@@ -8,6 +8,7 @@ import type { AppContext } from '../context.js';
 import { createServer } from '../server.js';
 import { DASHBOARD_HTML } from './dashboard-html.js';
 import { InboundRateLimiter } from './rate-limit.js';
+import { UsageCounter, usageOptionsFromEnv } from '../usage/counter.js';
 
 /**
  * HTTP mode: one process serving
@@ -64,7 +65,23 @@ export async function startHttpServer(ctx: AppContext, port: number): Promise<Se
   await Promise.all([inProcessServer.connect(serverTransport), client.connect(clientTransport)]);
 
   const limiter = new InboundRateLimiter(ctx.config.httpRateLimitRpm);
+  const usage = await UsageCounter.create(usageOptionsFromEnv());
   let statusCache: { at: number; body: string } | undefined;
+
+  function apiKeyOf(req: IncomingMessage): string | null {
+    const h = req.headers['x-api-key'];
+    const v = Array.isArray(h) ? h[0] : h;
+    return v?.trim() || null;
+  }
+  // A tool/method label for the aggregate counter, from the parsed JSON-RPC body.
+  function rpcLabel(parsed: unknown): string {
+    if (parsed && typeof parsed === 'object' && 'method' in parsed) {
+      const method = String((parsed as { method: unknown }).method);
+      const name = (parsed as { params?: { name?: unknown } }).params?.name;
+      return method === 'tools/call' && typeof name === 'string' ? `tool:${name}` : method;
+    }
+    return 'mcp';
+  }
 
   const httpServer = createNodeServer((req, res) => {
     void route(req, res).catch((err: unknown) => {
@@ -90,8 +107,18 @@ export async function startHttpServer(ctx: AppContext, port: number): Promise<Se
       return;
     }
 
+    // Public transparency — aggregate usage, no auth, never rate limited.
+    if (url.pathname === '/api/usage' && req.method === 'GET') {
+      sendJson(res, 200, usage.summary());
+      return;
+    }
+
     const key = clientKey(req);
-    if (!limiter.allow(key)) {
+    // A valid free key attributes usage and lifts the anonymous rate limit up to
+    // its monthly ceiling; anonymous callers keep the per-IP limit.
+    const gate = await usage.gate(apiKeyOf(req));
+    const keyedActive = gate.keyed && !gate.overLimit;
+    if (!keyedActive && !limiter.allow(key)) {
       const retryAfter = limiter.retryAfterSeconds(key) || 60;
       ctx.logger.warn('http: rate limited', { client: key, path: url.pathname });
       res.setHeader('retry-after', String(retryAfter));
@@ -106,9 +133,24 @@ export async function startHttpServer(ctx: AppContext, port: number): Promise<Se
       }
       return;
     }
+    const subject = keyedActive && gate.keyed ? gate.subject : null;
+
+    // Free-key account status (unbilled, requires a valid key).
+    if (url.pathname === '/api/my-usage' && req.method === 'GET') {
+      if (!gate.keyed) {
+        sendJson(res, 401, { error: 'a valid X-API-Key is required' });
+        return;
+      }
+      sendJson(res, 200, {
+        subject: gate.subject,
+        used_this_month: usage.usedThisMonth(gate.subject),
+        over_limit: gate.overLimit,
+      });
+      return;
+    }
 
     if (url.pathname === '/mcp') {
-      await handleMcp(req, res);
+      await handleMcp(req, res, subject, key);
       return;
     }
     if (url.pathname === '/' && req.method === 'GET') {
@@ -131,7 +173,12 @@ export async function startHttpServer(ctx: AppContext, port: number): Promise<Se
     sendJson(res, 404, { error: 'not found' });
   }
 
-  async function handleMcp(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  async function handleMcp(
+    req: IncomingMessage,
+    res: ServerResponse,
+    subject: string | null,
+    client: string,
+  ): Promise<void> {
     if (req.method !== 'POST') {
       // Stateless mode: no server-initiated streams, no sessions to delete.
       sendJson(res, 405, {
@@ -164,6 +211,7 @@ export async function startHttpServer(ctx: AppContext, port: number): Promise<Se
       void mcpServer.close();
     });
     await mcpServer.connect(transport);
+    usage.record(rpcLabel(parsed), subject, subject ?? client);
     await transport.handleRequest(req, res, parsed);
   }
 
