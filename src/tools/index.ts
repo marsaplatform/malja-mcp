@@ -7,6 +7,7 @@ import { registerCountryTools } from './countries.js';
 import { registerCrisisTools } from './crisis.js';
 import { registerExportTools } from './exports.js';
 import { registerMetaTools } from './meta.js';
+import { registerMonitorTools } from './monitor.js';
 import { registerPopulationTools } from './population.js';
 import { registerReportExportTools } from './report-export.js';
 import { registerReportTools } from './reports.js';
@@ -20,6 +21,7 @@ export function registerTools(server: McpServer, ctx: AppContext): void {
   registerSolutionsTools(server, ctx);
   registerCrisisTools(server, ctx);
   registerAnalyticsTools(server, ctx);
+  registerMonitorTools(server, ctx);
   registerChartTools(server, ctx);
   registerReportTools(server, ctx);
   registerReportExportTools(server, ctx);

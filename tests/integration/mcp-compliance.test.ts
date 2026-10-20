@@ -30,6 +30,7 @@ const EXPECTED_TOOLS = [
   'trend_analysis',
   'forecast',
   'top_host_countries',
+  'monitor_changes',
   'generate_chart',
   'generate_map',
   'generate_country_report',

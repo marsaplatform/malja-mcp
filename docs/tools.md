@@ -260,6 +260,45 @@ lead instead of large economies; each row keeps the raw value and the
 denominator year, and countries with no denominator data are counted, not
 silently dropped.
 
+### monitor_changes
+
+`country` · `role` (default `asylum`) · `metrics?` (default: the UNHCR population
+metrics that have data) · `history_years` (3–30, default 10) ·
+`jump_threshold_pct` (default 25) · `min_change` (people, default 1000) ·
+`thresholds?` (`[{ metric, value, direction: up|down|any }]`) · `snapshot?` ·
+`use_stored_snapshot` (default true) · `store_snapshot` (default true)
+→ `{ latest_year, previous_year, baseline: { kind, taken_at, latest_year }, metrics, events, summary: { total, new, warning, notice, info, has_alerts }, snapshot, snapshot_stored, source, citation }`
+
+Answers "what changed?" for one country:
+
+| Event                 | Compared against           | Rule                                                                                                                                                       | Severity                         |
+| --------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| `new_release`         | snapshot                   | latest data year moved past the snapshot's                                                                                                                 | notice                           |
+| `revision`            | snapshot                   | a year the snapshot had now carries another value                                                                                                          | notice if ≥1% or ≥`min_change`   |
+| `jump`                | previous year              | \|change\| ≥ `min_change` and (\|Δ%\| ≥ `jump_threshold_pct`, or from zero, or robust z ≥ 3.5 against the series' own year-over-year history — median/MAD) | warning at 2× threshold / from 0 |
+| `threshold_crossing`  | previous year              | the metric crossed a level you set, in the chosen direction                                                                                                | warning                          |
+| `record_high` / `low` | the `history_years` window | highest / lowest value in the window (≥4 earlier years)                                                                                                    | info                             |
+
+**Baselines.** The YoY checks always run. Release and revision checks need a
+snapshot: pass a `snapshot` returned by an earlier call (the caller keeps its
+own baseline), or rely on the one the server keeps in its cache
+(`malja:monitor:v1:population:<provider>:<ISO3>:<role>`; persists across
+restarts with `MALJA_CACHE=sqlite`). Each call merges into the stored
+baseline, so a narrower call (fewer metrics, shorter history) never drops what
+a broader one recorded; `store_snapshot: false` leaves it untouched. The first ever check has no baseline and says so.
+
+**Built for alerts.** Every event has a stable `id` (e.g.
+`SDN:asylum:jump:idps:2025`; revisions include the new value), a `severity`,
+the numbers behind it, a localized `message`, and `new_since_snapshot` — false
+when the same id was already present at the baseline. `summary.has_alerts` is
+true when a new event above `info` appeared. A scheduler can poll the tool,
+store the snapshot, and notify on `has_alerts` without re-alerting on old news.
+The tool itself is read-only: it never sends anything, and it writes only its
+own snapshot to the server cache.
+
+Freshness follows the HTTP cache: a new upstream release appears once the
+cached UNHCR response expires (`MALJA_CACHE_TTL`, default 1 h).
+
 ### generate_chart
 
 `countries` (1–5) · `metric` · `role` · `normalize_by` · `format` (`chartjs`|`vega-lite`|`mermaid`|`svg`) · `kind` (`line`|`bar`) · `show_changepoints` · `year_from` · `year_to`

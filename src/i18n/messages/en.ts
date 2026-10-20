@@ -439,6 +439,72 @@ export const en = {
       'situation-reports': 'Situation reports published about the country in the year.',
     } as Record<string, string>,
   },
+  monitor: {
+    heading: (name: string, side: string) => `# Monitoring — ${name}${side}`,
+    noData: (name: string, side: string, range: string) =>
+      `No UNHCR population data for ${name}${side} in ${range}.`,
+    noLatest: 'Could not determine the latest data year.',
+    latestLine: (latest: string, previous: string) =>
+      `**Latest data year:** ${latest} (compared with ${previous})`,
+    baselineNone:
+      '**Baseline:** no earlier snapshot — year-over-year checks only; new releases and revisions are detected from the next check on.',
+    baselineStored: (takenAt: string, year: string) =>
+      `**Baseline:** snapshot stored by the previous check (${takenAt}; latest data year then: ${year}).`,
+    baselineSupplied: (takenAt: string, year: string) =>
+      `**Baseline:** supplied snapshot (${takenAt}; latest data year then: ${year}).`,
+    eventsHeading: 'Events',
+    noEvents: 'No new releases, revisions, significant jumps or threshold crossings detected.',
+    alreadySeen: '_(already flagged at the baseline)_',
+    severity: { info: 'info', notice: 'notice', warning: 'warning' } as Record<
+      'info' | 'notice' | 'warning',
+      string
+    >,
+    tableHeading: 'Latest year vs previous year',
+    metricHeader: 'Metric',
+    changeHeader: 'Change',
+    changePctHeader: 'Change %',
+    event: {
+      newRelease: (year: string, baselineYear: string) =>
+        `New data released: ${year} figures are available (the baseline ended in ${baselineYear}).`,
+      revision: (metric: string, year: string, from: string, to: string, pct: string) =>
+        `${metric} for ${year} revised from ${from} to ${to} (${pct}).`,
+      jumpUp: (
+        metric: string,
+        prevYear: string,
+        year: string,
+        from: string,
+        to: string,
+        pct: string,
+      ) => `${metric} rose sharply from ${prevYear} to ${year}: ${from} → ${to} (${pct}).`,
+      jumpDown: (
+        metric: string,
+        prevYear: string,
+        year: string,
+        from: string,
+        to: string,
+        pct: string,
+      ) => `${metric} fell sharply from ${prevYear} to ${year}: ${from} → ${to} (${pct}).`,
+      jumpFromZero: (metric: string, year: string, to: string) =>
+        `${metric} appeared in ${year}: ${to} (none reported the year before).`,
+      unusual: (z: string) => `Unusual for this series (robust z = ${z}).`,
+      crossedAbove: (metric: string, threshold: string, year: string, from: string, to: string) =>
+        `${metric} crossed above ${threshold} in ${year} (${from} → ${to}).`,
+      crossedBelow: (metric: string, threshold: string, year: string, from: string, to: string) =>
+        `${metric} fell below ${threshold} in ${year} (${from} → ${to}).`,
+      recordHigh: (metric: string, year: string, value: string, since: string) =>
+        `${metric} reached its highest level since ${since} in ${year}: ${value}.`,
+      recordLow: (metric: string, year: string, value: string, since: string) =>
+        `${metric} fell to its lowest level since ${since} in ${year}: ${value}.`,
+    },
+    snapshotStored:
+      '_This result is stored on the server as the baseline for the next check (it survives restarts with MALJA_CACHE=sqlite). To keep your own baseline, pass the returned `snapshot` back as `snapshot`._',
+    snapshotNotStored:
+      '_Snapshot not stored (store_snapshot: false); pass the returned `snapshot` back as `snapshot` to compare against it later._',
+    freshness:
+      '_Figures come through the server cache, so a new release shows up once the cached response expires (MALJA_CACHE_TTL)._',
+    snapshotMismatch: (got: string, expected: string) =>
+      `The supplied snapshot belongs to another series (${got}); this check is for ${expected}.`,
+  },
   metadata: {
     headers: ['Dataset', 'Metrics', 'Description'] as [string, string, string],
     healthHeaders: ['Provider', 'Status', 'Latency', 'Detail'] as [string, string, string, string],
