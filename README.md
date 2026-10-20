@@ -156,6 +156,10 @@ No API key is required today. The service is operated on a best-effort basis by 
 - Runnable [Python & R notebooks](examples/notebooks/) reproducing four research workflows
 - [CITATION.cff](CITATION.cff) + JOSS paper draft in [paper/](paper/)
 
+**Monitoring**
+
+- `monitor_changes`: what changed for a country since the previous year and since the last check — new data releases, revisions of past years, significant jumps (percentage or unusual for the series), threshold crossings you define, record highs/lows. Alert-ready events with stable ids and severities; baselines kept in the server cache or passed back by the caller. No key, read-only. [Details](docs/tools.md#monitor_changes)
+
 **Operations**
 
 - Two transports: stdio (desktop) and stateless Streamable HTTP (remote) + a built-in dashboard with a query playground

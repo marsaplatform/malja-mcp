@@ -25,6 +25,15 @@ adheres to [Semantic Versioning](https://semver.org/).
 - RTL support: SVG charts (`direction="rtl"`, Arabic font stack, RTL legend),
   Chart.js RTL legend/tooltips, Vega-Lite Arabic font config, LRM-protected
   signed numbers, worded year ranges.
+- **`monitor_changes`** — monitoring & comparison for a country's UNHCR
+  population figures: latest year vs previous year (significant jumps by
+  percentage or robust z against the series' own history, user-defined
+  threshold crossings, record highs/lows) and, against an earlier snapshot,
+  new data releases and revisions of past years. Events carry stable ids,
+  severities, numbers and localized messages, plus `new_since_snapshot` and
+  `summary.has_alerts`, so a scheduler can drive alerts from it later.
+  Baselines are returned to the caller and/or stored in the server cache
+  (persistent with `MALJA_CACHE=sqlite`). Read-only, no key; en + ar.
 
 ### Unchanged by design
 

@@ -350,6 +350,72 @@ export const ar: Messages = {
       'situation-reports': 'تقارير الحالة المنشورة عن البلد خلال العام.',
     },
   },
+  monitor: {
+    heading: (name: string, side: string) => `# رصد التغيّرات — ${name}${side}`,
+    noData: (name: string, side: string, range: string) =>
+      `لا تتوفر بيانات المفوضية السكانية عن ${name}${side} للفترة ${range}.`,
+    noLatest: 'تعذّر تحديد أحدث سنة متاحة في البيانات.',
+    latestLine: (latest: string, previous: string) =>
+      `**أحدث سنة في البيانات:** ${latest} (مقارنةً بعام ${previous})`,
+    baselineNone:
+      '**خط الأساس:** لا توجد لقطة سابقة — اقتصرت المقارنة على السنة السابقة؛ يبدأ رصد الإصدارات الجديدة والتعديلات من الفحص التالي.',
+    baselineStored: (takenAt: string, year: string) =>
+      `**خط الأساس:** اللقطة المحفوظة من الفحص السابق (${takenAt}؛ وكانت أحدث سنة حينها ${year}).`,
+    baselineSupplied: (takenAt: string, year: string) =>
+      `**خط الأساس:** اللقطة المُمرَّرة (${takenAt}؛ وكانت أحدث سنة حينها ${year}).`,
+    eventsHeading: 'المستجدات',
+    noEvents: 'لم تُرصد إصدارات جديدة أو تعديلات أو قفزات كبيرة أو تجاوزات للعتبات.',
+    alreadySeen: '_(سبق رصده في خط الأساس)_',
+    severity: { info: 'معلومة', notice: 'تنبيه', warning: 'تحذير' } as Record<
+      'info' | 'notice' | 'warning',
+      string
+    >,
+    tableHeading: 'أحدث سنة مقارنةً بالسنة السابقة',
+    metricHeader: 'المؤشر',
+    changeHeader: 'التغيّر',
+    changePctHeader: 'التغيّر %',
+    event: {
+      newRelease: (year: string, baselineYear: string) =>
+        `صدرت بيانات جديدة: أرقام عام ${year} متاحة الآن (كانت بيانات خط الأساس تنتهي عند ${baselineYear}).`,
+      revision: (metric: string, year: string, from: string, to: string, pct: string) =>
+        `${metric} — عُدِّلت أرقام عام ${year} من ${from} إلى ${to} (${pct}).`,
+      jumpUp: (
+        metric: string,
+        prevYear: string,
+        year: string,
+        from: string,
+        to: string,
+        pct: string,
+      ) => `${metric} — ارتفاع حاد بين ${prevYear} و${year}: من ${from} إلى ${to} (${pct}).`,
+      jumpDown: (
+        metric: string,
+        prevYear: string,
+        year: string,
+        from: string,
+        to: string,
+        pct: string,
+      ) => `${metric} — انخفاض حاد بين ${prevYear} و${year}: من ${from} إلى ${to} (${pct}).`,
+      jumpFromZero: (metric: string, year: string, to: string) =>
+        `${metric} — ${to} في ${year}، ولم يُبلَّغ عن أي عدد في السنة السابقة.`,
+      unusual: (z: string) => `تغيّر غير معتاد قياساً بتاريخ السلسلة (z المتين = ${z}).`,
+      crossedAbove: (metric: string, threshold: string, year: string, from: string, to: string) =>
+        `${metric} — تجاوز عتبة ${threshold} صعوداً في ${year} (من ${from} إلى ${to}).`,
+      crossedBelow: (metric: string, threshold: string, year: string, from: string, to: string) =>
+        `${metric} — نزل دون عتبة ${threshold} في ${year} (من ${from} إلى ${to}).`,
+      recordHigh: (metric: string, year: string, value: string, since: string) =>
+        `${metric} — أعلى مستوى منذ ${since}: ${value} في ${year}.`,
+      recordLow: (metric: string, year: string, value: string, since: string) =>
+        `${metric} — أدنى مستوى منذ ${since}: ${value} في ${year}.`,
+    },
+    snapshotStored:
+      '_حُفظت هذه النتيجة على الخادم خطَّ أساسٍ للفحص التالي (وتبقى بعد إعادة التشغيل مع MALJA_CACHE=sqlite). وللاحتفاظ بخط أساس خاص بك، مرِّر `snapshot` المُعادة في الوسيط `snapshot`._',
+    snapshotNotStored:
+      '_لم تُحفظ اللقطة (store_snapshot: false)؛ مرِّر `snapshot` المُعادة في الوسيط `snapshot` للمقارنة بها لاحقاً._',
+    freshness:
+      '_تمر الأرقام عبر ذاكرة التخزين المؤقت للخادم، لذا يظهر الإصدار الجديد بعد انتهاء صلاحية الاستجابة المخزّنة (MALJA_CACHE_TTL)._',
+    snapshotMismatch: (got: string, expected: string) =>
+      `اللقطة المُمرَّرة تخص سلسلة أخرى (${got})، بينما يخص هذا الفحص ${expected}.`,
+  },
   metadata: {
     headers: ['مجموعة البيانات', 'المؤشرات', 'الوصف'],
     healthHeaders: ['المزوّد', 'الحالة', 'زمن الاستجابة', 'التفاصيل'],
