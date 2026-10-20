@@ -376,7 +376,7 @@ describe('tool surface', () => {
       providers: { id: string; datasets: unknown[] }[];
     };
     expect(metadata.providers[0]!.id).toBe('mock');
-    expect(metadata.providers[0]!.datasets).toHaveLength(9);
+    expect(metadata.providers[0]!.datasets).toHaveLength(10);
 
     const health = (await call('provider_health')) as {
       healthy: boolean;

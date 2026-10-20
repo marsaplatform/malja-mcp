@@ -123,6 +123,31 @@ export const en = {
     recognitionNote: (citation: string, _producer: string) =>
       `_Recognition rate = (recognized + complementary) / substantive decisions. Source: ${citation}_`,
   },
+  solutions: {
+    heading: (name: string, side: string, range: string) =>
+      `Durable solutions — **${name}**${side}, ${range}`,
+    headers: [
+      'Year',
+      'Refugee returns',
+      'Resettlement',
+      'Naturalisation',
+      'IDP returns',
+      'Total solutions',
+    ] as [string, string, string, string, string, string],
+    normalizedHeader: (unit: string) => `Total ${unit}`,
+    periodTotal: 'Period total',
+    noData: (name: string, side: string, range: string) =>
+      `No durable-solutions data for ${name}${side} in ${range}. UNHCR reports returns, resettlement and naturalisation only where they occurred — try role="origin" or a wider year range.`,
+    perspective: {
+      origin: (name: string) =>
+        `_Origin view: refugees who returned to ${name}, nationals of ${name} resettled or naturalised abroad, and IDP returns inside ${name}._`,
+      asylum: (name: string) =>
+        `_Asylum view: refugees who left ${name} to return home, people resettled to ${name}, people naturalised in ${name}, and IDP returns inside ${name}._`,
+    } as Record<'asylum' | 'origin', (name: string) => string>,
+    mixLine: (items: string) => `**Mix over the period:** ${items}`,
+    flowNote:
+      '_Durable solutions are flows recorded during each year, not end-year stocks, so summing across years is meaningful (unlike refugee_population). "—" = not reported by UNHCR, which is not the same as zero._',
+  },
   trend: {
     noData: (metric: string, name: string, side: string, range: string) =>
       `No ${metric} data for ${name}${side} in ${range}.`,
@@ -327,6 +352,10 @@ export const en = {
       returned_refugees: 'Refugees who returned during the year.',
       idps: 'Internally displaced people (UNHCR-protected).',
       returned_idps: 'IDPs who returned during the year.',
+      resettlement:
+        'Refugees resettled to a third country during the year (flow). Asylum side = resettlement country.',
+      naturalisation:
+        'Refugees who acquired the nationality of their asylum country during the year (flow).',
       stateless: 'People without a recognized nationality.',
       ooc: 'Others of concern to UNHCR.',
       oip: 'Other people in need of international protection.',
@@ -367,6 +396,8 @@ export const en = {
       demographics: 'Total people covered by the age/sex breakdown.',
       'asylum-applications': 'Asylum applications lodged.',
       'asylum-decisions': 'Total substantive decisions.',
+      solutions:
+        'Sum of durable solutions recorded in the year (refugee returns + resettlement + naturalisation + IDP returns) — a flow, not a stock.',
       'context-indicators': 'National population (SP.POP.TOTL).',
       idps: 'Internally displaced people (latest assessment of the year).',
       'conflict-events': 'Conflict events recorded in the year.',
@@ -409,6 +440,8 @@ export const en = {
     returned_refugees: 'Returned refugees',
     idps: 'Internally displaced people (IDPs)',
     returned_idps: 'Returned IDPs',
+    resettlement: 'Resettlement',
+    naturalisation: 'Naturalisation',
     stateless: 'Stateless people',
     ooc: 'Others of concern',
     oip: 'Other people in need of international protection',
@@ -443,6 +476,7 @@ export const en = {
     demographics: 'Demographics (age and sex)',
     'asylum-applications': 'Asylum applications',
     'asylum-decisions': 'Asylum decisions',
+    solutions: 'Durable solutions (returns, resettlement, naturalisation)',
     'context-indicators': 'Context indicators (population, GDP)',
     idps: 'Internally displaced people',
     'conflict-events': 'Conflict events',

@@ -16,6 +16,14 @@ adheres to [Semantic Versioning](https://semver.org/).
   country report (tool and `report://` resource), chart titles/axes/legends/
   ticks, export codebooks and citations (original citation kept, Arabic
   producer label added). Built-in prompts accept `locale` too.
+- **UNHCR durable solutions** — new `solutions` dataset (keyless
+  `api.unhcr.org/population/v1/solutions/`), `durable_solutions` tool and
+  `solutions://{code}` resource: refugee returns, resettlement,
+  naturalisation and IDP returns per year, from the origin side (default) or
+  the asylum/resettlement-country side, with `other_country` cross-filter and
+  `normalize_by`. Documented as **flows** (period totals and solution mix are
+  reported; UNHCR "-" stays "not reported", never 0). Exportable via
+  `export_data` with codebook entries; full English/Arabic output.
 - `MALJA_DIGITS=latn|arab` — Western (default) or Arabic-Indic digits in
   Arabic output.
 - **Stronger statistics** (pure TypeScript, no new dependencies):

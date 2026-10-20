@@ -7,7 +7,8 @@ Conventions shared by every tool:
   queries return an `isError` result suggesting `search_country`.
 - `role`: `"asylum"` (default) = people hosted **in** the country;
   `"origin"` = people displaced **from** it.
-- `normalize_by` (`compare_countries`, `top_host_countries`, `generate_chart`):
+- `normalize_by` (`compare_countries`, `top_host_countries`, `generate_chart`,
+  `durable_solutions`):
   `"population"` → values per 1,000 residents · `"gdp"` → per US$1bn GDP ·
   `"none"` (default). Denominators come from the `context-indicators` dataset
   (World Bank provider, enabled by default), are matched per year, and the
@@ -124,6 +125,41 @@ Latest available year only (UNHCR publishes recent demographics only).
 `country` · `role` · `year_from` · `year_to`
 → `{ yearly: [{ year, recognized, complementary, rejected, closed, total, recognition_rate_pct }] }`
 Recognition rate = (recognized + complementary) / substantive decisions.
+
+### durable_solutions
+
+`country` · `role` (default **`"origin"`**) · `other_country` · `year_from` · `year_to` · `normalize_by`
+→ `{ measure: "flow", years: [{ year, metrics: { returned_refugees?, resettlement?, naturalisation?, returned_idps? }, total, total_normalized?, denominator_year? }], period_totals, period_total, normalize_by, unit }`
+
+UNHCR durable solutions from the keyless `api.unhcr.org/population/v1/solutions/`
+endpoint. **Aggregation semantics:** unlike `refugee_population` (end-year
+stocks), these are **flows recorded during each year**, so the tool reports a
+period total and a solution mix — summing years is meaningful here and only
+here. A metric UNHCR did not report (`"-"` upstream) is **absent** from
+`metrics` and shown as `—`; it is never turned into `0`.
+
+| role               | `returned_refugees`                      | `resettlement`                         | `naturalisation`               | `returned_idps`       |
+| ------------------ | ---------------------------------------- | -------------------------------------- | ------------------------------ | --------------------- |
+| `origin` (default) | refugees who returned **to** the country | nationals resettled to third countries | nationals naturalised abroad   | IDP returns inside it |
+| `asylum`           | refugees who left it to return **home**  | people resettled **to** it             | refugees naturalised **in** it | IDP returns inside it |
+
+`other_country` cross-filters the opposite side (`country="Syria"`,
+`other_country="Lebanon"` → Syrians returning from Lebanon). `normalize_by:
+"population"` adds the yearly total per 1,000 residents of `country`
+(`"gdp"`: per US$1bn GDP), with the denominator year disclosed. Also exported
+via `export_data({ dataset: "solutions" })` (codebook included) and the
+`solutions://{code}` resource (10-year origin-side flows, JSON).
+
+```text
+durable_solutions({ country: "سوريا", year_from: 2021, year_to: 2025, locale: "ar" })
+
+الحلول الدائمة — **سوريا** (بحسب بلد المنشأ)، من 2021 إلى 2025
+| السنة | عودة اللاجئين | إعادة التوطين | التجنّس | عودة النازحين داخلياً | إجمالي الحلول |
+| 2024 | 512,718 | 25,532 | 17,595 | 513,896 | 1,069,741 |
+| 2025 | 1,341,148 | 8,714 | 14,676 | 1,964,201 | 3,328,739 |
+| **إجمالي الفترة** | 1,979,203 | 109,927 | 86,274 | 2,962,766 | 5,138,170 |
+**توزيع الحلول خلال الفترة:** عودة اللاجئين 38.5% · إعادة التوطين 2.1% · التجنّس 1.7% · عودة النازحين داخلياً 57.7%
+```
 
 ### conflict_events
 
