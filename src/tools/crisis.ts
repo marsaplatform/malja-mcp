@@ -2,7 +2,6 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import type { AppContext } from '../context.js';
 import { countryInput, yearFromInput, yearToInput } from '../schemas/common.js';
-import { formatNumber, markdownTable } from '../viz/table.js';
 import {
   aggregateByYear,
   datasetProvenance,
@@ -42,8 +41,9 @@ export function registerCrisisTools(server: McpServer, ctx: AppContext): void {
         source: z.string(),
       },
     },
-    async ({ country, year_from, year_to }) => {
+    async ({ country, year_from, year_to }, _extra, tr) => {
       const ref = await resolveCountry(ctx, country);
+      const name = tr.country(ref.iso3, ref.name);
       const { yearFrom, yearTo } = defaultYearRange(year_from, year_to);
       const { source, citation } = await datasetProvenance(ctx, 'conflict-events');
 
@@ -64,22 +64,22 @@ export function registerCrisisTools(server: McpServer, ctx: AppContext): void {
           content: [
             {
               type: 'text',
-              text: `No conflict-event data for ${ref.name} in ${yearFrom}–${yearTo}. Coverage follows ACLED via HDX; try a wider year range.`,
+              text: tr.m.crisis.conflictNoData(name, tr.range(yearFrom, yearTo)),
             },
           ],
           isError: true,
         };
       }
 
-      const table = markdownTable(
-        ['Year', 'Events', 'Fatalities'],
-        rows.map((r) => [String(r.year), r.events, r.fatalities]),
+      const table = tr.table(
+        tr.m.crisis.conflictHeaders,
+        rows.map((r) => [tr.year(r.year), r.events, r.fatalities]),
       );
       return {
         content: [
           {
             type: 'text',
-            text: `Conflict events — **${ref.name}**, ${yearFrom}–${yearTo}\n\n${table}\n\n_Source: ${citation}_`,
+            text: `${tr.m.crisis.conflictHeading(name, tr.range(yearFrom, yearTo))}\n\n${table}\n\n${tr.sourceLine(citation, source)}`,
           },
         ],
         structuredContent: {
@@ -118,8 +118,9 @@ export function registerCrisisTools(server: McpServer, ctx: AppContext): void {
         source: z.string(),
       },
     },
-    async ({ country, year }) => {
+    async ({ country, year }, _extra, tr) => {
       const ref = await resolveCountry(ctx, country);
+      const name = tr.country(ref.iso3, ref.name);
       const { source, citation } = await datasetProvenance(ctx, 'food-security');
 
       const { records } = await fetchAllRows(ctx, {
@@ -133,32 +134,26 @@ export function registerCrisisTools(server: McpServer, ctx: AppContext): void {
           content: [
             {
               type: 'text',
-              text: `No IPC food-security data for ${ref.name}${year ? ` in ${year}` : ''}. IPC covers countries with active analyses only.`,
+              text: tr.m.crisis.foodNoData(name, year ? tr.year(year) : undefined),
             },
           ],
           isError: true,
         };
       }
 
-      const phaseLabels: [string, string][] = [
-        ['ipc_phase_1', 'Phase 1 — minimal'],
-        ['ipc_phase_2', 'Phase 2 — stressed'],
-        ['ipc_phase_3', 'Phase 3 — crisis'],
-        ['ipc_phase_4', 'Phase 4 — emergency'],
-        ['ipc_phase_5', 'Phase 5 — catastrophe'],
-      ];
-      const table = markdownTable(
-        ['IPC phase', 'People'],
-        phaseLabels
-          .filter(([key]) => latest.metrics[key] !== undefined)
-          .map(([key, label]) => [label, latest.metrics[key] ?? 0]),
+      const phaseKeys = ['ipc_phase_1', 'ipc_phase_2', 'ipc_phase_3', 'ipc_phase_4', 'ipc_phase_5'];
+      const table = tr.table(
+        [tr.m.crisis.ipcPhase, tr.m.common.people],
+        phaseKeys
+          .filter((key) => latest.metrics[key] !== undefined)
+          .map((key) => [tr.text(tr.m.crisis.ipcPhases[key] ?? key), latest.metrics[key] ?? 0]),
       );
 
       return {
         content: [
           {
             type: 'text',
-            text: `Food security — **${ref.name}**, ${latest.year}\n\n${table}\n\nIn crisis or worse (IPC 3+): **${formatNumber(latest.population)}**\n\n_Source: ${citation}_`,
+            text: `${tr.m.crisis.foodHeading(name, tr.year(latest.year))}\n\n${table}\n\n${tr.text(tr.m.crisis.crisisOrWorse(tr.num(latest.population)))}\n\n${tr.sourceLine(citation, source)}`,
           },
         ],
         structuredContent: {
@@ -200,8 +195,9 @@ export function registerCrisisTools(server: McpServer, ctx: AppContext): void {
         source: z.string(),
       },
     },
-    async ({ country, year_from, year_to }) => {
+    async ({ country, year_from, year_to }, _extra, tr) => {
       const ref = await resolveCountry(ctx, country);
+      const name = tr.country(ref.iso3, ref.name);
       const { yearFrom, yearTo } = defaultYearRange(year_from, year_to);
       const { source, citation } = await datasetProvenance(ctx, 'humanitarian-funding');
 
@@ -229,27 +225,27 @@ export function registerCrisisTools(server: McpServer, ctx: AppContext): void {
           content: [
             {
               type: 'text',
-              text: `No humanitarian funding data for ${ref.name} in ${yearFrom}–${yearTo}. FTS tracks countries with coordinated appeals.`,
+              text: tr.m.crisis.fundingNoData(name, tr.range(yearFrom, yearTo)),
             },
           ],
           isError: true,
         };
       }
 
-      const table = markdownTable(
-        ['Year', 'Required (US$)', 'Funded (US$)', 'Coverage'],
+      const table = tr.table(
+        tr.m.crisis.fundingHeaders,
         rows.map((r) => [
-          String(r.year),
+          tr.year(r.year),
           r.requirements_usd,
           r.funding_usd,
-          r.coverage_pct !== undefined ? `${r.coverage_pct}%` : '—',
+          r.coverage_pct !== undefined ? tr.text(`${r.coverage_pct}%`) : '—',
         ]),
       );
       return {
         content: [
           {
             type: 'text',
-            text: `Humanitarian funding — **${ref.name}**, ${yearFrom}–${yearTo}\n\n${table}\n\n_Source: ${citation}_`,
+            text: `${tr.m.crisis.fundingHeading(name, tr.range(yearFrom, yearTo))}\n\n${table}\n\n${tr.sourceLine(citation, source)}`,
           },
         ],
         structuredContent: {
@@ -303,8 +299,9 @@ export function registerCrisisTools(server: McpServer, ctx: AppContext): void {
         source: z.string(),
       },
     },
-    async ({ country, year_from, year_to, query, max_reports }) => {
+    async ({ country, year_from, year_to, query, max_reports }, _extra, tr) => {
       const ref = await resolveCountry(ctx, country);
+      const name = tr.country(ref.iso3, ref.name);
       const { yearFrom, yearTo } = defaultYearRange(year_from, year_to);
       const { source, citation } = await datasetProvenance(ctx, 'situation-reports');
 
@@ -337,16 +334,16 @@ export function registerCrisisTools(server: McpServer, ctx: AppContext): void {
           content: [
             {
               type: 'text',
-              text: `No situation reports found for ${ref.name} in ${yearFrom}–${yearTo}. ReliefWeb coverage varies by crisis; try a wider year range, or check provider_health if this persists.`,
+              text: tr.m.crisis.reportsNoData(name, tr.range(yearFrom, yearTo)),
             },
           ],
           isError: true,
         };
       }
 
-      const table = markdownTable(
-        ['Year', 'Reports'],
-        rows.map((r) => [String(r.year), r.reports]),
+      const table = tr.table(
+        [tr.m.common.year, tr.m.crisis.reportsHeader],
+        rows.map((r) => [tr.year(r.year), r.reports]),
       );
       const latest = documents.map((d) => ({
         title: d.title,
@@ -357,7 +354,7 @@ export function registerCrisisTools(server: McpServer, ctx: AppContext): void {
       const latestList = latest
         .map(
           (d) =>
-            `- ${d.date.slice(0, 10) || 'undated'} — [${d.title}](${d.url})${d.source ? ` (${d.source})` : ''}`,
+            `- ${tr.text(d.date.slice(0, 10)) || tr.m.crisis.undated} — [${d.title}](${d.url})${d.source ? ` (${d.source})` : ''}`,
         )
         .join('\n');
 
@@ -365,7 +362,7 @@ export function registerCrisisTools(server: McpServer, ctx: AppContext): void {
         content: [
           {
             type: 'text',
-            text: `Situation reports — **${ref.name}**, ${yearFrom}–${yearTo}\n\n${table}\n\n**Latest reports**${query ? ` matching "${query}"` : ''}\n\n${latestList || '_none in range_'}\n\n_Source: ${citation}_`,
+            text: `${tr.m.crisis.reportsHeading(name, tr.range(yearFrom, yearTo))}\n\n${table}\n\n${tr.m.crisis.latestReports(query)}\n\n${latestList || tr.m.crisis.noneInRange}\n\n${tr.sourceLine(citation, source)}`,
           },
         ],
         structuredContent: {

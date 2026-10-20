@@ -22,10 +22,20 @@ export function toSvg(input: ChartSpecInput): string {
   const yScale = (v: number): number => MARGIN.top + plotH - (v / maxY) * plotH;
   const xCenter = (i: number): number => MARGIN.left + xStep * i + xStep / 2;
 
+  const rtl = input.direction === 'rtl';
+  const tick = input.formatTick ?? compactNumber;
+  const category = input.formatCategory ?? ((v: number | string) => String(v));
+  // RTL: Arabic-capable font stack and bidi-aware text. The time axis keeps
+  // running left→right (the convention in Arabic statistical publications);
+  // only labels are right-to-left.
+  const fontFamily = rtl
+    ? "'Noto Sans Arabic', 'Noto Naskh Arabic', 'Segoe UI', Tahoma, sans-serif"
+    : 'ui-monospace, monospace';
+  const textDir = rtl ? ' direction="rtl" unicode-bidi="embed"' : '';
   const parts: string[] = [
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${WIDTH} ${HEIGHT}" font-family="ui-monospace, monospace" font-size="12">`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${WIDTH} ${HEIGHT}" font-family="${fontFamily}" font-size="12"${rtl ? ' direction="rtl"' : ''}>`,
     `<rect width="${WIDTH}" height="${HEIGHT}" fill="white"/>`,
-    `<text x="${WIDTH / 2}" y="24" text-anchor="middle" font-size="16" font-weight="bold">${escapeXml(input.title)}</text>`,
+    `<text x="${WIDTH / 2}" y="24" text-anchor="middle" font-size="16" font-weight="bold"${textDir}>${escapeXml(input.title)}</text>`,
   ];
 
   // Horizontal gridlines + y-axis tick labels.
@@ -35,7 +45,7 @@ export function toSvg(input: ChartSpecInput): string {
     const y = yScale(value);
     parts.push(
       `<line x1="${MARGIN.left}" y1="${y}" x2="${WIDTH - MARGIN.right}" y2="${y}" stroke="#e5e7eb"/>`,
-      `<text x="${MARGIN.left - 8}" y="${y + 4}" text-anchor="end" fill="#6b7280">${compactNumber(value)}</text>`,
+      `<text x="${MARGIN.left - 8}" y="${y + 4}" text-anchor="end" fill="#6b7280">${escapeXml(tick(value))}</text>`,
     );
   }
 
@@ -44,7 +54,7 @@ export function toSvg(input: ChartSpecInput): string {
   labels.forEach((label, i) => {
     if (i % labelEvery !== 0) return;
     parts.push(
-      `<text x="${xCenter(i)}" y="${HEIGHT - MARGIN.bottom + 20}" text-anchor="middle" fill="#374151">${escapeXml(String(label))}</text>`,
+      `<text x="${xCenter(i)}" y="${HEIGHT - MARGIN.bottom + 20}" text-anchor="middle" fill="#374151">${escapeXml(category(label))}</text>`,
     );
   });
 
@@ -82,8 +92,17 @@ export function toSvg(input: ChartSpecInput): string {
   // Legend.
   if (input.series.length > 1) {
     input.series.forEach((series, si) => {
-      const lx = MARGIN.left + si * 160;
       const ly = HEIGHT - 12;
+      if (rtl) {
+        // Legend flows right→left: swatch on the right, label to its left.
+        const rx = WIDTH - MARGIN.right - si * 160;
+        parts.push(
+          `<rect x="${rx - 12}" y="${ly - 10}" width="12" height="12" fill="${PALETTE[si % PALETTE.length]}"/>`,
+          `<text x="${rx - 18}" y="${ly}" fill="#374151" text-anchor="start"${textDir}>${escapeXml(series.label)}</text>`,
+        );
+        return;
+      }
+      const lx = MARGIN.left + si * 160;
       parts.push(
         `<rect x="${lx}" y="${ly - 10}" width="12" height="12" fill="${PALETTE[si % PALETTE.length]}"/>`,
         `<text x="${lx + 18}" y="${ly}" fill="#374151">${escapeXml(series.label)}</text>`,
@@ -93,8 +112,8 @@ export function toSvg(input: ChartSpecInput): string {
 
   // Axis labels.
   parts.push(
-    `<text x="${WIDTH / 2}" y="${HEIGHT - MARGIN.bottom + 40}" text-anchor="middle" fill="#111827">${escapeXml(input.xLabel)}</text>`,
-    `<text x="20" y="${HEIGHT / 2}" text-anchor="middle" transform="rotate(-90 20 ${HEIGHT / 2})" fill="#111827">${escapeXml(input.yLabel)}</text>`,
+    `<text x="${WIDTH / 2}" y="${HEIGHT - MARGIN.bottom + 40}" text-anchor="middle" fill="#111827"${textDir}>${escapeXml(input.xLabel)}</text>`,
+    `<text x="20" y="${HEIGHT / 2}" text-anchor="middle" transform="rotate(-90 20 ${HEIGHT / 2})" fill="#111827"${textDir}>${escapeXml(input.yLabel)}</text>`,
     '</svg>',
   );
   return parts.join('\n');

@@ -2,7 +2,6 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import type { AppContext } from '../context.js';
 import { CountryRoleSchema, countryInput, yearFromInput, yearToInput } from '../schemas/common.js';
-import { markdownTable } from '../viz/table.js';
 import {
   aggregateByYear,
   datasetProvenance,
@@ -56,7 +55,7 @@ export function registerAsylumTools(server: McpServer, ctx: AppContext): void {
         source: z.string(),
       },
     },
-    async ({ country, role, year_from, year_to }) => {
+    async ({ country, role, year_from, year_to }, _extra, tr) => {
       const chosenRole = role ?? 'asylum';
       const { source, citation } = await datasetProvenance(ctx, 'asylum-applications');
       const { ref, yearFrom, yearTo, aggregates, truncated } = await yearlyAggregates(
@@ -69,17 +68,17 @@ export function registerAsylumTools(server: McpServer, ctx: AppContext): void {
       );
 
       const yearly = aggregates.map((a) => ({ year: a.year, applied: a.metrics['applied'] ?? 0 }));
-      const table = markdownTable(
-        ['Year', 'Applications'],
-        yearly.map((y) => [String(y.year), y.applied]),
+      const table = tr.table(
+        [tr.m.common.year, tr.m.asylum.applications],
+        yearly.map((y) => [tr.year(y.year), y.applied]),
       );
-      const note = truncated ? '\n\n_Note: very large result set; totals are truncated._' : '';
+      const note = truncated ? tr.m.common.truncatedNote : '';
 
       return {
         content: [
           {
             type: 'text',
-            text: `Asylum applications — **${ref.name}** (${chosenRole} side), ${yearFrom}–${yearTo}\n\n${table}${note}\n\n_Source: ${citation}_`,
+            text: `${tr.m.asylum.applicationsHeading(tr.country(ref.iso3, ref.name), tr.side(chosenRole), tr.range(yearFrom, yearTo))}\n\n${table}${note}\n\n${tr.sourceLine(citation, source)}`,
           },
         ],
         structuredContent: {
@@ -125,7 +124,7 @@ export function registerAsylumTools(server: McpServer, ctx: AppContext): void {
         source: z.string(),
       },
     },
-    async ({ country, role, year_from, year_to }) => {
+    async ({ country, role, year_from, year_to }, _extra, tr) => {
       const chosenRole = role ?? 'asylum';
       const { source, citation } = await datasetProvenance(ctx, 'asylum-decisions');
       const { ref, yearFrom, yearTo, aggregates, truncated } = await yearlyAggregates(
@@ -158,25 +157,25 @@ export function registerAsylumTools(server: McpServer, ctx: AppContext): void {
         };
       });
 
-      const table = markdownTable(
-        ['Year', 'Recognized', 'Complementary', 'Rejected', 'Closed', 'Total', 'Recognition rate'],
+      const table = tr.table(
+        tr.m.asylum.decisionHeaders,
         yearly.map((y) => [
-          String(y.year),
+          tr.year(y.year),
           y.recognized,
           y.complementary,
           y.rejected,
           y.closed,
           y.total,
-          y.recognition_rate_pct !== null ? `${y.recognition_rate_pct}%` : '—',
+          y.recognition_rate_pct !== null ? tr.text(`${y.recognition_rate_pct}%`) : '—',
         ]),
       );
-      const note = truncated ? '\n\n_Note: very large result set; totals are truncated._' : '';
+      const note = truncated ? tr.m.common.truncatedNote : '';
 
       return {
         content: [
           {
             type: 'text',
-            text: `Asylum decisions — **${ref.name}** (${chosenRole} side), ${yearFrom}–${yearTo}\n\n${table}${note}\n\n_Recognition rate = (recognized + complementary) / substantive decisions. Source: ${citation}_`,
+            text: `${tr.m.asylum.decisionsHeading(tr.country(ref.iso3, ref.name), tr.side(chosenRole), tr.range(yearFrom, yearTo))}\n\n${table}${note}\n\n${tr.m.asylum.recognitionNote(citation, tr.producer(source))}`,
           },
         ],
         structuredContent: {

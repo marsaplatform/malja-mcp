@@ -6,6 +6,9 @@
  * trace, never provider internals).
  */
 
+import { translator } from './i18n/index.js';
+import type { Translator } from './i18n/index.js';
+
 export type ProviderErrorKind =
   'not_found' | 'bad_request' | 'rate_limited' | 'upstream_error' | 'network' | 'offline_miss';
 
@@ -32,21 +35,41 @@ export class CountryNotFoundError extends Error {
   }
 }
 
+/**
+ * An error whose user-facing text comes from the message catalog, so it can
+ * be rendered in the caller's locale. `message` holds the English rendering
+ * (for logs and non-tool callers).
+ */
+export class LocalizedError extends Error {
+  constructor(readonly render: (tr: Translator) => string) {
+    super(render(translator('en')));
+    this.name = 'LocalizedError';
+  }
+}
+
 /** A user-facing message for any error thrown inside a tool handler. */
-export function toUserMessage(err: unknown): string {
-  if (err instanceof CountryNotFoundError) return err.message;
+export function toUserMessage(err: unknown, tr: Translator = translator('en')): string {
+  const e = tr.m.errors;
+  if (err instanceof CountryNotFoundError) {
+    return e.countryNotFound(
+      err.query,
+      err.suggestions.length > 0 ? tr.list(err.suggestions) : undefined,
+    );
+  }
+  if (err instanceof LocalizedError) return err.render(tr);
   if (err instanceof ProviderError) {
+    const provider = err.provider ?? e.defaultProvider;
     switch (err.kind) {
       case 'offline_miss':
-        return `Offline mode is enabled and this data is not cached yet: ${err.message}`;
+        return e.offlineMiss(err.message);
       case 'rate_limited':
-        return `The ${err.provider ?? 'data'} provider is rate limiting requests. Retry shortly.`;
+        return e.rateLimited(provider);
       case 'network':
-        return `Could not reach the ${err.provider ?? 'data'} provider: ${err.message}`;
+        return e.network(provider, err.message);
       case 'not_found':
         return err.message;
       default:
-        return `The ${err.provider ?? 'data'} provider returned an error: ${err.message}`;
+        return e.upstream(provider, err.message);
     }
   }
   if (err instanceof Error) return err.message;

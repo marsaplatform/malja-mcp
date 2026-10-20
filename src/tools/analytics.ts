@@ -15,7 +15,6 @@ import {
   linearRegression,
   yearOverYear,
 } from '../shared/stats.js';
-import { formatNumber, markdownTable } from '../viz/table.js';
 import {
   aggregateByYear,
   currentYear,
@@ -91,11 +90,12 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
         source: z.string(),
       },
     },
-    async ({ country, metric, role, year_from, year_to }) => {
+    async ({ country, metric, role, year_from, year_to }, _extra, tr) => {
       const chosenMetric = metric ?? 'refugees';
       const chosenRole = role ?? 'asylum';
       const { yearFrom, yearTo } = defaultYearRange(year_from, year_to);
       const { source, citation } = await datasetProvenance(ctx, 'population');
+      const metricLabel = tr.metric(chosenMetric);
       const { ref, series } = await countrySeries(
         ctx,
         country,
@@ -110,7 +110,12 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
           content: [
             {
               type: 'text',
-              text: `No ${chosenMetric} data for ${ref.name} (${chosenRole} side) in ${yearFrom}–${yearTo}.`,
+              text: tr.m.trend.noData(
+                metricLabel,
+                tr.country(ref.iso3, ref.name),
+                tr.side(chosenRole),
+                tr.range(yearFrom, yearTo),
+              ),
             },
           ],
           isError: true,
@@ -128,16 +133,16 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
             ? ('increasing' as const)
             : ('decreasing' as const);
 
-      const table = markdownTable(
-        ['Year', chosenMetric, 'Δ vs prev', 'Δ %'],
+      const table = tr.table(
+        [tr.m.common.year, metricLabel, tr.m.trend.deltaPrev, tr.m.trend.deltaPct],
         series.map((p) => {
           const change = changes.find((c) => c.year === p.year);
           return [
-            String(p.year),
+            tr.year(p.year),
             p.value,
-            change?.change ?? null,
+            change ? tr.signed(change.change) : null,
             change?.changePct !== null && change?.changePct !== undefined
-              ? `${change.changePct.toFixed(1)}%`
+              ? tr.pct(change.changePct)
               : '—',
           ];
         }),
@@ -146,27 +151,35 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
       const anomalyText =
         anomalies.length > 0
           ? anomalies
-              .map(
-                (a) =>
-                  `${a.year} (${a.change > 0 ? '+' : ''}${formatNumber(a.change)}, z=${a.zScore.toFixed(1)})`,
+              .map((a) =>
+                tr.m.trend.anomaly(tr.year(a.year), tr.signed(a.change), tr.fixed(a.zScore, 1)),
               )
-              .join(', ')
-          : 'none detected';
+              .join(tr.m.meta.listSeparator)
+          : tr.m.trend.noneDetected;
 
       return {
         content: [
           {
             type: 'text',
             text: [
-              `Trend — **${chosenMetric}**, ${ref.name} (${chosenRole} side), ${yearFrom}–${yearTo}`,
+              tr.m.trend.heading(
+                metricLabel,
+                tr.country(ref.iso3, ref.name),
+                tr.side(chosenRole),
+                tr.range(yearFrom, yearTo),
+              ),
               '',
               table,
               '',
-              `**Direction:** ${direction} (${formatNumber(Math.round(regression.slope))}/year, R²=${regression.r2.toFixed(2)})`,
-              `**CAGR:** ${growth !== null ? `${growth.toFixed(1)}%` : 'n/a'}`,
-              `**Anomalous years:** ${anomalyText}`,
+              tr.m.trend.directionLine(
+                tr.m.trend.direction[direction],
+                tr.num(Math.round(regression.slope)),
+                tr.fixed(regression.r2, 2),
+              ),
+              tr.m.trend.cagrLine(growth !== null ? tr.pct(growth) : tr.m.common.na),
+              tr.m.trend.anomaliesLine(anomalyText),
               '',
-              `_Source: ${citation}_`,
+              tr.sourceLine(citation, source),
             ].join('\n'),
           },
         ],
@@ -223,8 +236,9 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
         caveat: z.string(),
       },
     },
-    async ({ country, metric, role, years_ahead }) => {
+    async ({ country, metric, role, years_ahead }, _extra, tr) => {
       const chosenMetric = metric ?? 'refugees';
+      const metricLabel = tr.metric(chosenMetric);
       const horizon = years_ahead ?? 3;
       const yearTo = currentYear();
       const { ref, series } = await countrySeries(
@@ -241,7 +255,11 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
           content: [
             {
               type: 'text',
-              text: `Not enough history to project ${chosenMetric} for ${ref.name} (need ≥3 data points, found ${series.length}).`,
+              text: tr.m.forecast.notEnough(
+                metricLabel,
+                tr.country(ref.iso3, ref.name),
+                tr.num(series.length),
+              ),
             },
           ],
           isError: true,
@@ -249,14 +267,13 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
       }
 
       const projected = forecastLinear(series, horizon);
-      const caveat =
-        'Naive linear extrapolation of historical UNHCR data. Displacement is driven by events a straight line cannot anticipate; treat as an order-of-magnitude indication only.';
+      const caveat = tr.m.forecast.caveat;
 
-      const table = markdownTable(
-        ['Year', chosenMetric, 'Type'],
+      const table = tr.table(
+        [tr.m.common.year, metricLabel, tr.m.forecast.type],
         [
-          ...series.map((p) => [String(p.year), p.value, 'observed'] as const),
-          ...projected.map((p) => [String(p.year), p.value, 'projected'] as const),
+          ...series.map((p) => [tr.year(p.year), p.value, tr.m.forecast.observed] as const),
+          ...projected.map((p) => [tr.year(p.year), p.value, tr.m.forecast.projected] as const),
         ],
       );
 
@@ -264,7 +281,7 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
         content: [
           {
             type: 'text',
-            text: `Projection — **${chosenMetric}**, ${ref.name}\n\n${table}\n\n⚠️ ${caveat}`,
+            text: `${tr.m.forecast.heading(metricLabel, tr.country(ref.iso3, ref.name))}\n\n${table}\n\n⚠️ ${caveat}`,
           },
         ],
         structuredContent: {
@@ -319,8 +336,9 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
         source: z.string(),
       },
     },
-    async ({ year, metric, by, normalize_by, limit }) => {
+    async ({ year, metric, by, normalize_by, limit }, _extra, tr) => {
       const chosenMetric = metric ?? 'refugees';
+      const metricLabel = tr.metric(chosenMetric);
       const chosenBy = by ?? 'asylum';
       const normalizeBy = normalize_by ?? 'none';
       const topN = limit ?? 10;
@@ -338,7 +356,7 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
         rankYear = records.reduce((max, r) => Math.max(max, r.year), 0);
         if (rankYear === 0) {
           return {
-            content: [{ type: 'text', text: 'Could not determine the latest data year.' }],
+            content: [{ type: 'text', text: tr.m.ranking.noLatestYear }],
             isError: true,
           };
         }
@@ -360,6 +378,7 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
         .filter((r) => r.value > 0 && r.country_code !== '');
 
       let unit = 'people';
+      let unitLabel = tr.unit('people');
       let denominatorNote = '';
       interface RankEntry {
         country: string;
@@ -393,12 +412,14 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
         }
         entries = normalized;
         unit = denominators.unit;
+        unitLabel = tr.unit(normalizeBy);
         denominatorNote =
-          `\n\n_Ranked ${unit} — ${denominators.kind} denominators from ${denominators.citation}. ` +
-          `Denominator years shown per row when they trail ${rankYear}._` +
-          (skipped > 0
-            ? `\n\n_${skipped} countries had no denominator data and were omitted._`
-            : '');
+          tr.m.denominators.rankedNote(
+            unitLabel,
+            tr.m.denominators.kind[denominators.kind],
+            denominators.citation,
+            tr.year(rankYear),
+          ) + (skipped > 0 ? tr.m.denominators.skippedNote(tr.num(skipped)) : '');
       }
 
       const ranking = entries
@@ -409,26 +430,32 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
       const normalizedColumns =
         normalizeBy !== 'none'
           ? {
-              headers: ['#', 'Country', `${chosenMetric} ${unit}`, chosenMetric, 'Denom. year'],
+              headers: [
+                '#',
+                tr.m.common.country,
+                `${metricLabel} ${unitLabel}`,
+                metricLabel,
+                tr.m.ranking.denomYear,
+              ],
               rows: ranking.map((r) => [
                 r.rank,
-                r.country,
+                tr.country(r.country_code, r.country),
                 r.value,
                 r.raw_value ?? null,
-                r.denominator_year ?? null,
+                r.denominator_year !== undefined ? tr.year(r.denominator_year) : null,
               ]),
             }
           : {
-              headers: ['#', 'Country', chosenMetric],
-              rows: ranking.map((r) => [r.rank, r.country, r.value]),
+              headers: ['#', tr.m.common.country, metricLabel],
+              rows: ranking.map((r) => [r.rank, tr.country(r.country_code, r.country), r.value]),
             };
-      const table = markdownTable(normalizedColumns.headers, normalizedColumns.rows);
+      const table = tr.table(normalizedColumns.headers, normalizedColumns.rows);
 
       return {
         content: [
           {
             type: 'text',
-            text: `Top ${ranking.length} ${chosenBy === 'asylum' ? 'host' : 'origin'} countries by **${chosenMetric}**${normalizeBy !== 'none' ? ` (${unit})` : ''}, ${rankYear}\n\n${table}${denominatorNote}\n\n_Source: ${citation}_`,
+            text: `${tr.m.ranking.heading(tr.num(ranking.length), chosenBy, metricLabel, normalizeBy !== 'none' ? unitLabel : undefined, tr.year(rankYear))}\n\n${table}${denominatorNote}\n\n${tr.sourceLine(citation, source)}`,
           },
         ],
         structuredContent: {

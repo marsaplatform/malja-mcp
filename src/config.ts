@@ -33,6 +33,10 @@ export interface Config {
   readonly hdxAppIdentifier: string;
   /** Pre-approved ReliefWeb API appname (required only when the reliefweb provider is enabled). */
   readonly reliefwebAppname: string;
+  /** Default language of human-readable tool output (tools accept a per-call `locale`). */
+  readonly locale: 'en' | 'ar';
+  /** Digit shapes for Arabic output: Western "latn" (0-9, default) or Arabic-Indic "arab" (٠-٩). */
+  readonly digits: 'latn' | 'arab';
 }
 
 export const SERVER_NAME = 'malja-mcp';
@@ -100,6 +104,15 @@ export function loadConfig(rawEnv: NodeJS.ProcessEnv = process.env): Config {
     throw new Error(`Invalid MALJA_LOG_LEVEL: expected one of ${LOG_LEVELS.join(', ')}`);
   }
 
+  const localeRaw = (env['MALJA_LOCALE'] ?? 'en').trim().toLowerCase() || 'en';
+  if (localeRaw !== 'en' && localeRaw !== 'ar') {
+    throw new Error(`Invalid MALJA_LOCALE: expected "en" or "ar", got "${localeRaw}"`);
+  }
+  const digitsRaw = (env['MALJA_DIGITS'] ?? 'latn').trim().toLowerCase() || 'latn';
+  if (digitsRaw !== 'latn' && digitsRaw !== 'arab') {
+    throw new Error(`Invalid MALJA_DIGITS: expected "latn" or "arab", got "${digitsRaw}"`);
+  }
+
   return {
     providers,
     cacheBackend,
@@ -118,5 +131,7 @@ export function loadConfig(rawEnv: NodeJS.ProcessEnv = process.env): Config {
       `${SERVER_NAME}/${SERVER_VERSION} (+https://github.com/marsaplatform/malja-mcp)`,
     hdxAppIdentifier: env['MALJA_HDX_APP_ID']?.trim() ?? '',
     reliefwebAppname: env['MALJA_RELIEFWEB_APPNAME']?.trim() ?? '',
+    locale: localeRaw,
+    digits: digitsRaw,
   };
 }

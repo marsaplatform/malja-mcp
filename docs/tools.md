@@ -13,6 +13,8 @@ Conventions shared by every tool:
   (World Bank provider, enabled by default), are matched per year, and the
   observation year actually used is always disclosed.
 - `year_from` / `year_to` default to the last 10 years.
+- `locale` (every tool, optional): `"en"` (default) or `"ar"` — the language
+  of the human-readable `content`. See [Language / Arabic output](#language--arabic-output).
 - Every tool returns markdown `content` plus `structuredContent` matching its
   declared `outputSchema`, and is annotated `readOnlyHint: true`.
 - Source figures are end-year stocks from the UNHCR Refugee Data Finder;
@@ -20,6 +22,62 @@ Conventions shared by every tool:
   (conflict, food security, funding, IDPs) come via HDX HAPI and cite their
   original producers (ACLED, IPC, OCHA FTS, IOM DTM); situation reports come
   from ReliefWeb (UN OCHA) and remain © their publishing organisations.
+
+## Language / Arabic output
+
+Every tool accepts an optional `locale` (`"en"` | `"ar"`); the server-wide
+default comes from `MALJA_LOCALE` (default `en`). With `locale: "ar"` the
+markdown `content` is written in Modern Standard Arabic:
+
+- headings, table headers, notes, caveats, the forecast disclaimer, error
+  messages and progress notifications;
+- metric labels with UNHCR's Arabic terminology (اللاجئون، طالبو اللجوء،
+  النازحون داخلياً، عديمو الجنسية، العائدون، الحماية التكميلية) and IPC phase
+  names from the Arabic IPC manual (الحد الأدنى، الضغط، الأزمة، الطوارئ،
+  الكارثة/المجاعة);
+- country names in their official UN Arabic short form (falling back to the
+  provider's name when unknown), region names and dataset titles;
+- the full `generate_country_report` / `report://` markdown, chart titles,
+  axis labels, legends and tick labels (Chart.js, Vega-Lite, Mermaid, SVG);
+- `export_data` codebooks (descriptions and units);
+- citations: the producer's original citation is kept verbatim and prefixed
+  with an Arabic producer label, e.g. `المصدر: المفوضية السامية للأمم المتحدة
+لشؤون اللاجئين (UNHCR) — UNHCR Refugee Data Finder`.
+
+What deliberately stays the same in every locale, so machine consumers never
+break: `structuredContent` field names and values (country names stay as the
+provider publishes them), ISO3 codes, dataset ids, metric keys, export column
+names, CSV/JSON payloads and the extraction manifest. Free-text structured
+fields meant for humans (`forecast.caveat`, chart `title`/`spec` labels,
+report `markdown`, codebook `description`/`unit`) follow the locale.
+
+**Digits.** Arabic output uses Western digits (0–9) with `,` thousands
+separators by default — the form used by most Arabic news media and UN Arabic
+statistics online, and the one that copies cleanly into spreadsheets. Set
+`MALJA_DIGITS=arab` for Arabic-Indic digits (٠–٩, `٬` `٫` `٪`). Years, ranges
+and percentages follow the same setting; indicator codes (`SP.POP.TOTL`),
+ISO3 codes and URLs are never reshaped.
+
+**Right-to-left.** Signed numbers carry a left-to-right mark so `+10,000`
+never renders as `10,000+`; year ranges are written in words (`من 2015 إلى
+2024`) instead of a dash that bidi rendering would flip. SVG charts set
+`direction="rtl"`, use an Arabic-capable font stack and lay the legend out
+right-to-left (the time axis keeps running left→right, as in Arabic
+statistical publications); Chart.js specs set `locale: "ar"` and RTL
+legend/tooltips. Built-in prompts accept `locale: "ar"` and instruct the
+model to answer in Arabic and call tools with `locale="ar"`.
+
+Example — `refugee_population` with `{ "country": "مصر", "year_from": 2023, "year_to": 2023, "locale": "ar" }` (recorded UNHCR data):
+
+```text
+أرقام النزوح — **مصر** (بحسب بلد اللجوء)، 2023
+
+| السنة | اللاجئون | طالبو اللجوء | النازحون داخلياً | عديمو الجنسية | إجمالي المشمولين بالاهتمام |
+| --- | --- | --- | --- | --- | --- |
+| 2023 | 240,507 | 232,244 | 0 | 10 | 472,761 |
+
+_المصدر: المفوضية السامية للأمم المتحدة لشؤون اللاجئين (UNHCR) — UNHCR Refugee Data Finder, https://www.unhcr.org/refugee-statistics/_
+```
 
 ---
 

@@ -9,7 +9,6 @@ import {
   yearFromInput,
   yearToInput,
 } from '../schemas/common.js';
-import { formatNumber, markdownTable } from '../viz/table.js';
 import {
   aggregateByYear,
   datasetProvenance,
@@ -40,11 +39,16 @@ export function registerCountryTools(server: McpServer, ctx: AppContext): void {
         matches: z.array(CountryMatchSchema),
       },
     },
-    async ({ query, limit }) => {
+    async ({ query, limit }, _extra, tr) => {
       const matches = await ctx.registry.primary().search({ query, limit: limit ?? 5 });
-      const table = markdownTable(
-        ['Country', 'ISO3', 'Region', 'Match'],
-        matches.map((m) => [m.name, m.iso3, m.region ?? '—', m.score.toFixed(2)]),
+      const table = tr.table(
+        [tr.m.common.country, 'ISO3', tr.m.common.region, tr.m.search.match],
+        matches.map((m) => [
+          tr.country(m.iso3, m.name),
+          m.iso3,
+          m.region ? tr.region(m.region) : '—',
+          tr.fixed(m.score, 2),
+        ]),
       );
       return {
         content: [{ type: 'text', text: table }],
@@ -79,9 +83,10 @@ export function registerCountryTools(server: McpServer, ctx: AppContext): void {
         source: z.string(),
       },
     },
-    async ({ country }) => {
+    async ({ country }, _extra, tr) => {
       const ref = await resolveCountry(ctx, country);
       const { source } = await datasetProvenance(ctx, 'population');
+      const name = tr.country(ref.iso3, ref.name);
 
       const [hosted, fromCountry] = await Promise.all([
         latestAggregates(ctx, 'population', { asylum_iso3: ref.iso3 }),
@@ -109,34 +114,31 @@ export function registerCountryTools(server: McpServer, ctx: AppContext): void {
           }));
       }
 
+      const m = tr.m;
+      const indicatorTable = (metrics: Record<string, number>): string =>
+        tr.table(
+          [m.common.indicator, m.common.people],
+          Object.entries(metrics).map(([k, v]) => [tr.metric(k), v]),
+        );
+      const producer = tr.producer(source);
       const lines = [
-        `# ${ref.name} — humanitarian profile${year ? ` (${year})` : ''}`,
+        m.profile.title(name, year !== undefined ? tr.year(year) : undefined),
         '',
-        `**Region:** ${ref.region ?? 'n/a'} · **ISO3:** ${ref.iso3} · **Source:** ${source}`,
+        m.profile.infoLine(tr.region(ref.region), ref.iso3, producer || source),
         '',
-        '## Hosted in the country',
-        hosted
-          ? markdownTable(
-              ['Indicator', 'People'],
-              Object.entries(hosted.metrics).map(([k, v]) => [k, v]),
-            )
-          : '_No recent data._',
+        m.profile.hosted,
+        hosted ? indicatorTable(hosted.metrics) : m.common.noRecentData,
         '',
-        '## Displaced from the country',
-        fromCountry
-          ? markdownTable(
-              ['Indicator', 'People'],
-              Object.entries(fromCountry.metrics).map(([k, v]) => [k, v]),
-            )
-          : '_No recent data._',
+        m.profile.abroad,
+        fromCountry ? indicatorTable(fromCountry.metrics) : m.common.noRecentData,
       ];
       if (topOrigins.length > 0) {
         lines.push(
           '',
-          '## Top origins of refugees hosted',
-          markdownTable(
-            ['Origin', 'Refugees'],
-            topOrigins.map((o) => [o.country, o.refugees]),
+          m.profile.topOrigins,
+          tr.table(
+            [m.common.origin, m.common.refugees],
+            topOrigins.map((o) => [tr.country(o.country_code, o.country), o.refugees]),
           ),
         );
       }
@@ -194,7 +196,7 @@ export function registerCountryTools(server: McpServer, ctx: AppContext): void {
         source: z.string(),
       },
     },
-    async ({ countries, metric, role, normalize_by, year_from, year_to }) => {
+    async ({ countries, metric, role, normalize_by, year_from, year_to }, _extra, tr) => {
       const chosenMetric = metric ?? 'refugees';
       const chosenRole = role ?? 'asylum';
       const normalizeBy = normalize_by ?? 'none';
@@ -219,6 +221,7 @@ export function registerCountryTools(server: McpServer, ctx: AppContext): void {
       );
 
       let unit = 'people';
+      let unitLabel = tr.unit('people');
       let denominatorInfo: { source: string; citation: string; metric: string } | undefined;
       let denominatorNote = '';
       if (normalizeBy !== 'none') {
@@ -238,6 +241,7 @@ export function registerCountryTools(server: McpServer, ctx: AppContext): void {
           }),
         }));
         unit = denominators.unit;
+        unitLabel = tr.unit(normalizeBy);
         denominatorInfo = {
           source: denominators.source,
           citation: denominators.citation,
@@ -245,18 +249,18 @@ export function registerCountryTools(server: McpServer, ctx: AppContext): void {
         };
         const missing = refs.filter((r) => !denominators.series.has(r.iso3)).map((r) => r.iso3);
         denominatorNote =
-          `\n\n_Values are ${unit} — ${denominators.kind} denominators matched per year ` +
-          `(${denominators.citation})._` +
-          (missing.length > 0
-            ? `\n\n_No denominator data for: ${missing.join(', ')} — omitted from normalized series._`
-            : '');
+          tr.m.denominators.valuesNote(
+            unitLabel,
+            tr.m.denominators.kind[denominators.kind],
+            denominators.citation,
+          ) + (missing.length > 0 ? tr.m.denominators.missingNote(missing.join(', ')) : '');
       }
 
       const years = [...new Set(series.flatMap((s) => s.points.map((p) => p.year)))].sort();
-      const table = markdownTable(
-        ['Year', ...series.map((s) => s.country)],
+      const table = tr.table(
+        [tr.m.common.year, ...series.map((s) => tr.country(s.country_code, s.country))],
         years.map((year) => [
-          String(year),
+          tr.year(year),
           ...series.map((s) => s.points.find((p) => p.year === year)?.value ?? null),
         ]),
       );
@@ -266,16 +270,16 @@ export function registerCountryTools(server: McpServer, ctx: AppContext): void {
         ? series
             .map((s) => {
               const value = s.points.find((p) => p.year === latest)?.value;
-              return `${s.country}: ${value !== undefined ? formatNumber(value) : 'n/a'}`;
+              return `${tr.country(s.country_code, s.country)}: ${value !== undefined ? tr.num(value) : tr.m.common.na}`;
             })
-            .join(' · ')
-        : 'no overlapping data';
+            .join(tr.m.meta.dotSeparator)
+        : tr.m.compare.noOverlap;
 
       return {
         content: [
           {
             type: 'text',
-            text: `**${chosenMetric}**${normalizeBy !== 'none' ? ` (${unit})` : ''} (${chosenRole} side), ${yearFrom}–${yearTo}\n\n${table}\n\nLatest (${latest ?? 'n/a'}): ${summary}${denominatorNote}\n\n_Source: ${citation}_`,
+            text: `${tr.m.compare.heading(tr.metric(chosenMetric), normalizeBy !== 'none' ? unitLabel : undefined, tr.side(chosenRole), tr.range(yearFrom, yearTo))}\n\n${table}\n\n${tr.m.compare.latest(latest !== undefined ? tr.year(latest) : tr.m.common.na, summary)}${denominatorNote}\n\n${tr.sourceLine(citation, source)}`,
           },
         ],
         structuredContent: {
