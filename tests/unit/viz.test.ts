@@ -79,7 +79,7 @@ describe('chart generators', () => {
       data: { labels: number[]; datasets: { label: string; data: (number | null)[] }[] };
     };
     expect(config.type).toBe('line');
-    expect(config.data.labels).toEqual([2022, 2023]);
+    expect(config.data.labels).toEqual(['2022', '2023']);
     expect(config.data.datasets).toHaveLength(2);
     // Jordan has no 2022 point → null keeps the axis aligned.
     expect(config.data.datasets[1]!.data).toEqual([null, 700]);
@@ -181,5 +181,44 @@ describe('toVegaLite dashed projections', () => {
         ],
       },
     });
+  });
+});
+
+describe('toChartJs prediction bands and markers', () => {
+  const spec = toChartJs({
+    ...CHART,
+    series: [
+      {
+        label: 'projected',
+        dashed: true,
+        points: [
+          { x: 2024, y: 10 },
+          { x: 2025, y: 12 },
+        ],
+      },
+    ],
+    bands: [
+      { label: '95%', points: [{ x: 2025, low: 8, high: 16 }] },
+      { label: '80%', points: [{ x: 2025, low: 10, high: 14 }] },
+    ],
+    markers: [{ x: 2024, label: 'break 2024' }],
+  }) as {
+    data: { labels: string[]; datasets: { type?: string; label: string; data: unknown[] }[] };
+    options: { plugins: { annotation: { annotations: Record<string, { xMin: string }> } } };
+  };
+
+  it('emits one floating-bar dataset per band (one legend entry each)', () => {
+    expect(spec.data.datasets.map((d) => [d.type, d.label])).toEqual([
+      ['bar', '95%'],
+      ['bar', '80%'],
+      [undefined, 'projected'],
+    ]);
+    expect(spec.data.datasets[0]!.data).toEqual([null, [8, 16]]);
+    expect(spec.data.datasets[1]!.data).toEqual([null, [10, 14]]);
+  });
+
+  it('positions markers on the (string) category labels', () => {
+    expect(spec.data.labels).toEqual(['2024', '2025']);
+    expect(spec.options.plugins.annotation.annotations['marker0']!.xMin).toBe('2024');
   });
 });

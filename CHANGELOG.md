@@ -88,6 +88,17 @@ adheres to [Semantic Versioning](https://semver.org/).
 - `SERVER_VERSION` (reported to MCP clients, `--version` and extraction
   manifests) and the `.mcpb` `manifest.json` version aligned with
   package.json (0.7.0); both still said 0.6.0.
+- Cited version updated to 0.7.0 (released 2026-08-12) in `CITATION.cff`
+  and the README BibTeX / APA / Chicago snippets.
+
+### Fixed
+
+- Chart.js forecast charts list each prediction interval once in the legend:
+  every band is now a single floating-bar dataset (`[low, high]` per year)
+  instead of a low/high line pair — still a pure-JSON spec.
+- Chart.js category labels are emitted as strings, so changepoint markers
+  (`chartjs-plugin-annotation` `xMin`/`xMax`) land on the right year in
+  English output too (numeric labels made the annotation add a stray category).
 
 ## [0.7.0] — 2026-08-12
 

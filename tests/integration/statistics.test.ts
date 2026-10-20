@@ -170,10 +170,30 @@ describe('stronger statistics (recorded UNHCR fixtures)', () => {
   it('forecast chart (chartjs / vega-lite) carries bands and markers', async () => {
     const chartjs = (await call('forecast', { country: 'Egypt', chart: 'chartjs' })).structured;
     const cfg = (chartjs['chart'] as { spec: Record<string, unknown> }).spec as {
-      data: { datasets: { fill: unknown; borderDash?: number[] }[] };
+      data: {
+        datasets: {
+          type?: string;
+          label: string;
+          data: (number | [number, number] | null)[];
+          borderDash?: number[];
+        }[];
+      };
       options: { plugins: { annotation?: { annotations: Record<string, unknown> } } };
     };
-    expect(cfg.data.datasets.filter((d) => d.fill === '-1')).toHaveLength(2);
+    // One floating-bar dataset per interval → one legend entry each, no duplicates.
+    const bands = cfg.data.datasets.filter((d) => d.type === 'bar');
+    expect(bands.map((d) => d.label)).toEqual([
+      '95% prediction interval',
+      '80% prediction interval',
+    ]);
+    const labels = cfg.data.datasets.map((d) => d.label);
+    expect(new Set(labels).size).toBe(labels.length);
+    for (const band of bands) {
+      const ranges = band.data.filter((v): v is [number, number] => Array.isArray(v));
+      expect(ranges.length).toBeGreaterThan(0);
+      for (const [low, high] of ranges) expect(low).toBeLessThanOrEqual(high);
+    }
+    expect(JSON.parse(JSON.stringify(cfg))).toEqual(cfg);
     expect(cfg.data.datasets.some((d) => d.borderDash)).toBe(true);
     expect(Object.keys(cfg.options.plugins.annotation!.annotations)).toEqual(['marker0']);
 
