@@ -146,6 +146,7 @@ No API key is required today. The service is operated on a best-effort basis by 
 
 - `normalize_by`: per-capita (per 1,000 residents) and per-GDP (per US$1bn) comparisons, rankings and charts, with per-year denominator matching
 - Regression, year-over-year, CAGR, z-score anomaly detection
+- **Changepoint detection** (exact penalised segmentation, piecewise-linear cost, robust noise estimate) and **80%/95% prediction intervals** on forecasts — pure TypeScript, no dependencies; charts draw interval bands and break markers
 - Charts as Chart.js / Vega-Lite / Mermaid / SVG; maps as GeoJSON
 
 **Research reproducibility**
@@ -392,7 +393,6 @@ Releases: bump the version, tag `v*`, push — CI publishes the GitHub release w
 
 - ReliefWeb disasters dataset (the situation-reports pipeline already shipped)
 - UNHCR Operational Data Portal situations
-- Sturdier statistics (confidence intervals, changepoint detection)
 - Redis cache backend
 
 ## FAQ
