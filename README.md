@@ -153,6 +153,7 @@ No API key is required today. The service is operated on a best-effort basis by 
 - Extraction manifest on every export: exact arguments, timestamp, server version, citation — a repeatable recipe for a paper's appendix
 - Optional variable-level codebook matching exactly the exported columns
 - CSV / JSON / Markdown / GeoJSON export; CSV manifests ride in `#` comment lines (`pd.read_csv(..., comment="#")`)
+- `export_report`: print-ready, self-contained **HTML and PDF** reports — RTL-correct Arabic with an embedded Arabic font, inline SVG charts, citations and the extraction manifest kept. PDF uses a locally installed Chrome/Chromium (no new dependency, no API key); without one you get the HTML to print. [Details](docs/tools.md#export_report)
 - Runnable [Python & R notebooks](examples/notebooks/) reproducing four research workflows
 - [CITATION.cff](CITATION.cff) + JOSS paper draft in [paper/](paper/)
 

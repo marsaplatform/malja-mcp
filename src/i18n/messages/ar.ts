@@ -268,6 +268,39 @@ export const ar: Messages = {
     truncated: (rows: string) =>
       `_ملاحظة: اقتُطعت النتائج إلى ${rows} صفاً. ضيّق نطاق السنوات أو صفِّ حسب البلد للحصول على مجموعة كاملة._`,
   },
+  htmlReport: {
+    defaultTitle: 'تقرير ملجأ',
+    manifestHeading: 'بيان الاستخراج',
+    manifestIntro:
+      'أعد تنفيذ هذا الاستدعاء نفسه على إصدار الخادم ذاته لإعادة إنتاج الأرقام الواردة في هذه الوثيقة. تخضع السلاسل الأصلية للمراجعة بمرور الوقت — اذكر تاريخ الاستخراج عند الاستشهاد.',
+    manifestFields: {
+      tool: 'الأداة',
+      arguments: 'المعطيات',
+      extracted_at: 'وقت الاستخراج (UTC)',
+      server: 'الخادم',
+      source: 'المصدر',
+      citation: 'الاستشهاد',
+      content_sha256: 'بصمة المحتوى SHA-256',
+    },
+    footer: (server: string, date: string) =>
+      `أُنشئ بواسطة ${server} بتاريخ ${date} من بيانات عامة رسمية، للقراءة فقط. تحقّق من الأرقام في المصادر المذكورة قبل النشر.`,
+    mermaidNote: 'مصدر الرسم البياني (Mermaid) — الصقه في عارض Mermaid لعرضه.',
+    noInput:
+      'حدِّد إما country (للحصول على تقرير قُطري كامل) أو markdown (مخرجات Markdown لأي أداة) لتصديره.',
+    htmlReady: (title: string, size: string) =>
+      `تقرير HTML جاهز للطباعة «${title}» (${size} كيلوبايت): مستقل بذاته — خط عربي/لاتيني مضمَّن، ورسوم بيانية مضمَّنة، والاستشهادات وبيان الاستخراج؛ دون أي طلبات خارجية. افتحه في المتصفح للقراءة أو الطباعة.`,
+    pdfReady: (title: string, size: string, engine: string) =>
+      `تقرير PDF «${title}» (${size} كيلوبايت)، أُنتج من ملف HTML الجاهز للطباعة بواسطة ${engine}.`,
+    pdfFallback: (reason: string) =>
+      `تعذّر إنتاج PDF هنا (${reason})، لذا أُعيد ملف HTML الجاهز للطباعة بدلاً منه: افتحه في أي متصفح واختر طباعة ← حفظ بصيغة PDF — التنسيق مهيّأ مسبقاً لمقاس A4 والطباعة.`,
+    reasons: {
+      disabled: 'معطَّل عبر MALJA_PDF=off',
+      noBrowser: 'لم يُعثر على Chrome أو Chromium أو Edge — ثبّت أحدها أو اضبط MALJA_CHROME_PATH',
+    },
+    failed: (detail: string) => `أخفق المتصفح غير المرئي: ${detail}`,
+    linkNote: (uri: string) =>
+      `نزّل الملف من رابط المورد (${uri})؛ يُحتفظ به في ذاكرة الخادم لمدة ساعة. مرِّر inline: true لتضمينه في هذه النتيجة بدلاً من ذلك.`,
+  },
   codebook: {
     headers: ['المتغير', 'الوصف', 'الوحدة'],
     units: {

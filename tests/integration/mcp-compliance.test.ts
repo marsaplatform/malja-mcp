@@ -32,6 +32,7 @@ const EXPECTED_TOOLS = [
   'generate_chart',
   'generate_map',
   'generate_country_report',
+  'export_report',
   'export_data',
   'get_metadata',
   'provider_health',

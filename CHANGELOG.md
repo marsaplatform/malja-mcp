@@ -22,6 +22,15 @@ adheres to [Semantic Versioning](https://semver.org/).
   `messages/ar.ts`) plus a `Translator` for numbers, years, ranges, country
   names, metrics and citations; catalog-parity tests guarantee every key
   exists in every locale.
+- **`export_report`** — formatted HTML and PDF reports. Exports the country
+  report (or any tool's Markdown) as a self-contained, print-ready HTML file
+  (A4 print CSS, embedded Zad Arabic/Latin font under SIL OFL 1.1, `dir="rtl"`
+  - logical CSS for Arabic, inline SVG chart, citations, extraction manifest
+    as a table and as embedded JSON) and as PDF via a locally installed headless
+    Chrome/Chromium — no new npm dependency, falls back to HTML with a reason
+    when no browser is available. Documents are served from memory as
+    `export://{id}/{filename}` resource links (1 h TTL) or inline. New settings
+    `MALJA_PDF=auto|off` and `MALJA_CHROME_PATH`.
 - RTL support: SVG charts (`direction="rtl"`, Arabic font stack, RTL legend),
   Chart.js RTL legend/tooltips, Vega-Lite Arabic font config, LRM-protected
   signed numbers, worded year ranges.
