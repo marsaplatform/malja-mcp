@@ -281,6 +281,41 @@ Country-centroid points; countries without a centroid are listed, not dropped si
 → `{ markdown }` — key figures, trend table + embedded mermaid chart, top origins,
 asylum decisions, demographics, method notes. Emits 5 MCP progress notifications.
 
+### export_report
+
+`country?` · `markdown?` (≤400k chars; one of the two is required) · `title?` ·
+`year_from` · `year_to` · `format` (`html`|`pdf`, default `html`) ·
+`include_manifest` (default true) · `inline` (default false)
+→ `{ format, requested_format, title, filename, mime_type, bytes, sha256, uri, locale, pdf_engine?, fallback_reason?, manifest? }`
+
+Formats a country report — or any Markdown a tool returned (`trend_analysis`,
+`compare_countries`, …) — as a **self-contained, print-ready document**:
+
+- **HTML**: one file, no external requests. Inline CSS for A4 print
+  (`@page`, page-break rules, repeated table headers), the Zad Arabic/Latin
+  font (SIL OFL 1.1) embedded as WOFF2, `lang`/`dir` set from `locale` with
+  logical CSS properties so Arabic is genuinely right-to-left, numeric
+  columns aligned and bidi-isolated, English phrases inside Arabic lines
+  isolated so citations read in order. Country reports embed the trend chart
+  as a static SVG (no Mermaid runtime needed).
+- **PDF**: the same HTML printed by a locally installed Chrome / Chromium /
+  Edge in headless mode (auto-detected; override with `MALJA_CHROME_PATH`,
+  disable with `MALJA_PDF=off`). If no browser is available, the tool returns
+  the HTML instead with `fallback_reason` — open it and use the browser's
+  _Print → Save as PDF_.
+- **Provenance**: citations and the methodology note are kept verbatim; with
+  `include_manifest` the document ends with an extraction-manifest table and
+  carries the same manifest as JSON in
+  `<script type="application/json" id="malja-manifest">`. In `markdown` mode the
+  manifest records the SHA-256 of the supplied Markdown and labels the source
+  as client-supplied.
+
+The document is returned as an MCP `resource_link` to
+`export://{id}/{filename}` (kept in server memory for 1 h, max 32 documents /
+64 MB — nothing is written to disk), or embedded in the result with
+`inline: true`. Client-supplied Markdown is HTML-escaped; raw HTML and SVG in it
+are never rendered, and only `http(s)` links become anchors.
+
 ### export_data
 
 `dataset` (`population`|`demographics`|`asylum-applications`|`asylum-decisions`|`context-indicators`|`idps`|`conflict-events`|`humanitarian-funding`|`food-security`) ·

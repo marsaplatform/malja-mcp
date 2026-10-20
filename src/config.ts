@@ -27,6 +27,10 @@ export interface Config {
   readonly httpHost: string;
   /** Max inbound requests per minute per client in --http mode (0 = unlimited). */
   readonly httpRateLimitRpm: number;
+  /** PDF rendering for export_report: "auto" (use a local Chrome/Chromium/Edge if found) or "off". */
+  readonly pdf: 'auto' | 'off';
+  /** Explicit headless-browser path for PDF rendering (default: auto-detect). */
+  readonly chromePath: string;
   /** User-Agent sent with every outgoing request. */
   readonly userAgent: string;
   /** HDX HAPI app identifier (required only when the hdx provider is enabled). */
@@ -113,6 +117,12 @@ export function loadConfig(rawEnv: NodeJS.ProcessEnv = process.env): Config {
     throw new Error(`Invalid MALJA_DIGITS: expected "latn" or "arab", got "${digitsRaw}"`);
   }
 
+  const pdfRaw = (env['MALJA_PDF'] ?? 'auto').trim().toLowerCase() || 'auto';
+  const pdfMode = pdfRaw === '0' || pdfRaw === 'false' ? 'off' : pdfRaw;
+  if (pdfMode !== 'auto' && pdfMode !== 'off') {
+    throw new Error(`Invalid MALJA_PDF: expected "auto" or "off", got "${pdfRaw}"`);
+  }
+
   return {
     providers,
     cacheBackend,
@@ -126,6 +136,8 @@ export function loadConfig(rawEnv: NodeJS.ProcessEnv = process.env): Config {
     httpPort: intFromEnv(env, 'MALJA_HTTP_PORT', 8642),
     httpHost: env['MALJA_HTTP_HOST']?.trim() || '127.0.0.1',
     httpRateLimitRpm: intFromEnv(env, 'MALJA_HTTP_RATE_LIMIT_RPM', 120),
+    pdf: pdfMode,
+    chromePath: env['MALJA_CHROME_PATH']?.trim() ?? '',
     userAgent:
       env['MALJA_USER_AGENT'] ??
       `${SERVER_NAME}/${SERVER_VERSION} (+https://github.com/marsaplatform/malja-mcp)`,

@@ -36,6 +36,17 @@ describe('loadConfig', () => {
     expect(() => loadConfig({ MALJA_PROVIDERS: ' , ' })).toThrow(/at least one provider/);
   });
 
+  it('parses PDF export settings', () => {
+    expect(loadConfig({}).pdf).toBe('auto');
+    expect(loadConfig({}).chromePath).toBe('');
+    expect(loadConfig({ MALJA_PDF: 'off' }).pdf).toBe('off');
+    expect(loadConfig({ MALJA_PDF: 'false' }).pdf).toBe('off');
+    expect(loadConfig({ MALJA_CHROME_PATH: '/usr/bin/chromium' }).chromePath).toBe(
+      '/usr/bin/chromium',
+    );
+    expect(() => loadConfig({ MALJA_PDF: 'maybe' })).toThrow(/MALJA_PDF/);
+  });
+
   it('clamps the rate limit to at least 1 rps', () => {
     expect(loadConfig({ MALJA_RATE_LIMIT_RPS: '0' }).rateLimitRps).toBe(1);
   });
