@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="en" dir="ltr">
   <head>
-    <!-- TODO(malja): malja-mcp.example.com is a placeholder for the future hosted endpoint/landing URL; npm package malja-mcp not yet published. -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Malja MCP (ملجأ) — trusted humanitarian data inside your AI assistant</title>
@@ -17,14 +16,11 @@
       property="og:description"
       content="UNHCR refugee statistics as semantic tools for any MCP-speaking assistant: trend analysis, charts, reports and data exports."
     />
-    <meta property="og:image" content="https://malja-mcp.example.com/social-preview.png" />
-    <meta property="og:url" content="https://malja-mcp.example.com/" />
+    <meta property="og:image" content="https://spaces.marsaplatform.com/s/k3sb9ww3dj/cover.png" />
+    <meta property="og:url" content="https://spaces.marsaplatform.com/s/k3sb9ww3dj/" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="canonical" href="https://malja-mcp.example.com/" />
-    <link rel="alternate" hreflang="en" href="https://malja-mcp.example.com/" />
-    <link rel="alternate" hreflang="ar" href="https://malja-mcp.example.com/ar/" />
-    <link rel="alternate" hreflang="x-default" href="https://malja-mcp.example.com/" />
+    <link rel="canonical" href="https://spaces.marsaplatform.com/s/k3sb9ww3dj/" />
     <link
       rel="icon"
       type="image/svg+xml"
@@ -38,7 +34,7 @@
         "@type": "SoftwareApplication",
         "name": "malja-mcp",
         "description": "Open-source Model Context Protocol server that gives AI assistants clean, cited access to UNHCR refugee statistics.",
-        "url": "https://malja-mcp.example.com/",
+        "url": "https://spaces.marsaplatform.com/s/k3sb9ww3dj/",
         "sameAs": "https://github.com/marsaplatform/malja-mcp",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "macOS, Windows, Linux",
@@ -257,9 +253,9 @@
             journalism and aid work. No code, no spreadsheets.
           </p>
           <p class="mt-4 text-sm text-fog animate-fadeup" style="animation-delay: 0.14s">
-            24 read-only tools · 8 one-click prompts · a cited source in every answer · runs hosted
-            or fully local. Built on MCP, the open standard that gives your assistant safe external
-            tools.
+            24 read-only tools · 8 one-click prompts · a cited source in every answer · runs on your
+            machine or your own server (hosted endpoint coming soon). Built on MCP, the open
+            standard that gives your assistant safe external tools.
             <a
               class="text-amber hover:text-paper"
               href="https://github.com/marsaplatform/malja-mcp/blob/main/docs/how-mcp-works.md"
@@ -269,7 +265,7 @@
 
           <div class="mt-9 flex flex-wrap gap-3 animate-fadeup" style="animation-delay: 0.15s">
             <a href="#usage" class="px-7 py-3 bg-amber text-ink font-bold text-sm hover:bg-paper"
-              >Try it now — no install</a
+              >How to run it</a
             >
             <a
               href="#usage"
@@ -624,9 +620,9 @@
         <p class="font-mono text-teal text-sm mb-2">04</p>
         <h2 class="font-head font-bold text-3xl sm:text-4xl">Ready in two minutes.</h2>
         <p class="mt-4 text-soft max-w-2xl">
-          Fastest path: the <strong class="text-ink">“No install”</strong> tab below — a hosted URL
-          we run for you; paste it and start in seconds. Or install it on your machine in three
-          steps that need no programmer, and your questions and data stay entirely on your device.
+          Malja is self-hosted today (a hosted endpoint is coming soon): install it on your machine
+          in three steps, or run it over HTTP with Docker. Your questions and data stay on your own
+          device or server.
         </p>
 
         <ol class="mt-7 space-y-3 text-sm max-w-2xl">
@@ -640,9 +636,9 @@
             if it is not on your machine — a free, ordinary click-through install.
           </li>
           <li>
-            <strong class="font-head text-teal">2 ·</strong> The package is published on npm — no
-            cloning, no building. Your app's config (tabs below) simply points at
-            <code class="font-mono text-ink">npx malja-mcp</code>. For a quick try in the terminal:
+            <strong class="font-head text-teal">2 ·</strong> Get the source and build it once (the
+            npm package is not published yet). Your app's config (tabs below) then points at
+            <code class="font-mono text-ink">dist/index.js</code>:
           </li>
         </ol>
 
@@ -650,7 +646,8 @@
           <code
             id="install"
             class="flex-1 px-4 py-3 text-sm font-mono text-ink overflow-x-auto whitespace-nowrap"
-            >npx malja-mcp --version</code
+            >git clone https://github.com/marsaplatform/malja-mcp &amp;&amp; cd malja-mcp &amp;&amp;
+            npm install &amp;&amp; npm run build</code
           >
           <button
             class="px-5 text-xs font-body bg-ink text-paper font-bold hover:bg-teal"
@@ -672,7 +669,7 @@
             :class="tab==='hosted' ? 'bg-ink text-paper' : 'bg-card text-soft hover:text-ink'"
             class="px-5 py-2.5 border-2 border-ink"
           >
-            No install
+            Docker / HTTP
           </button>
           <button
             @click="tab='desktop'"
@@ -707,14 +704,15 @@
         <div class="mt-4 border-2 border-ink bg-card">
           <div x-show="tab==='hosted'" class="p-6">
             <p class="text-soft text-sm mb-4">
-              A ready hosted instance — no terminal, no install. Copy the URL and paste it into your
-              app:
+              <strong class="text-ink">Hosted endpoint: coming soon.</strong> There is no public
+              Malja URL yet. Today Malja is self-hosted: run it on your machine (the other tabs), or
+              start it over HTTP with Docker and point your client at your own server:
             </p>
             <div class="flex items-stretch border-2 border-ink bg-paper max-w-2xl">
               <code
                 id="c-hosted"
                 class="flex-1 px-4 py-3 text-sm font-mono text-ink overflow-x-auto whitespace-nowrap"
-                >https://malja-mcp.example.com/mcp</code
+                >docker compose up -d --build # then http://localhost:8642/mcp</code
               >
               <button
                 class="px-5 text-xs font-body bg-ink text-paper font-bold hover:bg-teal"
@@ -726,21 +724,23 @@
             </div>
             <ul class="mt-5 text-sm space-y-3">
               <li>
-                <strong class="text-ink">In Claude (web or app):</strong> Settings → Connectors →
-                Add custom connector → paste the URL.
-              </li>
-              <li>
                 <strong class="text-ink">In Claude Code:</strong>
                 <code class="font-mono text-[13px] bg-paper border border-rule px-2 py-1"
-                  >claude mcp add --transport http humanitarian
-                  https://malja-mcp.example.com/mcp</code
+                  >claude mcp add --transport http malja http://localhost:8642/mcp</code
                 >
+              </li>
+              <li>
+                <strong class="text-ink">Cursor / other HTTP clients:</strong> use
+                <code class="font-mono text-[13px]">http://&lt;your-host&gt;:8642/mcp</code> as the
+                server URL.
               </li>
             </ul>
             <p class="mt-5 text-xs text-soft">
-              The hosted instance relays your questions through our server (no accounts, no
-              tracking, and the data is public anyway). For full privacy or offline work, use the
-              local install above.
+              The server is read-only but unauthenticated by design: keep it behind your own reverse
+              proxy or VPN. Source:
+              <a class="underline" href="https://github.com/marsaplatform/malja-mcp"
+                >github.com/marsaplatform/malja-mcp</a
+              >.
             </p>
           </div>
 
@@ -757,8 +757,8 @@
 {
   "mcpServers": {
     "malja": {
-      "command": "npx",
-      "args": ["-y", "malja-mcp"]
+      "command": "node",
+      "args": ["/absolute/path/to/malja-mcp/dist/index.js"]
     }
   }
 }</pre>
@@ -777,7 +777,7 @@
               id="c-code"
               class="text-[13px] font-mono bg-paper border border-rule p-4 overflow-x-auto leading-6"
             >
-claude mcp add malja -- npx -y malja-mcp</pre>
+claude mcp add malja -- node /absolute/path/to/malja-mcp/dist/index.js</pre>
             <p class="text-soft text-sm mt-5 mb-2">Then try:</p>
             <ul class="text-sm space-y-2 text-ink">
               <li>“Write a full humanitarian report on Sudan”</li>
@@ -1067,9 +1067,12 @@ demographics({ country: "Egypt" })
             class="text-teal border-b border-teal hover:text-ink hover:border-ink"
             href="https://github.com/marsaplatform/malja-mcp/blob/main/docs/adding-providers.md"
             >the step-by-step provider guide ↗</a
-          >. Or install it with one npm command (<code class="font-mono text-ink"
-            >npx malja-mcp</code
-          >).
+          >. Or build it from
+          <a
+            class="text-teal border-b border-teal hover:text-ink hover:border-ink"
+            href="https://github.com/marsaplatform/malja-mcp"
+            >the source on GitHub</a
+          >.
         </p>
 
         <div class="mt-7 flex flex-wrap gap-2 text-sm">

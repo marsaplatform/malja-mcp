@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
   <head>
-    <!-- TODO(malja): malja-mcp.example.com is a placeholder for the future hosted endpoint/landing URL; npm package malja-mcp not yet published. -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>ملجأ · Malja MCP — بيانات إنسانية موثّقة داخل مساعدك الذكي</title>
@@ -14,14 +13,11 @@
       property="og:description"
       content="إحصاءات اللاجئين من UNHCR كأدوات دلالية لأي مساعد ذكي يتحدث MCP — مع تحليل اتجاهات، رسوم، تقارير، وتصدير للبيانات."
     />
-    <meta property="og:image" content="https://malja-mcp.example.com/social-preview.png" />
-    <meta property="og:url" content="https://malja-mcp.example.com/ar/" />
+    <meta property="og:image" content="https://spaces.marsaplatform.com/s/k3sb9ww3dj/cover.png" />
+    <meta property="og:url" content="https://spaces.marsaplatform.com/s/k3sb9ww3dj/" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="canonical" href="https://malja-mcp.example.com/ar/" />
-    <link rel="alternate" hreflang="en" href="https://malja-mcp.example.com/" />
-    <link rel="alternate" hreflang="ar" href="https://malja-mcp.example.com/ar/" />
-    <link rel="alternate" hreflang="x-default" href="https://malja-mcp.example.com/" />
+    <link rel="canonical" href="https://spaces.marsaplatform.com/s/k3sb9ww3dj/" />
     <link
       rel="icon"
       type="image/svg+xml"
@@ -35,7 +31,7 @@
         "@type": "SoftwareApplication",
         "name": "malja-mcp",
         "description": "خادم Model Context Protocol مفتوح المصدر يمنح المساعدات الذكية وصولًا نظيفًا وموثّقًا لإحصاءات اللاجئين من مفوضية الأمم المتحدة.",
-        "url": "https://malja-mcp.example.com/",
+        "url": "https://spaces.marsaplatform.com/s/k3sb9ww3dj/",
         "sameAs": "https://github.com/marsaplatform/malja-mcp",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "macOS, Windows, Linux",
@@ -254,8 +250,9 @@
             وسنته ومصدره — للبحث والصحافة والمنظمات. لا برمجة ولا حسابات.
           </p>
           <p class="mt-4 text-sm text-fog animate-fadeup" style="animation-delay: 0.14s">
-            ٢٤ أداة قراءة فقط · ٨ قوالب جاهزة · مصادر موثّقة في كل إجابة · يعمل مستضافًا أو محليًا.
-            يقوم على بروتوكول MCP — المعيار المفتوح الذي يمنح مساعدك أدوات خارجية آمنة.
+            ٢٤ أداة قراءة فقط · ٨ قوالب جاهزة · مصادر موثّقة في كل إجابة · يعمل على جهازك أو خادمك
+            (النسخة المستضافة قريبًا). يقوم على بروتوكول MCP — المعيار المفتوح الذي يمنح مساعدك
+            أدوات خارجية آمنة.
             <a
               class="text-amber hover:text-paper"
               href="https://github.com/marsaplatform/malja-mcp/blob/main/docs/how-mcp-works.md"
@@ -265,7 +262,7 @@
 
           <div class="mt-9 flex flex-wrap gap-3 animate-fadeup" style="animation-delay: 0.15s">
             <a href="#usage" class="px-7 py-3 bg-amber text-ink font-bold text-sm hover:bg-paper"
-              >جرّبه الآن — بلا تثبيت</a
+              >كيف أشغّله؟</a
             >
             <a
               href="#usage"
@@ -615,9 +612,8 @@
         <p class="font-mono text-teal text-sm mb-2" dir="ltr">04</p>
         <h2 class="font-head font-bold text-3xl sm:text-4xl">جاهز في دقيقتين.</h2>
         <p class="mt-4 text-soft max-w-2xl">
-          أسرع طريق: تبويب <strong class="text-ink">«بدون تثبيت»</strong> أدناه — رابط جاهز نستضيفه
-          لك، تلصقه وتبدأ في ثوانٍ. أو ثبّته على جهازك في ثلاث خطوات لا تحتاج مبرمجًا، فتبقى أسئلتك
-          وبياناتك على جهازك بالكامل.
+          التشغيل الآن ذاتي (النسخة المستضافة قريبًا): ثبّته على جهازك في ثلاث خطوات، أو شغّله عبر
+          HTTP باستخدام Docker. تبقى أسئلتك وبياناتك على جهازك أو خادمك.
         </p>
 
         <ol class="mt-7 space-y-3 text-sm max-w-2xl">
@@ -632,10 +628,9 @@
             إن لم يكن على جهازك — برنامج مجاني بتثبيت عادي بالنقر.
           </li>
           <li>
-            <strong class="font-head text-teal">٢ ·</strong> الحزمة منشورة على npm — لا حاجة لأي
-            استنساخ أو بناء. يكفي أن يشير إعداد برنامجك (التبويب أدناه) إلى
-            <code class="font-mono text-ink" dir="ltr">npx malja-mcp</code>. للتجربة السريعة في
-            «الطرفية»:
+            <strong class="font-head text-teal">٢ ·</strong> نزّل الكود المصدري وابنِه مرة واحدة
+            (حزمة npm لم تُنشر بعد). ثم يشير إعداد برنامجك (التبويب أدناه) إلى
+            <code class="font-mono text-ink" dir="ltr">dist/index.js</code>:
           </li>
         </ol>
 
@@ -643,7 +638,8 @@
           <code
             id="install"
             class="flex-1 px-4 py-3 text-sm font-mono text-ink overflow-x-auto whitespace-nowrap"
-            >npx malja-mcp --version</code
+            >git clone https://github.com/marsaplatform/malja-mcp &amp;&amp; cd malja-mcp &amp;&amp;
+            npm install &amp;&amp; npm run build</code
           >
           <button
             class="px-5 text-xs font-body bg-ink text-paper font-bold hover:bg-teal"
@@ -665,7 +661,7 @@
             :class="tab==='hosted' ? 'bg-ink text-paper' : 'bg-card text-soft hover:text-ink'"
             class="px-5 py-2.5 border-2 border-ink"
           >
-            بدون تثبيت
+            Docker / HTTP
           </button>
           <button
             @click="tab='desktop'"
@@ -700,13 +696,15 @@
         <div class="mt-4 border-2 border-ink bg-card">
           <div x-show="tab==='hosted'" class="p-6">
             <p class="text-soft text-sm mb-4">
-              نسخة مستضافة جاهزة — بلا طرفية وبلا تثبيت. انسخ الرابط وألصقه في برنامجك:
+              <strong class="text-ink">النسخة المستضافة: قريبًا.</strong> لا يوجد رابط عام لملجأ
+              بعد. التشغيل الآن ذاتي: على جهازك (التبويبات الأخرى)، أو عبر HTTP باستخدام Docker ثم
+              وجّه برنامجك إلى خادمك:
             </p>
             <div class="flex items-stretch border-2 border-ink bg-paper max-w-2xl" dir="ltr">
               <code
                 id="c-hosted"
                 class="flex-1 px-4 py-3 text-sm font-mono text-ink overflow-x-auto whitespace-nowrap"
-                >https://malja-mcp.example.com/mcp</code
+                >docker compose up -d --build # then http://localhost:8642/mcp</code
               >
               <button
                 class="px-5 text-xs font-body bg-ink text-paper font-bold hover:bg-teal"
@@ -718,20 +716,24 @@
             </div>
             <ul class="mt-5 text-sm space-y-3">
               <li>
-                <strong class="text-ink">في Claude (الموقع أو التطبيق):</strong> الإعدادات ←
-                Connectors ← Add custom connector ← الصق الرابط.
-              </li>
-              <li>
                 <strong class="text-ink">في Claude Code:</strong>
                 <code class="font-mono text-[13px] bg-paper border border-rule px-2 py-1" dir="ltr"
-                  >claude mcp add --transport http humanitarian
-                  https://malja-mcp.example.com/mcp</code
+                  >claude mcp add --transport http malja http://localhost:8642/mcp</code
                 >
+              </li>
+              <li>
+                <strong class="text-ink">Cursor وغيره:</strong> استخدم
+                <code class="font-mono text-[13px]" dir="ltr"
+                  >http://&lt;your-host&gt;:8642/mcp</code
+                >
+                رابطًا للخادم.
               </li>
             </ul>
             <p class="mt-5 text-xs text-soft">
-              النسخة المستضافة تمرّر أسئلتك عبر خادمنا (بلا حسابات ولا تتبّع، والبيانات عامة أصلًا).
-              للخصوصية الكاملة أو للعمل دون اتصال، استخدم التثبيت المحلي بالخطوات أعلاه.
+              الخادم للقراءة فقط لكنه بلا مصادقة عمدًا: ضعه خلف بروكسي أو VPN خاص بك. الكود المصدري:
+              <a class="underline" href="https://github.com/marsaplatform/malja-mcp" dir="ltr"
+                >github.com/marsaplatform/malja-mcp</a
+              >.
             </p>
           </div>
 
@@ -749,8 +751,8 @@
 {
   "mcpServers": {
     "malja": {
-      "command": "npx",
-      "args": ["-y", "malja-mcp"]
+      "command": "node",
+      "args": ["/absolute/path/to/malja-mcp/dist/index.js"]
     }
   }
 }</pre>
@@ -770,7 +772,7 @@
               class="text-[13px] font-mono bg-paper border border-rule p-4 overflow-x-auto leading-6"
               dir="ltr"
             >
-claude mcp add malja -- npx -y malja-mcp</pre>
+claude mcp add malja -- node /absolute/path/to/malja-mcp/dist/index.js</pre>
             <p class="text-soft text-sm mt-5 mb-2">ثم جرّب:</p>
             <ul class="text-sm space-y-2 text-ink">
               <li>« اعمل تقريرًا إنسانيًا كاملًا عن السودان »</li>
@@ -1057,9 +1059,12 @@ demographics({ country: "Egypt" })
             href="https://github.com/marsaplatform/malja-mcp/blob/main/docs/adding-providers.md"
             dir="ltr"
             >دليل إضافة مصدر خطوة بخطوة ↗</a
-          >. أو ثبّته بأمر واحد من npm (<code class="font-mono text-ink" dir="ltr"
-            >npx malja-mcp</code
-          >).
+          >. أو ابنِه من
+          <a
+            class="text-teal border-b border-teal hover:text-ink hover:border-ink"
+            href="https://github.com/marsaplatform/malja-mcp"
+            >الكود المصدري على GitHub</a
+          >.
         </p>
 
         <div class="mt-7 flex flex-wrap gap-2 text-sm">
