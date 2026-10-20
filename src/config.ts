@@ -44,7 +44,7 @@ export interface Config {
 }
 
 export const SERVER_NAME = 'malja-mcp';
-export const SERVER_VERSION = '0.6.0';
+export const SERVER_VERSION = '0.7.0';
 
 const LOG_LEVELS = ['debug', 'info', 'warn', 'error'] as const;
 

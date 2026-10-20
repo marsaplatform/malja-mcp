@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/stats-strip.svg" width="900" alt="21 tools · 4 data sources · 8 prompts · 153 tests · 75 years of data">
+  <img src="assets/stats-strip.svg" width="900" alt="24 tools · 4 data sources · 8 prompts · 259 tests · 75 years of data">
 </p>
 
 ---
@@ -59,7 +59,7 @@ Without a trusted middleware, an LLM pointed at raw humanitarian APIs re-discove
 ```mermaid
 flowchart TD
     U["You"] --> C["Claude Desktop · Claude Code · Cursor · VS Code · Windsurf<br/>or your own MCP agent"]
-    C -->|"MCP (stdio or Streamable HTTP)"| S["Malja MCP<br/>21 tools · 11+ resources · 8 prompts"]
+    C -->|"MCP (stdio or Streamable HTTP)"| S["Malja MCP<br/>24 tools · 19 resources · 8 prompts"]
     S --> R["Provider registry<br/>(tools never see provider internals)"]
     R --> P1["UNHCR provider<br/>displacement · demographics · asylum"]
     R --> P2["World Bank provider<br/>population · GDP · poverty"]
@@ -129,8 +129,8 @@ No API key is required today. The service is operated on a best-effort basis by 
 
 **Data access**
 
-- 21 semantic, read-only tools — [full reference](docs/tools.md): country profiles, comparisons, yearly series, demographics, asylum applications/decisions with recognition rates, conflict events, food security (IPC), humanitarian funding, situation reports, rankings, trend analysis with anomaly detection, (loudly caveated) naive forecasts
-- 11+ MCP resources (`country://EGY`, `report://SDN`, `chart://UGA`, `metadata://providers`…) with URI autocompletion
+- 24 semantic, read-only tools — [full reference](docs/tools.md): country profiles, comparisons, yearly series, demographics, asylum applications/decisions with recognition rates, conflict events, food security (IPC), humanitarian funding, situation reports, rankings, trend analysis with anomaly detection, (loudly caveated) naive forecasts
+- 19 MCP resources — 13 fixed + 6 templates (`country://EGY`, `report://SDN`, `chart://UGA`, `solutions://SYR`, `metadata://providers`…) with URI autocompletion
 - **Durable solutions** (`durable_solutions`, `solutions://SYR`): refugee returns, resettlement, naturalisation and IDP returns per year — reported as **flows** (period totals are meaningful; "not reported" is never shown as 0), from the origin or the host/resettlement-country side, with `normalize_by` support
 - 8 built-in prompts (situation summary, donor briefing, crisis overview, anomaly hunt…)
 
@@ -212,7 +212,7 @@ Requires **Node.js ≥ 20** for source installs (SQLite cache uses built-in `nod
 > **Note:** the `malja-mcp` npm package has not been published yet (releases are disabled until `MALJA_RELEASE_ENABLED=true`). Until then, install from source (below).
 
 ```bash
-npx malja-mcp --version   # → malja-mcp 0.6.0
+npx malja-mcp --version   # → malja-mcp 0.7.0
 ```
 
 Register it with Claude Code in one line:
@@ -232,7 +232,7 @@ git clone https://github.com/marsaplatform/malja-mcp
 cd malja-mcp
 npm install
 npm run build
-node dist/index.js --version   # → malja-mcp 0.6.0
+node dist/index.js --version   # → malja-mcp 0.7.0
 ```
 
 ### Docker
@@ -358,7 +358,7 @@ used to exhaust the upstream quotas all providers share.
 | [`src/`](src/)                                              | The server. `providers/` (one directory per data source — the only place provider quirks may exist), `tools/`, `resources/`, `prompts/`, `shared/` (HTTP, cache, rate limiting, stats, country matching), `viz/`, `http/` (Streamable HTTP + dashboard)                                                                                                       |
 | [`docs/`](docs/)                                            | [tools.md](docs/tools.md) (tool reference) · [architecture.md](docs/architecture.md) · [for-researchers.md](docs/for-researchers.md) · [how-mcp-works.md](docs/how-mcp-works.md) (MCP primer) · [adding-providers.md](docs/adding-providers.md) · [development.md](docs/development.md) · `index.html` (Arabic landing page, served at malja-mcp.example.com) |
 | [`examples/`](examples/)                                    | Client configs, worked conversations with tool traces, HTTP client recipes, runnable [Python/R notebooks](examples/notebooks/)                                                                                                                                                                                                                                |
-| [`tests/`](tests/)                                          | 153 tests: MCP compliance suite (official SDK client ↔ real server), fixture-based provider suites (no network), unit tests                                                                                                                                                                                                                                   |
+| [`tests/`](tests/)                                          | 259 tests: MCP compliance suite (official SDK client ↔ real server), fixture-based provider suites (no network), unit tests                                                                                                                                                                                                                                   |
 | [`paper/`](paper/)                                          | JOSS paper draft (`paper.md` + `paper.bib`)                                                                                                                                                                                                                                                                                                                   |
 | [`marketing/`](marketing/)                                  | Launch kit: platform-native announcement drafts                                                                                                                                                                                                                                                                                                               |
 | [`Dockerfile`](Dockerfile) / [`compose.yaml`](compose.yaml) | Organizational self-hosting (image published to GHCR on every release)                                                                                                                                                                                                                                                                                        |
@@ -420,7 +420,7 @@ No. It is an independent open-source project. All data is © its original produc
 
 <details><summary><strong>Why not just let the AI call the UN APIs directly?</strong></summary>
 
-Because the failure mode is silent wrong answers: UNHCR's `ARE` is Egypt, but ISO's `ARE` is the UAE; empty results look like "no data"; `"-"` cells break math. This server encodes those traps once, with 153 tests. See [Why this project exists](#why-this-project-exists).
+Because the failure mode is silent wrong answers: UNHCR's `ARE` is Egypt, but ISO's `ARE` is the UAE; empty results look like "no data"; `"-"` cells break math. This server encodes those traps once, with 259 tests. See [Why this project exists](#why-this-project-exists).
 </details>
 
 <details><summary><strong>Is the data real-time?</strong></summary>

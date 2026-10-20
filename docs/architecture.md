@@ -30,9 +30,9 @@ src/
 │
 ├── cache/              Cache interface · memory (LRU) · sqlite (node:sqlite)
 ├── schemas/            shared zod fragments for tool I/O
-├── tools/              20 tools in focused files + common.ts, denominators.ts, codebook.ts
+├── tools/              24 tools in focused files + common.ts, denominators.ts, codebook.ts
 ├── resources/          static + templated resources
-├── prompts/            7 built-in prompt templates
+├── prompts/            8 built-in prompt templates
 ├── viz/                table · csv · chartjs · vega · mermaid · svg · geojson
 └── http/               streamable HTTP endpoint + demo dashboard
 ```

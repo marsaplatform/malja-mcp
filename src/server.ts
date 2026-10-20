@@ -13,7 +13,9 @@ Conventions:
 - role="asylum" means people hosted IN a country; role="origin" means people displaced FROM it.
 - Every tool accepts locale="ar" for Modern Standard Arabic text output (locale="en" is the default). When the user writes in Arabic, pass locale="ar". Structured output stays in English either way.
 - All data is read-only, sourced from official public APIs, and cached locally. Displacement figures are end-year stocks. Cite the year and the \`source\` field of each payload — different tools draw on different providers, so never attribute everything to one source.
-- Start broad (get_metadata, country_profile) before drilling into specific datasets; use situation_reports to ground trends and anomalies in published reporting.`;
+- Start broad (get_metadata, country_profile) before drilling into specific datasets; use situation_reports to ground trends and anomalies in published reporting.
+- trend_analysis reports structural breaks (changepoints); forecast returns 80%/95% prediction intervals — relay its caveat.
+- monitor_changes answers "what changed?" (new releases, revisions, jumps, threshold crossings) with alert-ready events; export_report turns a country report or any tool's markdown into print-ready HTML/PDF (Arabic RTL supported), returned as an export:// resource link.`;
 
 /**
  * Build the MCP server: every tool, resource and prompt registered against

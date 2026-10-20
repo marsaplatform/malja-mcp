@@ -81,6 +81,13 @@ adheres to [Semantic Versioning](https://semver.org/).
   other than `malja-mcp`.
 - Forked from [humanitarian-mcp](https://github.com/ahmedvnabil/humanitarian-mcp)
   (MIT); history below predates the rename. See `NOTICE`.
+- Counts brought up to date (24 tools, 19 resources — 13 fixed + 6
+  templates, 8 prompts, 259 tests) in the README, stats strip, landing page
+  (English and Arabic) and architecture notes; server instructions mention changepoints,
+  prediction intervals, `monitor_changes` and `export_report`.
+- `SERVER_VERSION` (reported to MCP clients, `--version` and extraction
+  manifests) and the `.mcpb` `manifest.json` version aligned with
+  package.json (0.7.0); both still said 0.6.0.
 
 ## [0.7.0] — 2026-08-12
 
