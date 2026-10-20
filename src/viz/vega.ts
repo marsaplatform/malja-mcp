@@ -6,18 +6,20 @@ import type { ChartSpecInput } from './series.js';
  * dashed projections) become a layered spec over the same axes.
  */
 export function toVegaLite(input: ChartSpecInput): Record<string, unknown> {
+  const hasDashed = input.series.some((s) => s.dashed);
+  // Every point carries `dashed` when any series is dashed, so the strokeDash
+  // scale sees both values and maps them explicitly (solid / dashed).
   const values = input.series.flatMap((series) =>
     series.points.map((p) => ({
       x: p.x,
       y: p.y,
       series: series.label,
-      ...(series.dashed ? { dashed: true } : {}),
+      ...(hasDashed ? { dashed: series.dashed === true } : {}),
     })),
   );
   const rtl = input.direction === 'rtl';
   const bands = input.bands ?? [];
   const markers = input.markers ?? [];
-  const hasDashed = input.series.some((s) => s.dashed);
 
   const header = {
     $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
@@ -63,7 +65,22 @@ export function toVegaLite(input: ChartSpecInput): Record<string, unknown> {
       mark: mainMark,
       encoding: {
         ...mainEncoding,
-        ...(hasDashed ? { strokeDash: { field: 'dashed', type: 'nominal', legend: null } } : {}),
+        ...(hasDashed
+          ? {
+              strokeDash: {
+                field: 'dashed',
+                type: 'nominal',
+                legend: null,
+                scale: {
+                  domain: [false, true],
+                  range: [
+                    [1, 0],
+                    [6, 4],
+                  ],
+                },
+              },
+            }
+          : {}),
       },
     },
     ...(markers.length > 0
