@@ -7,6 +7,7 @@ import { CountryRoleSchema, countryInput } from '../schemas/common.js';
 import {
   detectEvents,
   latestYear,
+  mergeSnapshots,
   type MetricValues,
   type MonitorEvent,
   type MonitorSnapshot,
@@ -269,13 +270,23 @@ export function registerMonitorTools(server: McpServer, ctx: AppContext): void {
         }
         baseline = args.snapshot;
         baselineKind = 'supplied';
-      } else if (args.use_stored_snapshot ?? true) {
+      }
+      const store = args.store_snapshot ?? true;
+      let stored: MonitorSnapshot | undefined;
+      if (store || (!baseline && (args.use_stored_snapshot ?? true))) {
         const entry = await ctx.cache.get(SNAPSHOT_PREFIX + key);
-        const parsed = entry ? SnapshotSchema.safeParse(JSON.parse(entry.body)) : undefined;
-        if (parsed?.success) {
-          baseline = parsed.data;
-          baselineKind = 'stored';
+        let raw: unknown;
+        try {
+          raw = entry ? JSON.parse(entry.body) : undefined;
+        } catch {
+          raw = undefined;
         }
+        const parsed = raw === undefined ? undefined : SnapshotSchema.safeParse(raw);
+        if (parsed?.success) stored = parsed.data;
+      }
+      if (!baseline && (args.use_stored_snapshot ?? true) && stored) {
+        baseline = stored;
+        baselineKind = 'stored';
       }
 
       const events = detectEvents(values, baseline, {
@@ -296,10 +307,11 @@ export function registerMonitorTools(server: McpServer, ctx: AppContext): void {
         values,
         event_ids: events.map((e) => e.id),
       };
-      const store = args.store_snapshot ?? true;
       if (store) {
+        // Merge into the stored baseline so a narrower call (fewer metrics,
+        // shorter history) never drops what a broader one recorded.
         await ctx.cache.set(SNAPSHOT_PREFIX + key, {
-          body: JSON.stringify(snapshot),
+          body: JSON.stringify(mergeSnapshots(stored, snapshot)),
           fetchedAt: Date.now(),
         });
       }

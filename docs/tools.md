@@ -281,10 +281,11 @@ Answers "what changed?" for one country:
 
 **Baselines.** The YoY checks always run. Release and revision checks need a
 snapshot: pass a `snapshot` returned by an earlier call (the caller keeps its
-own baseline), or rely on the one the server stores after each call in its
-cache (`malja:monitor:v1:population:<provider>:<ISO3>:<role>`; persists across
-restarts with `MALJA_CACHE=sqlite`; set `store_snapshot: false` to leave it
-untouched). The first ever check has no baseline and says so.
+own baseline), or rely on the one the server keeps in its cache
+(`malja:monitor:v1:population:<provider>:<ISO3>:<role>`; persists across
+restarts with `MALJA_CACHE=sqlite`). Each call merges into the stored
+baseline, so a narrower call (fewer metrics, shorter history) never drops what
+a broader one recorded; `store_snapshot: false` leaves it untouched. The first ever check has no baseline and says so.
 
 **Built for alerts.** Every event has a stable `id` (e.g.
 `SDN:asylum:jump:idps:2025`; revisions include the new value), a `severity`,

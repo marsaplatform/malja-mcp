@@ -273,3 +273,32 @@ export function detectEvents(
         a.year - b.year,
     );
 }
+
+/** Event ids kept in a merged snapshot (most recent last). */
+const MAX_EVENT_IDS = 1000;
+
+/**
+ * Fold a new snapshot into an older one of the same series: newer values win
+ * year by year, metrics and years only in the older one are kept, and event
+ * ids accumulate so already-reported events stay "seen".
+ */
+export function mergeSnapshots(
+  older: MonitorSnapshot | undefined,
+  newer: MonitorSnapshot,
+): MonitorSnapshot {
+  if (!older || older.key !== newer.key) return newer;
+  const values: MetricValues = {};
+  for (const metric of new Set([...Object.keys(older.values), ...Object.keys(newer.values)])) {
+    values[metric] = { ...older.values[metric], ...newer.values[metric] };
+  }
+  const ids = [...new Set([...older.event_ids, ...newer.event_ids])];
+  return {
+    ...newer,
+    latest_year:
+      older.latest_year === null
+        ? newer.latest_year
+        : Math.max(older.latest_year, newer.latest_year ?? older.latest_year),
+    values,
+    event_ids: ids.slice(-MAX_EVENT_IDS),
+  };
+}

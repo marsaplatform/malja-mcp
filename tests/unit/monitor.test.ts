@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { detectEvents, latestYear, robustChangeZ } from '../../src/shared/monitor.js';
+import {
+  detectEvents,
+  latestYear,
+  mergeSnapshots,
+  robustChangeZ,
+} from '../../src/shared/monitor.js';
 import type { MetricValues } from '../../src/shared/monitor.js';
 
 const opts = { jumpThresholdPct: 25, minChange: 1000, thresholds: [], idPrefix: 'XXX:asylum' };
@@ -124,6 +129,25 @@ describe('detectEvents gaps', () => {
 });
 
 describe('helpers', () => {
+  it('mergeSnapshots keeps older metrics/years and accumulates event ids', () => {
+    const older = {
+      version: 1 as const,
+      key: 'k',
+      taken_at: 't0',
+      latest_year: 2025,
+      values: { a: { '2020': 1, '2025': 2 }, b: { '2025': 5 } },
+      event_ids: ['x'],
+    };
+    const newer = { ...older, taken_at: 't1', values: { a: { '2025': 3 } }, event_ids: ['y'] };
+    expect(mergeSnapshots(older, newer)).toEqual({
+      ...newer,
+      values: { a: { '2020': 1, '2025': 3 }, b: { '2025': 5 } },
+      event_ids: ['x', 'y'],
+    });
+    expect(mergeSnapshots({ ...older, key: 'other' }, newer)).toBe(newer);
+    expect(mergeSnapshots(undefined, newer)).toBe(newer);
+  });
+
   it('robustChangeZ needs history and variation', () => {
     expect(robustChangeZ([1, 2, 3].map((v, i) => ({ year: 2000 + i, value: v })))).toBeNull();
     const flat = [0, 10, 20, 30, 40, 50, 60].map((v, i) => ({ year: 2000 + i, value: v }));

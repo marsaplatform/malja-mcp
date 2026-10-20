@@ -175,6 +175,16 @@ describe('monitor_changes (UNHCR fixtures, Sudan)', () => {
     expect(text).toContain('(already flagged at the baseline)');
   });
 
+  it('a narrower check does not clobber the stored baseline', async () => {
+    stubUnhcr();
+    const call = await connect(unhcrContext());
+    await call({ country: 'Sudan' });
+    await call({ country: 'Sudan', metrics: ['refugees'], history_years: 3 });
+    const { structured } = await call({ country: 'Sudan' });
+    expect(structured.summary).toMatchObject({ new: 0, has_alerts: false });
+    expect(structured.events.some((e) => e.type === 'revision')).toBe(false);
+  });
+
   it('a supplied older snapshot reveals the new release and revised years', async () => {
     stubUnhcr();
     const call = await connect(unhcrContext());
