@@ -1,4 +1,5 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import type { ServerOptions } from '@modelcontextprotocol/sdk/server/index.js';
 import { SERVER_NAME, SERVER_VERSION } from './config.js';
 import type { AppContext } from './context.js';
 import { registerPrompts } from './prompts/index.js';
@@ -22,10 +23,13 @@ Conventions:
  * the given context. Transport-agnostic — callers connect stdio, streamable
  * HTTP or in-memory transports.
  */
-export function createServer(ctx: AppContext): McpServer {
+export function createServer(
+  ctx: AppContext,
+  options: Omit<ServerOptions, 'instructions'> = {},
+): McpServer {
   const server = new McpServer(
     { name: SERVER_NAME, version: SERVER_VERSION },
-    { instructions: INSTRUCTIONS },
+    { ...options, instructions: INSTRUCTIONS },
   );
   registerTools(server, ctx);
   registerResources(server, ctx);

@@ -52,9 +52,12 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm run test",
-    "landing:css": "tailwindcss -c docs/tailwind.config.cjs -i docs/tw.input.css -o docs/tw.css --minify"
+    "landing:css": "tailwindcss -c docs/tailwind.config.cjs -i docs/tw.input.css -o docs/tw.css --minify",
+    "dev:worker": "npx wrangler@4 dev",
+    "deploy:worker": "npx wrangler@4 deploy"
   },
   "dependencies": {
+    "@cfworker/json-schema": "^4.1.1",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "zod": "^3.25.76"
   },

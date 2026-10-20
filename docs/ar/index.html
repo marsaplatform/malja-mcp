@@ -251,8 +251,8 @@
           </p>
           <p class="mt-4 text-sm text-fog animate-fadeup" style="animation-delay: 0.14s">
             ٢٤ أداة قراءة فقط · ٨ قوالب جاهزة · مصادر موثّقة في كل إجابة · يعمل على جهازك أو خادمك
-            (النسخة المستضافة قريبًا). يقوم على بروتوكول MCP — المعيار المفتوح الذي يمنح مساعدك
-            أدوات خارجية آمنة.
+            أو عبر النسخة المستضافة. يقوم على بروتوكول MCP — المعيار المفتوح الذي يمنح مساعدك أدوات
+            خارجية آمنة.
             <a
               class="text-amber hover:text-paper"
               href="https://github.com/marsaplatform/malja-mcp/blob/main/docs/how-mcp-works.md"
@@ -612,8 +612,9 @@
         <p class="font-mono text-teal text-sm mb-2" dir="ltr">04</p>
         <h2 class="font-head font-bold text-3xl sm:text-4xl">جاهز في دقيقتين.</h2>
         <p class="mt-4 text-soft max-w-2xl">
-          التشغيل الآن ذاتي (النسخة المستضافة قريبًا): ثبّته على جهازك في ثلاث خطوات، أو شغّله عبر
-          HTTP باستخدام Docker. تبقى أسئلتك وبياناتك على جهازك أو خادمك.
+          ألصق رابط النسخة المستضافة (https://malja.marsaplatform.com/mcp) في برنامجك، أو ثبّته على
+          جهازك في ثلاث خطوات، أو شغّله عبر HTTP باستخدام Docker. في التشغيل الذاتي تبقى أسئلتك
+          وبياناتك على جهازك أو خادمك.
         </p>
 
         <ol class="mt-7 space-y-3 text-sm max-w-2xl">
@@ -696,15 +697,14 @@
         <div class="mt-4 border-2 border-ink bg-card">
           <div x-show="tab==='hosted'" class="p-6">
             <p class="text-soft text-sm mb-4">
-              <strong class="text-ink">النسخة المستضافة: قريبًا.</strong> لا يوجد رابط عام لملجأ
-              بعد. التشغيل الآن ذاتي: على جهازك (التبويبات الأخرى)، أو عبر HTTP باستخدام Docker ثم
-              وجّه برنامجك إلى خادمك:
+              <strong class="text-ink">النسخة المستضافة — تعمل الآن.</strong> بلا تثبيت وبلا مفتاح:
+              ألصق هذا الرابط في أي برنامج يدعم MCP عبر HTTP (أو شغّله ذاتيًا من التبويبات الأخرى):
             </p>
             <div class="flex items-stretch border-2 border-ink bg-paper max-w-2xl" dir="ltr">
               <code
                 id="c-hosted"
                 class="flex-1 px-4 py-3 text-sm font-mono text-ink overflow-x-auto whitespace-nowrap"
-                >docker compose up -d --build # then http://localhost:8642/mcp</code
+                >https://malja.marsaplatform.com/mcp</code
               >
               <button
                 class="px-5 text-xs font-body bg-ink text-paper font-bold hover:bg-teal"
@@ -718,19 +718,20 @@
               <li>
                 <strong class="text-ink">في Claude Code:</strong>
                 <code class="font-mono text-[13px] bg-paper border border-rule px-2 py-1" dir="ltr"
-                  >claude mcp add --transport http malja http://localhost:8642/mcp</code
+                  >claude mcp add --transport http malja https://malja.marsaplatform.com/mcp</code
                 >
               </li>
               <li>
-                <strong class="text-ink">Cursor وغيره:</strong> استخدم
+                <strong class="text-ink">Cursor وclaude.ai وغيرها:</strong> استخدم
                 <code class="font-mono text-[13px]" dir="ltr"
-                  >http://&lt;your-host&gt;:8642/mcp</code
+                  >https://malja.marsaplatform.com/mcp</code
                 >
                 رابطًا للخادم.
               </li>
             </ul>
             <p class="mt-5 text-xs text-soft">
-              الخادم للقراءة فقط لكنه بلا مصادقة عمدًا: ضعه خلف بروكسي أو VPN خاص بك. الكود المصدري:
+              للقراءة فقط، بلا حساب، وبأفضل جهد (بلا ضمان خدمة). إن شغّلته ذاتيًا عبر HTTP فضع خادمك
+              خلف بروكسي أو VPN. الكود المصدري:
               <a class="underline" href="https://github.com/marsaplatform/malja-mcp" dir="ltr"
                 >github.com/marsaplatform/malja-mcp</a
               >.

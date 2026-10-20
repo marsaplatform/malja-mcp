@@ -1,0 +1,29 @@
+# Malja MCP — Cloudflare Workers configuration (hosted /mcp endpoint).
+# Placeholders only: never commit account ids, tokens or API identifiers.
+# Deploy with:  CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ACCOUNT_ID=... npm run deploy:worker
+# Optional providers need secrets, e.g.:
+#   npx wrangler secret put MALJA_RELIEFWEB_APPNAME
+#   npx wrangler secret put MALJA_HDX_APP_ID
+# and then MALJA_PROVIDERS = "unhcr,worldbank,reliefweb,hdx" below.
+name = "malja-mcp"
+main = "src/worker.ts"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+# account_id = "<YOUR_CLOUDFLARE_ACCOUNT_ID>"   # or set CLOUDFLARE_ACCOUNT_ID
+
+# Expose on <name>.<your-subdomain>.workers.dev (handy for forks/self-hosting).
+workers_dev = true
+
+# Mount on a proxied hostname, e.g. (the hosted instance uses malja.marsaplatform.com/mcp*):
+# routes = [
+#   { pattern = "malja.example.org/mcp*", zone_name = "example.org" },
+# ]
+
+[vars]
+MALJA_PROVIDERS = "unhcr,worldbank"
+MALJA_LOG_LEVEL = "warn"
+# GET / redirects here (leave empty to return the JSON description instead).
+MALJA_HOME_URL = "https://spaces.marsaplatform.com/s/k3sb9ww3dj/"
+
+[observability]
+enabled = true

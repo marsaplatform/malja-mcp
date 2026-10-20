@@ -254,8 +254,8 @@
           </p>
           <p class="mt-4 text-sm text-fog animate-fadeup" style="animation-delay: 0.14s">
             24 read-only tools · 8 one-click prompts · a cited source in every answer · runs on your
-            machine or your own server (hosted endpoint coming soon). Built on MCP, the open
-            standard that gives your assistant safe external tools.
+            machine, your own server, or the hosted endpoint. Built on MCP, the open standard that
+            gives your assistant safe external tools.
             <a
               class="text-amber hover:text-paper"
               href="https://github.com/marsaplatform/malja-mcp/blob/main/docs/how-mcp-works.md"
@@ -620,9 +620,9 @@
         <p class="font-mono text-teal text-sm mb-2">04</p>
         <h2 class="font-head font-bold text-3xl sm:text-4xl">Ready in two minutes.</h2>
         <p class="mt-4 text-soft max-w-2xl">
-          Malja is self-hosted today (a hosted endpoint is coming soon): install it on your machine
-          in three steps, or run it over HTTP with Docker. Your questions and data stay on your own
-          device or server.
+          Paste the hosted endpoint (https://malja.marsaplatform.com/mcp) into your client, install
+          it on your machine in three steps, or run it over HTTP with Docker. Self-hosted, your
+          questions and data stay on your own device or server.
         </p>
 
         <ol class="mt-7 space-y-3 text-sm max-w-2xl">
@@ -704,15 +704,14 @@
         <div class="mt-4 border-2 border-ink bg-card">
           <div x-show="tab==='hosted'" class="p-6">
             <p class="text-soft text-sm mb-4">
-              <strong class="text-ink">Hosted endpoint: coming soon.</strong> There is no public
-              Malja URL yet. Today Malja is self-hosted: run it on your machine (the other tabs), or
-              start it over HTTP with Docker and point your client at your own server:
+              <strong class="text-ink">Hosted endpoint — live.</strong> No install, no key: paste
+              this URL into any Streamable-HTTP MCP client (or self-host with the other tabs):
             </p>
             <div class="flex items-stretch border-2 border-ink bg-paper max-w-2xl">
               <code
                 id="c-hosted"
                 class="flex-1 px-4 py-3 text-sm font-mono text-ink overflow-x-auto whitespace-nowrap"
-                >docker compose up -d --build # then http://localhost:8642/mcp</code
+                >https://malja.marsaplatform.com/mcp</code
               >
               <button
                 class="px-5 text-xs font-body bg-ink text-paper font-bold hover:bg-teal"
@@ -726,18 +725,18 @@
               <li>
                 <strong class="text-ink">In Claude Code:</strong>
                 <code class="font-mono text-[13px] bg-paper border border-rule px-2 py-1"
-                  >claude mcp add --transport http malja http://localhost:8642/mcp</code
+                  >claude mcp add --transport http malja https://malja.marsaplatform.com/mcp</code
                 >
               </li>
               <li>
-                <strong class="text-ink">Cursor / other HTTP clients:</strong> use
-                <code class="font-mono text-[13px]">http://&lt;your-host&gt;:8642/mcp</code> as the
-                server URL.
+                <strong class="text-ink">Cursor / claude.ai / other HTTP clients:</strong> use
+                <code class="font-mono text-[13px]">https://malja.marsaplatform.com/mcp</code> as
+                the server URL.
               </li>
             </ul>
             <p class="mt-5 text-xs text-soft">
-              The server is read-only but unauthenticated by design: keep it behind your own reverse
-              proxy or VPN. Source:
+              Read-only, no account, best-effort (no SLA). Self-hosting over HTTP? Keep your own
+              server behind a reverse proxy or VPN. Source:
               <a class="underline" href="https://github.com/marsaplatform/malja-mcp"
                 >github.com/marsaplatform/malja-mcp</a
               >.

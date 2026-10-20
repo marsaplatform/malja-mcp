@@ -78,15 +78,28 @@ Three invariants hold everywhere: **(1)** nothing provider-specific leaks outsid
 
 ## Two ways to use it
 
-> **Today:** self-host (stdio on your machine, or HTTP in a container). **Hosted endpoint:** coming soon — there is no public Malja URL yet, so nothing below points at one.
+> **Hosted endpoint (live):** `https://malja.marsaplatform.com/mcp` — paste it into any Streamable-HTTP MCP client, no install and no key. **Self-hosted:** stdio on your machine, or HTTP in a container — same code.
 
-|                     | 🖥️ **Self-hosted** (available now)                                      | ☁️ **Hosted endpoint** (coming soon)         |
-| ------------------- | ----------------------------------------------------------------------- | -------------------------------------------- |
-| Setup               | Install Node/Docker, run the server                                     | None — paste one URL (once launched)         |
-| Privacy             | Queries never leave your machine (except to the public data APIs)       | Queries would pass through the hosted server |
-| Offline / fieldwork | ✅ full offline mode with a warmed cache                                | ❌ needs internet                            |
-| Configuration       | Every knob: providers, cache, rate limits                               | Fixed server-side                            |
-| Best for            | Researchers, NGOs with data policies, enterprises, air-gapped fieldwork | Quick starts, demos, journalists, students   |
+|                     | 🖥️ **Self-hosted**                                                      | ☁️ **Hosted endpoint** (live)              |
+| ------------------- | ----------------------------------------------------------------------- | ------------------------------------------ |
+| Setup               | Install Node/Docker, run the server                                     | None — paste one URL                       |
+| Privacy             | Queries never leave your machine (except to the public data APIs)       | Queries pass through the hosted Worker     |
+| Offline / fieldwork | ✅ full offline mode with a warmed cache                                | ❌ needs internet                          |
+| Configuration       | Every knob: providers, cache, rate limits                               | Fixed server-side                          |
+| Best for            | Researchers, NGOs with data policies, enterprises, air-gapped fieldwork | Quick starts, demos, journalists, students |
+
+### Connect to the hosted endpoint
+
+```
+https://malja.marsaplatform.com/mcp
+```
+
+- **claude.ai / Claude Desktop (remote connector):** add a custom connector with that URL.
+- **Claude Code:** `claude mcp add --transport http malja https://malja.marsaplatform.com/mcp`
+- **Cursor:** `{"mcpServers": {"malja": {"url": "https://malja.marsaplatform.com/mcp"}}}` in `~/.cursor/mcp.json`
+- **Anything that speaks HTTP:** see [examples/http-client.md](examples/http-client.md) — stateless JSON-RPC, no session juggling. `GET /mcp/health` is a liveness probe.
+
+It runs this repository on Cloudflare Workers ([`src/worker.ts`](src/worker.ts), [`wrangler.toml`](wrangler.toml)) with the UNHCR and World Bank providers enabled. Workers differences: in-memory cache only, and `export_report` returns HTML (no PDF) — pass `inline: true` to receive the document in the response. Best-effort, no SLA; self-host if you need guarantees. Deploy your own copy with `npm run deploy:worker` (set `CLOUDFLARE_ACCOUNT_ID`/`CLOUDFLARE_API_TOKEN`; HDX/ReliefWeb identifiers go in `wrangler secret put`, never in the repo).
 
 ### Connect a self-hosted server
 
@@ -121,9 +134,9 @@ Keep it behind your reverse proxy/VPN: it is read-only but unauthenticated by de
 
 ملجأ خادم MCP مفتوح المصدر يمنح مساعدك الذكي وصولًا للقراءة فقط إلى بيانات المفوضية (UNHCR) والبنك الدولي وHDX وReliefWeb، مع مصدر مرفق بكل نتيجة، ويفهم أسماء الدول بالعربية («مصر»، «الأردن»، «السودان»).
 
-- **الآن:** شغّله ذاتيًا: `git clone` ثم `npm install && npm run build`، وأضف `node /absolute/path/to/malja-mcp/dist/index.js` إلى Claude Desktop أو Cursor بالإعداد أعلاه، أو في Claude Code: `claude mcp add malja -- node /absolute/path/to/malja-mcp/dist/index.js`.
+- **النسخة المستضافة (تعمل الآن):** أضف الرابط `https://malja.marsaplatform.com/mcp` إلى برنامجك (موصّل مخصّص في Claude، أو في Claude Code: `claude mcp add --transport http malja https://malja.marsaplatform.com/mcp`). بلا تثبيت وبلا مفتاح.
+- **تشغيل ذاتي:** `git clone` ثم `npm install && npm run build`، وأضف `node /absolute/path/to/malja-mcp/dist/index.js` إلى Claude Desktop أو Cursor بالإعداد أعلاه، أو في Claude Code: `claude mcp add malja -- node /absolute/path/to/malja-mcp/dist/index.js`.
 - **عبر Docker:** `docker compose up -d --build` ثم `http://localhost:8642/mcp`.
-- **النسخة المستضافة:** قريبًا. لا يوجد رابط عام بعد.
 - جرّب أن تسأل: «قارن بين عدد اللاجئين في مصر والأردن خلال آخر خمس سنوات مع المصادر».
 
 صفحة المشروع: <https://spaces.marsaplatform.com/s/k3sb9ww3dj/>

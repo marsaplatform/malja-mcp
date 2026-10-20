@@ -8,6 +8,10 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- **Hosted endpoint on Cloudflare Workers** — `https://malja.marsaplatform.com/mcp`.
+  New `src/worker.ts` (stateless Streamable HTTP, all 24 tools, memory cache,
+  HTML-only `export_report`) and `wrangler.toml`; `npm run deploy:worker`.
+  stdio, `--http` and Docker modes are unchanged.
 - **Full Arabic output (`locale: "ar"`)**. Every tool accepts an optional
   `locale` (`"en"` default, `"ar"`), with a server-wide default via
   `MALJA_LOCALE`. Arabic covers headings, table headers, metric labels
