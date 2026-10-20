@@ -122,7 +122,7 @@ describe('UnhcrProvider', () => {
     expect(urls.find((u) => u.includes('coa_all=true'))).toBeDefined();
   });
 
-  it('exposes metadata with all four datasets and UNHCR attribution', async () => {
+  it('exposes metadata with all five datasets and UNHCR attribution', async () => {
     const { provider } = buildProvider();
     const metadata = await provider.metadata();
     expect(metadata.datasets.map((d) => d.id)).toEqual([
@@ -130,6 +130,7 @@ describe('UnhcrProvider', () => {
       'demographics',
       'asylum-applications',
       'asylum-decisions',
+      'solutions',
     ]);
     expect(metadata.attribution).toContain('UNHCR');
   });

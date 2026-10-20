@@ -103,3 +103,33 @@ describe('normalizeRows — other datasets', () => {
     expect(records[0]!.population).toBe(14800);
   });
 });
+
+describe('normalizeRows — solutions', () => {
+  it('keeps "-" cells absent and sums reported flows into the headline', () => {
+    const records = normalizeRows(
+      [
+        {
+          year: 2023,
+          coo_name: 'Syrian Arab Rep.',
+          coo_iso: 'SYR',
+          coa_name: 'Lebanon',
+          coa_iso: 'LBN',
+          returned_refugees: 10130,
+          resettlement: '-',
+          naturalisation: '-',
+          returned_idps: '-',
+        },
+      ],
+      'solutions',
+      '2026-10-20T00:00:00.000Z',
+    );
+    expect(records).toHaveLength(1);
+    expect(records[0]).toMatchObject({
+      country_code: 'LBN',
+      origin_code: 'SYR',
+      population: 10130,
+      metrics: { returned_refugees: 10130 },
+      dataset: 'solutions',
+    });
+  });
+});

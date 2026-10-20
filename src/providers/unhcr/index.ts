@@ -84,6 +84,14 @@ const DATASETS: ProviderMetadata['datasets'] = [
     metrics: ['dec_recognized', 'dec_other', 'dec_rejected', 'dec_closed', 'dec_total'],
     citation: 'UNHCR Refugee Data Finder, https://www.unhcr.org/refugee-statistics/',
   },
+  {
+    id: 'solutions',
+    title: 'Durable solutions',
+    description:
+      'Durable solutions recorded DURING each year (flows, not stocks): refugee returns (by origin and by the asylum country returned from), resettlement arrivals (by origin and resettlement country), naturalisations (by origin and naturalising country) and IDP returns.',
+    metrics: ['returned_refugees', 'resettlement', 'naturalisation', 'returned_idps'],
+    citation: 'UNHCR Refugee Data Finder, https://www.unhcr.org/refugee-statistics/',
+  },
 ];
 
 export class UnhcrProvider implements HumanitarianProvider {

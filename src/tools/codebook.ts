@@ -58,6 +58,12 @@ const METRIC_FIELDS: Partial<Record<DatasetId, Spec[]>> = {
     same('dec_closed', 'decisions'),
     same('dec_total', 'decisions'),
   ],
+  solutions: [
+    same('returned_refugees', 'persons'),
+    same('resettlement', 'persons'),
+    same('naturalisation', 'persons'),
+    same('returned_idps', 'persons'),
+  ],
   'context-indicators': [
     same('national_population', 'persons'),
     same('gdp_usd', 'current US$'),

@@ -13,6 +13,7 @@ export type DatasetId =
   | 'demographics'
   | 'asylum-applications'
   | 'asylum-decisions'
+  | 'solutions'
   | 'context-indicators'
   | 'idps'
   | 'conflict-events'
@@ -25,6 +26,7 @@ export const ALL_DATASETS: readonly DatasetId[] = [
   'demographics',
   'asylum-applications',
   'asylum-decisions',
+  'solutions',
   'context-indicators',
   'idps',
   'conflict-events',
