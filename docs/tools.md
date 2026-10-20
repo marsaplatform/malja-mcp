@@ -238,8 +238,9 @@ Ordinary least squares over the last 10 years, floored at 0. **Always relay the 
   `trend_analysis`) and disclosed; `since_break: true` fits only the years
   since the latest break when ≥3 remain (`fit_from`/`fit_to` report the window).
 - **`chart`**: observed line, dashed projection, 95% and 80% bands and
-  changepoint markers (SVG and Vega-Lite natively; Chart.js bands via `fill`,
-  markers via `chartjs-plugin-annotation`). RTL/Arabic like every chart.
+  changepoint markers (SVG and Vega-Lite natively; Chart.js bands as one
+  floating-bar dataset per interval — a single legend entry each — and markers
+  via `chartjs-plugin-annotation`). RTL/Arabic like every chart.
 
 ```text
 forecast({ country: "مصر", locale: "ar" })

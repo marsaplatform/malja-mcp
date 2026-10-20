@@ -545,15 +545,15 @@ Software (also available via GitHub's **"Cite this repository"** button — [CIT
   author  = {Nabil, Ahmed},
   title   = {malja-mcp: a Model Context Protocol server for humanitarian open data},
   year    = {2026},
-  version = {0.6.0},
+  version = {0.7.0},
   url     = {https://github.com/marsaplatform/malja-mcp},
   license = {MIT}
 }
 ```
 
-**APA** — Nabil, A. (2026). _malja-mcp: A Model Context Protocol server for humanitarian open data_ (Version 0.6.0) [Computer software]. https://github.com/marsaplatform/malja-mcp
+**APA** — Nabil, A. (2026). _malja-mcp: A Model Context Protocol server for humanitarian open data_ (Version 0.7.0) [Computer software]. https://github.com/marsaplatform/malja-mcp
 
-**Chicago** — Nabil, Ahmed. _malja-mcp: A Model Context Protocol Server for Humanitarian Open Data_. V. 0.6.0. Computer software, 2026. https://github.com/marsaplatform/malja-mcp.
+**Chicago** — Nabil, Ahmed. _malja-mcp: A Model Context Protocol Server for Humanitarian Open Data_. V. 0.7.0. Computer software, 2026. https://github.com/marsaplatform/malja-mcp.
 
 Cite the **data** as its producers: UNHCR Refugee Data Finder; World Bank World Development Indicators (CC BY 4.0); ACLED / IPC / OCHA FTS / IOM DTM via HDX HAPI — every export's manifest carries the exact citation string for its dataset. Method notes: [docs/for-researchers.md](docs/for-researchers.md).
 

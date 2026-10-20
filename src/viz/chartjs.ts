@@ -17,36 +17,36 @@ export function toChartJs(input: ChartSpecInput): Record<string, unknown> {
       ...bands.flatMap((b) => b.points.map((p) => p.x)),
     ]),
   ].sort();
-  const category = input.formatCategory ?? ((v: number | string) => v);
+  // Category labels are strings so annotation positions (xMin/xMax) match them.
+  const category = (v: number | string): string =>
+    String(input.formatCategory ? input.formatCategory(v) : v);
   const rtl = input.direction === 'rtl';
   return {
     type: input.kind,
     data: {
-      labels: input.formatCategory ? labels.map(input.formatCategory) : labels,
+      labels: labels.map(category),
       datasets: [
-        // Bands as low/high dataset pairs; the high line fills down to the low one.
-        ...bands.flatMap((band, bi) => {
+        // One floating-bar dataset per band: each year's [low, high] range is a
+        // bar spanning the full category width, so every interval is a single
+        // legend entry and the spec stays pure JSON (no legend-filter callback).
+        ...bands.map((band, bi) => {
           const at = (x: number | string) => band.points.find((p) => p.x === x);
-          const style = {
-            borderWidth: 0,
-            pointRadius: 0,
+          return {
+            type: 'bar',
+            label: band.label,
+            data: labels.map((x) => {
+              const point = at(x);
+              return point ? [point.low, point.high] : null;
+            }),
             backgroundColor: BAND_FILL[bi % BAND_FILL.length],
-            tension: 0,
+            borderWidth: 0,
+            borderSkipped: false,
+            barPercentage: 1,
+            categoryPercentage: 1,
+            grouped: false,
+            // Drawn behind the lines (higher order = drawn first).
+            order: 10 + bands.length - bi,
           };
-          return [
-            {
-              label: band.label,
-              data: labels.map((x) => at(x)?.low ?? null),
-              fill: false,
-              ...style,
-            },
-            {
-              label: band.label,
-              data: labels.map((x) => at(x)?.high ?? null),
-              fill: '-1',
-              ...style,
-            },
-          ];
         }),
         ...input.series.map((series, i) => ({
           label: series.label,
