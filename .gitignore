@@ -8,3 +8,5 @@ coverage/
 *.sqlite
 *.sqlite-journal
 .DS_Store
+.wrangler/
+.dev.vars

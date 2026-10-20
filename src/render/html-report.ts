@@ -39,8 +39,14 @@ export interface HtmlReportInput {
   embedFont?: boolean;
 }
 
-/** assets/fonts relative to this module — same depth from src/render and dist/render. */
-const FONT_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'assets', 'fonts');
+/**
+ * assets/fonts relative to this module — same depth from src/render and dist/render.
+ * Resolved lazily: on Cloudflare Workers `import.meta.url` is not a file URL, and
+ * the report then falls back to system fonts instead of failing at import time.
+ */
+function fontDir(): string {
+  return join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'assets', 'fonts');
+}
 
 let fontFaceCache: string | undefined;
 
@@ -53,7 +59,7 @@ export function embeddedFontFaces(): string {
     ['Zad-Bold.woff2', 700],
   ] as const) {
     try {
-      const data = readFileSync(join(FONT_DIR, file)).toString('base64');
+      const data = readFileSync(join(fontDir(), file)).toString('base64');
       faces.push(
         `@font-face{font-family:'Zad';font-style:normal;font-weight:${weight};font-display:block;src:url(data:font/woff2;base64,${data}) format('woff2')}`,
       );
