@@ -166,6 +166,12 @@ export const en = {
       `**Direction:** ${direction} (${slope}/year, R²=${r2})`,
     cagrLine: (cagr: string) => `**CAGR:** ${cagr}`,
     anomaliesLine: (text: string) => `**Anomalous years:** ${text}`,
+    changepointsLine: (text: string) => `**Changepoints (structural breaks):** ${text}`,
+    changepoint: (year: string, shift: string, slopeBefore: string, slopeAfter: string) =>
+      `${year} (jump ${shift} vs prior trend; slope ${slopeBefore} → ${slopeAfter}/year)`,
+    noChangepoints: 'none detected',
+    changepointMethod:
+      '_Changepoints: exact penalised segmentation (optimal partitioning) with a piecewise-linear cost, BIC-type penalty and a robust (MAD) noise estimate, ≥3 years per segment — so a break in the last two years is dated to the start of the final 3-year window at the latest; check the anomaly z-scores for recent years. Candidate breaks to explain (e.g. with situation_reports), not proof._',
   },
   forecast: {
     notEnough: (metric: string, name: string, found: string) =>
@@ -176,6 +182,24 @@ export const en = {
     observed: 'observed',
     projected: 'projected',
     heading: (metric: string, name: string) => `Projection — **${metric}**, ${name}`,
+    intervalHeaders: ['80% low', '80% high', '95% low', '95% high'] as [
+      string,
+      string,
+      string,
+      string,
+    ],
+    intervalNote:
+      '_Prediction intervals (80% / 95%) come from the least-squares fit (Student-t, n−2 degrees of freedom). They assume the straight-line model with independent residuals and cover ordinary year-to-year noise only — not shocks such as a new conflict, so real uncertainty is larger._',
+    fitWindow: (range: string) => `_Fitted on ${range}._`,
+    breakAcross: (year: string) =>
+      `_A structural break was detected in ${year}; the line is fitted across it. Consider since_break: true._`,
+    breakSince: (year: string) =>
+      `_A structural break was detected in ${year}; the line is fitted on data since then only._`,
+    chartTitle: (metric: string, name: string, source: string) =>
+      `${metric} — ${name}: observed and projected — ${source}`,
+    observedSeries: (name: string) => `${name} (observed)`,
+    projectedSeries: (name: string) => `${name} (projected)`,
+    band: (level: string) => `${level} prediction interval`,
   },
   ranking: {
     noLatestYear: 'Could not determine the latest data year.',
@@ -242,6 +266,8 @@ export const en = {
     ) =>
       `GeoJSON map — top ${count} ${by === 'asylum' ? 'host' : 'origin'} countries by ${metric}, ${year} (${features} features${skipped ? `; no centroid for: ${skipped}` : ''})`,
     refugeesHostedIn: (name: string) => `Refugees hosted in ${name}`,
+    breakMarker: (year: string) => `break ${year}`,
+    breakMarkerFor: (name: string, year: string) => `${name}: break ${year}`,
     millions: (v: string) => `${v}M`,
     thousands: (v: string) => `${v}k`,
   },

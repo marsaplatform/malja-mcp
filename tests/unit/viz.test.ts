@@ -145,3 +145,41 @@ describe('geojson', () => {
     expect(skipped).toEqual(['Nowhere', 'All countries']);
   });
 });
+
+describe('toVegaLite dashed projections', () => {
+  it('maps the dashed flag explicitly so projections render dashed', () => {
+    const spec = toVegaLite({
+      ...CHART,
+      series: [
+        {
+          label: 'observed',
+          points: [
+            { x: 2023, y: 1 },
+            { x: 2024, y: 2 },
+          ],
+        },
+        {
+          label: 'projected',
+          dashed: true,
+          points: [
+            { x: 2024, y: 2 },
+            { x: 2025, y: 3 },
+          ],
+        },
+      ],
+    }) as {
+      layer: { data: { values: { dashed?: boolean }[] }; encoding?: Record<string, unknown> }[];
+    };
+    const main = spec.layer.find((l) => l.encoding && 'strokeDash' in l.encoding)!;
+    expect(main.data.values.map((v) => v.dashed)).toEqual([false, false, true, true]);
+    expect(main.encoding!['strokeDash']).toMatchObject({
+      scale: {
+        domain: [false, true],
+        range: [
+          [1, 0],
+          [6, 4],
+        ],
+      },
+    });
+  });
+});

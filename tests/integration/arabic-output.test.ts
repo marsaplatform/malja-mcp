@@ -5,6 +5,7 @@ import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { InstrumentedCache, MemoryCache } from '../../src/cache/index.js';
 import { loadConfig } from '../../src/config.js';
+import { ar } from '../../src/i18n/messages/ar.js';
 import { Logger } from '../../src/logger.js';
 import { UnhcrProvider } from '../../src/providers/unhcr/index.js';
 import { createServer } from '../../src/server.js';
@@ -127,6 +128,9 @@ describe('Arabic output (mock provider)', () => {
         '**الاتجاه العام:** تصاعدي (10,000 سنوياً، R²=1.00)',
         '**معدل النمو السنوي المركّب:** 1.5%',
         '**سنوات شاذة إحصائياً:** لم تُرصد أي سنة شاذة',
+        '**نقاط التحوّل (الانقطاعات الهيكلية):** لم تُرصد أي نقطة تحوّل',
+        '',
+        ar.trend.changepointMethod,
         '',
         '_المصدر: mock_',
       ].join('\n'),

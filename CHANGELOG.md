@@ -26,6 +26,14 @@ adheres to [Semantic Versioning](https://semver.org/).
   `export_data` with codebook entries; full English/Arabic output.
 - `MALJA_DIGITS=latn|arab` — Western (default) or Arabic-Indic digits in
   Arabic output.
+- **Stronger statistics** (pure TypeScript, no new dependencies):
+  changepoint detection (exact penalised segmentation / optimal partitioning,
+  piecewise-linear cost, BIC-type penalty with a robust MAD noise estimate)
+  in `trend_analysis` (`changepoints`, `segments`) and `generate_chart`
+  (`show_changepoints`); `forecast` gains 80%/95% OLS prediction intervals
+  (exact Student-t quantiles), break disclosure, `since_break` and an
+  optional `chart` with interval bands. Charts support bands, dashed series
+  and markers (SVG, Vega-Lite, Chart.js). Caveats kept and extended; en + ar.
 - i18n layer (`src/i18n/`): typed message catalogs (`messages/en.ts`,
   `messages/ar.ts`) plus a `Translator` for numbers, years, ranges, country
   names, metrics and citations; catalog-parity tests guarantee every key
