@@ -131,6 +131,7 @@ No API key is required today. The service is operated on a best-effort basis by 
 
 - 21 semantic, read-only tools — [full reference](docs/tools.md): country profiles, comparisons, yearly series, demographics, asylum applications/decisions with recognition rates, conflict events, food security (IPC), humanitarian funding, situation reports, rankings, trend analysis with anomaly detection, (loudly caveated) naive forecasts
 - 11+ MCP resources (`country://EGY`, `report://SDN`, `chart://UGA`, `metadata://providers`…) with URI autocompletion
+- **Durable solutions** (`durable_solutions`, `solutions://SYR`): refugee returns, resettlement, naturalisation and IDP returns per year — reported as **flows** (period totals are meaningful; "not reported" is never shown as 0), from the origin or the host/resettlement-country side, with `normalize_by` support
 - 8 built-in prompts (situation summary, donor briefing, crisis overview, anomaly hunt…)
 
 **Country intelligence**
@@ -146,6 +147,7 @@ No API key is required today. The service is operated on a best-effort basis by 
 
 - `normalize_by`: per-capita (per 1,000 residents) and per-GDP (per US$1bn) comparisons, rankings and charts, with per-year denominator matching
 - Regression, year-over-year, CAGR, z-score anomaly detection
+- **Changepoint detection** (exact penalised segmentation, piecewise-linear cost, robust noise estimate) and **80%/95% prediction intervals** on forecasts — pure TypeScript, no dependencies; charts draw interval bands and break markers
 - Charts as Chart.js / Vega-Lite / Mermaid / SVG; maps as GeoJSON
 
 **Research reproducibility**
@@ -153,6 +155,7 @@ No API key is required today. The service is operated on a best-effort basis by 
 - Extraction manifest on every export: exact arguments, timestamp, server version, citation — a repeatable recipe for a paper's appendix
 - Optional variable-level codebook matching exactly the exported columns
 - CSV / JSON / Markdown / GeoJSON export; CSV manifests ride in `#` comment lines (`pd.read_csv(..., comment="#")`)
+- `export_report`: print-ready, self-contained **HTML and PDF** reports — RTL-correct Arabic with an embedded Arabic font, inline SVG charts, citations and the extraction manifest kept. PDF uses a locally installed Chrome/Chromium (no new dependency, no API key); without one you get the HTML to print. [Details](docs/tools.md#export_report)
 - Runnable [Python & R notebooks](examples/notebooks/) reproducing four research workflows
 - [CITATION.cff](CITATION.cff) + JOSS paper draft in [paper/](paper/)
 
@@ -169,12 +172,12 @@ No API key is required today. The service is operated on a best-effort basis by 
 
 ## Live data sources
 
-| Provider                               | Datasets                                                        | What it contributes                                                                                                                                                                                      | Key                                                 |
-| -------------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
-| **UNHCR Refugee Statistics** (default) | population, demographics, asylum-applications, asylum-decisions | The displacement backbone: refugees, asylum-seekers, IDPs, stateless and others of concern, 1951–present, by origin and asylum country; age/sex breakdowns; asylum decisions with recognition rates      | none                                                |
-| **World Bank Indicators** (default)    | context-indicators                                              | The denominators: national population, GDP, GDP per capita, extreme-poverty rates — what turns "how many" into "how heavy a burden"                                                                      | none                                                |
-| **HDX HAPI** (opt-in)                  | conflict-events, food-security, humanitarian-funding, idps      | The crisis context, citing original producers: conflict events & fatalities (**ACLED**), IPC food-insecurity phases (**IPC**), appeal requirements vs funding (**OCHA FTS**), IDP stocks (**IOM DTM**)   | free app identifier ([.env.example](.env.example))  |
-| **ReliefWeb** (opt-in)                 | situation-reports                                               | The narrative context: situation-report counts per country-year plus the latest report titles, publishers and links (**UN OCHA / ReliefWeb**) — what grounds trends and anomalies in published reporting | pre-approved appname ([.env.example](.env.example)) |
+| Provider                               | Datasets                                                                   | What it contributes                                                                                                                                                                                                                                            | Key                                                 |
+| -------------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| **UNHCR Refugee Statistics** (default) | population, demographics, asylum-applications, asylum-decisions, solutions | The displacement backbone: refugees, asylum-seekers, IDPs, stateless and others of concern, 1951–present, by origin and asylum country; age/sex breakdowns; asylum decisions with recognition rates; durable solutions (returns, resettlement, naturalisation) | none                                                |
+| **World Bank Indicators** (default)    | context-indicators                                                         | The denominators: national population, GDP, GDP per capita, extreme-poverty rates — what turns "how many" into "how heavy a burden"                                                                                                                            | none                                                |
+| **HDX HAPI** (opt-in)                  | conflict-events, food-security, humanitarian-funding, idps                 | The crisis context, citing original producers: conflict events & fatalities (**ACLED**), IPC food-insecurity phases (**IPC**), appeal requirements vs funding (**OCHA FTS**), IDP stocks (**IOM DTM**)                                                         | free app identifier ([.env.example](.env.example))  |
+| **ReliefWeb** (opt-in)                 | situation-reports                                                          | The narrative context: situation-report counts per country-year plus the latest report titles, publishers and links (**UN OCHA / ReliefWeb**) — what grounds trends and anomalies in published reporting                                                       | pre-approved appname ([.env.example](.env.example)) |
 
 ## Example questions
 
@@ -396,7 +399,6 @@ Releases: bump the version, tag `v*`, push — CI publishes the GitHub release w
 
 - ReliefWeb disasters dataset (the situation-reports pipeline already shipped)
 - UNHCR Operational Data Portal situations
-- Sturdier statistics (confidence intervals, changepoint detection)
 - Redis cache backend
 
 ## FAQ

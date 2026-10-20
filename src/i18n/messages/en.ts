@@ -123,6 +123,31 @@ export const en = {
     recognitionNote: (citation: string, _producer: string) =>
       `_Recognition rate = (recognized + complementary) / substantive decisions. Source: ${citation}_`,
   },
+  solutions: {
+    heading: (name: string, side: string, range: string) =>
+      `Durable solutions — **${name}**${side}, ${range}`,
+    headers: [
+      'Year',
+      'Refugee returns',
+      'Resettlement',
+      'Naturalisation',
+      'IDP returns',
+      'Total solutions',
+    ] as [string, string, string, string, string, string],
+    normalizedHeader: (unit: string) => `Total ${unit}`,
+    periodTotal: 'Period total',
+    noData: (name: string, side: string, range: string) =>
+      `No durable-solutions data for ${name}${side} in ${range}. UNHCR reports returns, resettlement and naturalisation only where they occurred — try role="origin" or a wider year range.`,
+    perspective: {
+      origin: (name: string) =>
+        `_Origin view: refugees who returned to ${name}, nationals of ${name} resettled or naturalised abroad, and IDP returns inside ${name}._`,
+      asylum: (name: string) =>
+        `_Asylum view: refugees who left ${name} to return home, people resettled to ${name}, people naturalised in ${name}, and IDP returns inside ${name}._`,
+    } as Record<'asylum' | 'origin', (name: string) => string>,
+    mixLine: (items: string) => `**Mix over the period:** ${items}`,
+    flowNote:
+      '_Durable solutions are flows recorded during each year, not end-year stocks, so summing across years is meaningful (unlike refugee_population). "—" = not reported by UNHCR, which is not the same as zero._',
+  },
   trend: {
     noData: (metric: string, name: string, side: string, range: string) =>
       `No ${metric} data for ${name}${side} in ${range}.`,
@@ -141,6 +166,12 @@ export const en = {
       `**Direction:** ${direction} (${slope}/year, R²=${r2})`,
     cagrLine: (cagr: string) => `**CAGR:** ${cagr}`,
     anomaliesLine: (text: string) => `**Anomalous years:** ${text}`,
+    changepointsLine: (text: string) => `**Changepoints (structural breaks):** ${text}`,
+    changepoint: (year: string, shift: string, slopeBefore: string, slopeAfter: string) =>
+      `${year} (jump ${shift} vs prior trend; slope ${slopeBefore} → ${slopeAfter}/year)`,
+    noChangepoints: 'none detected',
+    changepointMethod:
+      '_Changepoints: exact penalised segmentation (optimal partitioning) with a piecewise-linear cost, BIC-type penalty and a robust (MAD) noise estimate, ≥3 years per segment — so a break in the last two years is dated to the start of the final 3-year window at the latest; check the anomaly z-scores for recent years. Candidate breaks to explain (e.g. with situation_reports), not proof._',
   },
   forecast: {
     notEnough: (metric: string, name: string, found: string) =>
@@ -151,6 +182,24 @@ export const en = {
     observed: 'observed',
     projected: 'projected',
     heading: (metric: string, name: string) => `Projection — **${metric}**, ${name}`,
+    intervalHeaders: ['80% low', '80% high', '95% low', '95% high'] as [
+      string,
+      string,
+      string,
+      string,
+    ],
+    intervalNote:
+      '_Prediction intervals (80% / 95%) come from the least-squares fit (Student-t, n−2 degrees of freedom). They assume the straight-line model with independent residuals and cover ordinary year-to-year noise only — not shocks such as a new conflict, so real uncertainty is larger._',
+    fitWindow: (range: string) => `_Fitted on ${range}._`,
+    breakAcross: (year: string) =>
+      `_A structural break was detected in ${year}; the line is fitted across it. Consider since_break: true._`,
+    breakSince: (year: string) =>
+      `_A structural break was detected in ${year}; the line is fitted on data since then only._`,
+    chartTitle: (metric: string, name: string, source: string) =>
+      `${metric} — ${name}: observed and projected — ${source}`,
+    observedSeries: (name: string) => `${name} (observed)`,
+    projectedSeries: (name: string) => `${name} (projected)`,
+    band: (level: string) => `${level} prediction interval`,
   },
   ranking: {
     noLatestYear: 'Could not determine the latest data year.',
@@ -217,6 +266,8 @@ export const en = {
     ) =>
       `GeoJSON map — top ${count} ${by === 'asylum' ? 'host' : 'origin'} countries by ${metric}, ${year} (${features} features${skipped ? `; no centroid for: ${skipped}` : ''})`,
     refugeesHostedIn: (name: string) => `Refugees hosted in ${name}`,
+    breakMarker: (year: string) => `break ${year}`,
+    breakMarkerFor: (name: string, year: string) => `${name}: break ${year}`,
     millions: (v: string) => `${v}M`,
     thousands: (v: string) => `${v}k`,
   },
@@ -267,6 +318,39 @@ export const en = {
     truncated: (rows: string) =>
       `_Note: output truncated to ${rows} rows. Narrow the year range or filter by country for a complete set._`,
   },
+  htmlReport: {
+    defaultTitle: 'Malja MCP report',
+    manifestHeading: 'Extraction manifest',
+    manifestIntro:
+      'Re-run this exact call against the same server version to reproduce the figures in this document. Upstream series are revised over time — cite the extraction date.',
+    manifestFields: {
+      tool: 'Tool',
+      arguments: 'Arguments',
+      extracted_at: 'Extracted at (UTC)',
+      server: 'Server',
+      source: 'Source',
+      citation: 'Citation',
+      content_sha256: 'Content SHA-256',
+    } as Record<string, string>,
+    footer: (server: string, date: string) =>
+      `Generated by ${server} on ${date} from official public data, read-only. Verify figures against the cited sources before publication.`,
+    mermaidNote: 'Chart source (Mermaid) — paste into a Mermaid viewer to render it.',
+    noInput:
+      'Provide either country (for a full country report) or markdown (the markdown output of any tool) to export.',
+    htmlReady: (title: string, size: string) =>
+      `Print-ready HTML report "${title}" (${size} KB): self-contained — embedded Arabic/Latin font, inline charts, citations and extraction manifest; no external requests. Open it in a browser to read or print.`,
+    pdfReady: (title: string, size: string, engine: string) =>
+      `PDF report "${title}" (${size} KB), rendered from the print-ready HTML by ${engine}.`,
+    pdfFallback: (reason: string) =>
+      `PDF rendering is unavailable here (${reason}), so the print-ready HTML is returned instead: open it in any browser and use Print → Save as PDF — the layout is already A4 and print-optimized.`,
+    reasons: {
+      disabled: 'disabled by MALJA_PDF=off',
+      noBrowser: 'no Chrome, Chromium or Edge found — install one or set MALJA_CHROME_PATH',
+    } as Record<'disabled' | 'noBrowser', string>,
+    failed: (detail: string) => `the headless browser failed: ${detail}`,
+    linkNote: (uri: string) =>
+      `Fetch the file from the resource link (${uri}); it is kept in server memory for one hour. Pass inline: true to embed it in this result instead.`,
+  },
   codebook: {
     headers: ['Variable', 'Description', 'Unit'] as [string, string, string],
     units: {
@@ -301,6 +385,10 @@ export const en = {
       returned_refugees: 'Refugees who returned during the year.',
       idps: 'Internally displaced people (UNHCR-protected).',
       returned_idps: 'IDPs who returned during the year.',
+      resettlement:
+        'Refugees resettled to a third country during the year (flow). Asylum side = resettlement country.',
+      naturalisation:
+        'Refugees who acquired the nationality of their asylum country during the year (flow).',
       stateless: 'People without a recognized nationality.',
       ooc: 'Others of concern to UNHCR.',
       oip: 'Other people in need of international protection.',
@@ -341,6 +429,8 @@ export const en = {
       demographics: 'Total people covered by the age/sex breakdown.',
       'asylum-applications': 'Asylum applications lodged.',
       'asylum-decisions': 'Total substantive decisions.',
+      solutions:
+        'Sum of durable solutions recorded in the year (refugee returns + resettlement + naturalisation + IDP returns) — a flow, not a stock.',
       'context-indicators': 'National population (SP.POP.TOTL).',
       idps: 'Internally displaced people (latest assessment of the year).',
       'conflict-events': 'Conflict events recorded in the year.',
@@ -449,6 +539,8 @@ export const en = {
     returned_refugees: 'Returned refugees',
     idps: 'Internally displaced people (IDPs)',
     returned_idps: 'Returned IDPs',
+    resettlement: 'Resettlement',
+    naturalisation: 'Naturalisation',
     stateless: 'Stateless people',
     ooc: 'Others of concern',
     oip: 'Other people in need of international protection',
@@ -483,6 +575,7 @@ export const en = {
     demographics: 'Demographics (age and sex)',
     'asylum-applications': 'Asylum applications',
     'asylum-decisions': 'Asylum decisions',
+    solutions: 'Durable solutions (returns, resettlement, naturalisation)',
     'context-indicators': 'Context indicators (population, GDP)',
     idps: 'Internally displaced people',
     'conflict-events': 'Conflict events',

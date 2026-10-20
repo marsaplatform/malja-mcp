@@ -2,10 +2,11 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import type { AppContext } from '../context.js';
 import { CountryRoleSchema, countryInput, yearFromInput, yearToInput } from '../schemas/common.js';
+import { detectChangepoints } from '../shared/stats.js';
 import { toChartJs } from '../viz/chartjs.js';
 import { toGeoJson } from '../viz/geojson.js';
 import { toMermaid } from '../viz/mermaid.js';
-import type { ChartSpecInput, Series } from '../viz/series.js';
+import type { ChartSpecInput, Marker, Series } from '../viz/series.js';
 import { toSvg } from '../viz/svg.js';
 import { toVegaLite } from '../viz/vega.js';
 import {
@@ -29,7 +30,7 @@ export function registerChartTools(server: McpServer, ctx: AppContext): void {
     {
       title: 'Generate chart',
       description:
-        'Render a displacement metric for one or more countries as a chart specification. Formats: "chartjs" (Chart.js v4 config JSON), "vega-lite" (v5 spec), "mermaid" (xychart block), "svg" (standalone image markup). Set normalize_by to plot per 1,000 residents or per US$1bn GDP.',
+        'Render a displacement metric for one or more countries as a chart specification. Formats: "chartjs" (Chart.js v4 config JSON), "vega-lite" (v5 spec), "mermaid" (xychart block), "svg" (standalone image markup). Set normalize_by to plot per 1,000 residents or per US$1bn GDP. show_changepoints=true marks detected structural breaks (svg, vega-lite; Chart.js via chartjs-plugin-annotation).',
       inputSchema: {
         countries: z.array(countryInput).min(1).max(5).describe('Countries to plot'),
         metric: z.string().optional().describe('Metric to plot (default refugees)'),
@@ -37,6 +38,10 @@ export function registerChartTools(server: McpServer, ctx: AppContext): void {
         normalize_by: NormalizeBySchema.optional(),
         format: z.enum(['chartjs', 'vega-lite', 'mermaid', 'svg']).describe('Output format'),
         kind: z.enum(['line', 'bar']).optional().describe('Chart type (default line)'),
+        show_changepoints: z
+          .boolean()
+          .optional()
+          .describe('Mark detected changepoints (structural breaks) per series. Default false.'),
         year_from: yearFromInput,
         year_to: yearToInput,
       },
@@ -49,7 +54,17 @@ export function registerChartTools(server: McpServer, ctx: AppContext): void {
       },
     },
     async (
-      { countries, metric, role, normalize_by, format, kind, year_from, year_to },
+      {
+        countries,
+        metric,
+        role,
+        normalize_by,
+        format,
+        kind,
+        show_changepoints,
+        year_from,
+        year_to,
+      },
       _extra,
       tr,
     ) => {
@@ -122,12 +137,26 @@ export function registerChartTools(server: McpServer, ctx: AppContext): void {
         tr.range(yearFrom, yearTo),
         source.toUpperCase(),
       );
+      const markers: Marker[] = show_changepoints
+        ? series.flatMap((s) =>
+            detectChangepoints(
+              s.points.map((p) => ({ year: Number(p.x), value: p.y })),
+            ).changepoints.map((c) => ({
+              x: c.year,
+              label:
+                series.length > 1
+                  ? tr.m.charts.breakMarkerFor(s.label, tr.year(c.year))
+                  : tr.m.charts.breakMarker(tr.year(c.year)),
+            })),
+          )
+        : [];
       const input: ChartSpecInput = {
         title,
         kind: kind ?? 'line',
         xLabel: tr.m.common.year,
         yLabel: metricLabel,
         series,
+        ...(markers.length > 0 ? { markers } : {}),
         ...tr.chartOptions(),
       };
 

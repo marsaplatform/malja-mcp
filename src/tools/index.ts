@@ -9,18 +9,22 @@ import { registerExportTools } from './exports.js';
 import { registerMetaTools } from './meta.js';
 import { registerMonitorTools } from './monitor.js';
 import { registerPopulationTools } from './population.js';
+import { registerReportExportTools } from './report-export.js';
 import { registerReportTools } from './reports.js';
+import { registerSolutionsTools } from './solutions.js';
 
 /** Register every tool. Order defines the order clients list them in. */
 export function registerTools(server: McpServer, ctx: AppContext): void {
   registerCountryTools(server, ctx);
   registerPopulationTools(server, ctx);
   registerAsylumTools(server, ctx);
+  registerSolutionsTools(server, ctx);
   registerCrisisTools(server, ctx);
   registerAnalyticsTools(server, ctx);
   registerMonitorTools(server, ctx);
   registerChartTools(server, ctx);
   registerReportTools(server, ctx);
+  registerReportExportTools(server, ctx);
   registerExportTools(server, ctx);
   registerMetaTools(server, ctx);
 }

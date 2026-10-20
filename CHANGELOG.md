@@ -16,12 +16,37 @@ adheres to [Semantic Versioning](https://semver.org/).
   country report (tool and `report://` resource), chart titles/axes/legends/
   ticks, export codebooks and citations (original citation kept, Arabic
   producer label added). Built-in prompts accept `locale` too.
+- **UNHCR durable solutions** — new `solutions` dataset (keyless
+  `api.unhcr.org/population/v1/solutions/`), `durable_solutions` tool and
+  `solutions://{code}` resource: refugee returns, resettlement,
+  naturalisation and IDP returns per year, from the origin side (default) or
+  the asylum/resettlement-country side, with `other_country` cross-filter and
+  `normalize_by`. Documented as **flows** (period totals and solution mix are
+  reported; UNHCR "-" stays "not reported", never 0). Exportable via
+  `export_data` with codebook entries; full English/Arabic output.
 - `MALJA_DIGITS=latn|arab` — Western (default) or Arabic-Indic digits in
   Arabic output.
+- **Stronger statistics** (pure TypeScript, no new dependencies):
+  changepoint detection (exact penalised segmentation / optimal partitioning,
+  piecewise-linear cost, BIC-type penalty with a robust MAD noise estimate)
+  in `trend_analysis` (`changepoints`, `segments`) and `generate_chart`
+  (`show_changepoints`); `forecast` gains 80%/95% OLS prediction intervals
+  (exact Student-t quantiles), break disclosure, `since_break` and an
+  optional `chart` with interval bands. Charts support bands, dashed series
+  and markers (SVG, Vega-Lite, Chart.js). Caveats kept and extended; en + ar.
 - i18n layer (`src/i18n/`): typed message catalogs (`messages/en.ts`,
   `messages/ar.ts`) plus a `Translator` for numbers, years, ranges, country
   names, metrics and citations; catalog-parity tests guarantee every key
   exists in every locale.
+- **`export_report`** — formatted HTML and PDF reports. Exports the country
+  report (or any tool's Markdown) as a self-contained, print-ready HTML file
+  (A4 print CSS, embedded Zad Arabic/Latin font under SIL OFL 1.1, `dir="rtl"`
+  - logical CSS for Arabic, inline SVG chart, citations, extraction manifest
+    as a table and as embedded JSON) and as PDF via a locally installed headless
+    Chrome/Chromium — no new npm dependency, falls back to HTML with a reason
+    when no browser is available. Documents are served from memory as
+    `export://{id}/{filename}` resource links (1 h TTL) or inline. New settings
+    `MALJA_PDF=auto|off` and `MALJA_CHROME_PATH`.
 - RTL support: SVG charts (`direction="rtl"`, Arabic font stack, RTL legend),
   Chart.js RTL legend/tooltips, Vega-Lite Arabic font config, LRM-protected
   signed numbers, worded year ranges.

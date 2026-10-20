@@ -5,6 +5,8 @@ import type { CountryRef } from '../providers/types.js';
 import { countryInput, yearFromInput, yearToInput } from '../schemas/common.js';
 import { linearRegression, yearOverYear } from '../shared/stats.js';
 import { toMermaid } from '../viz/mermaid.js';
+import type { ChartSpecInput } from '../viz/series.js';
+import { toSvg } from '../viz/svg.js';
 import type { Translator } from '../i18n/index.js';
 import {
   aggregateByYear,
@@ -30,6 +32,7 @@ export async function buildCountryReport(
   yearTo: number,
   onProgress: (step: number, total: number, message: string) => Promise<void> = async () => {},
   tr: Translator = translatorFor(ctx, undefined),
+  options: { chart?: 'mermaid' | 'svg' } = {},
 ): Promise<string> {
   const TOTAL_STEPS = 5;
   const m = tr.m;
@@ -115,7 +118,9 @@ export async function buildCountryReport(
         refugeeSeries.map((p) => [tr.year(p.year), p.value]),
       ),
       '',
-      toMermaid({
+      (options.chart === 'svg'
+        ? (input: ChartSpecInput) => `\`\`\`svg\n${toSvg(input)}\n\`\`\``
+        : toMermaid)({
         title: m.charts.refugeesHostedIn(name),
         kind: 'line',
         xLabel: m.common.year,

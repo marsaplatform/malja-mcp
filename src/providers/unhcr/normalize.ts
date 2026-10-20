@@ -75,11 +75,24 @@ const DECISION_METRICS = [
   'dec_total',
 ] as const;
 
+/**
+ * Durable solutions (`/solutions/`): FLOWS during the year, not end-year
+ * stocks. "-" means "not reported" and is kept distinct from 0 (the metric is
+ * simply absent from the record).
+ */
+export const SOLUTION_METRICS = [
+  'returned_refugees',
+  'resettlement',
+  'naturalisation',
+  'returned_idps',
+] as const;
+
 const METRIC_KEYS: Partial<Record<DatasetId, readonly string[]>> = {
   population: POPULATION_METRICS,
   demographics: DEMOGRAPHIC_METRICS,
   'asylum-applications': APPLICATION_METRICS,
   'asylum-decisions': DECISION_METRICS,
+  solutions: SOLUTION_METRICS,
 };
 
 function parseSide(row: Record<string, unknown>, prefix: 'coo' | 'coa'): UnhcrSide {
@@ -116,6 +129,8 @@ function headline(dataset: DatasetId, metrics: Record<string, number>): number {
       return metrics['applied'] ?? 0;
     case 'asylum-decisions':
       return metrics['dec_total'] ?? 0;
+    case 'solutions':
+      return SOLUTION_METRICS.reduce((sum, key) => sum + (metrics[key] ?? 0), 0);
     default:
       // Datasets UNHCR does not serve never reach normalization with rows.
       return 0;
