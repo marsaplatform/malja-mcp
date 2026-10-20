@@ -11,6 +11,7 @@ import {
   latestAggregates,
   metricSeries,
   resolveCountry,
+  translatorFor,
 } from '../tools/common.js';
 
 /**
@@ -206,12 +207,16 @@ export function registerResources(server: McpServer, ctx: AppContext): void {
         datasetProvenance(ctx, 'population'),
       ]);
       const points = metricSeries(aggregateByYear(records), 'refugees');
+      // Resources take no arguments: they follow the server default (MALJA_LOCALE).
+      const tr = translatorFor(ctx, undefined);
+      const name = tr.country(ref.iso3, ref.name);
       const config = toChartJs({
-        title: `Refugees hosted in ${ref.name} — ${provenance.source.toUpperCase()}`,
+        title: `${tr.m.charts.refugeesHostedIn(name)} — ${provenance.source.toUpperCase()}`,
         kind: 'line',
-        xLabel: 'Year',
-        yLabel: 'Refugees',
-        series: [{ label: ref.name, points: points.map((p) => ({ x: p.year, y: p.value })) }],
+        xLabel: tr.m.common.year,
+        yLabel: tr.m.common.refugees,
+        series: [{ label: name, points: points.map((p) => ({ x: p.year, y: p.value })) }],
+        ...tr.chartOptions(),
       });
       return {
         contents: [

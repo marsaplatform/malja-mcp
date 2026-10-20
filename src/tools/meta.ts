@@ -1,7 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import type { AppContext } from '../context.js';
-import { markdownTable } from '../viz/table.js';
 import { defineTool } from './common.js';
 
 export function registerMetaTools(server: McpServer, ctx: AppContext): void {
@@ -36,14 +35,23 @@ export function registerMetaTools(server: McpServer, ctx: AppContext): void {
         ),
       },
     },
-    async () => {
+    async (_args, _extra, tr) => {
       const providers = await Promise.all(ctx.registry.all().map((p) => p.metadata()));
+      // Provider descriptions/attributions are the producers' own wording and
+      // stay as published; dataset ids and metric keys stay verbatim (they
+      // are tool parameters). Localized locales add a translated dataset title.
+      const english = tr.locale === 'en';
       const lines = providers.map((p) => {
-        const datasets = markdownTable(
-          ['Dataset', 'Metrics', 'Description'],
-          p.datasets.map((d) => [d.id, d.metrics.join(', '), d.description]),
+        const datasets = tr.table(
+          tr.m.metadata.headers,
+          p.datasets.map((d) => [
+            english ? d.id : `${tr.dataset(d.id)} (\`${d.id}\`)`,
+            d.metrics.join(', '),
+            d.description,
+          ]),
         );
-        return `## ${p.name} (\`${p.id}\`)\n\n${p.description}\n\n${datasets}\n\n_${p.attribution}_`;
+        const producer = tr.producer(p.id);
+        return `## ${producer || p.name} (\`${p.id}\`)\n\n${p.description}\n\n${datasets}\n\n_${p.attribution}_`;
       });
       return {
         content: [{ type: 'text', text: lines.join('\n\n') }],
@@ -79,14 +87,14 @@ export function registerMetaTools(server: McpServer, ctx: AppContext): void {
         ),
       },
     },
-    async () => {
+    async (_args, _extra, tr) => {
       const results = await Promise.all(ctx.registry.all().map((p) => p.health()));
-      const table = markdownTable(
-        ['Provider', 'Status', 'Latency', 'Detail'],
+      const table = tr.table(
+        tr.m.metadata.healthHeaders,
         results.map((r) => [
           r.provider,
-          r.ok ? '✅ ok' : '❌ down',
-          r.latencyMs !== undefined ? `${r.latencyMs} ms` : '—',
+          r.ok ? tr.m.metadata.ok : tr.m.metadata.down,
+          r.latencyMs !== undefined ? tr.m.metadata.ms(tr.num(r.latencyMs)) : '—',
           r.detail,
         ]),
       );

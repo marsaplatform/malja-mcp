@@ -6,6 +6,34 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **Full Arabic output (`locale: "ar"`)**. Every tool accepts an optional
+  `locale` (`"en"` default, `"ar"`), with a server-wide default via
+  `MALJA_LOCALE`. Arabic covers headings, table headers, metric labels
+  (UNHCR terminology), IPC phase names, UN Arabic country names, regions,
+  dataset titles, caveats, error messages, progress notifications, the full
+  country report (tool and `report://` resource), chart titles/axes/legends/
+  ticks, export codebooks and citations (original citation kept, Arabic
+  producer label added). Built-in prompts accept `locale` too.
+- `MALJA_DIGITS=latn|arab` — Western (default) or Arabic-Indic digits in
+  Arabic output.
+- i18n layer (`src/i18n/`): typed message catalogs (`messages/en.ts`,
+  `messages/ar.ts`) plus a `Translator` for numbers, years, ranges, country
+  names, metrics and citations; catalog-parity tests guarantee every key
+  exists in every locale.
+- RTL support: SVG charts (`direction="rtl"`, Arabic font stack, RTL legend),
+  Chart.js RTL legend/tooltips, Vega-Lite Arabic font config, LRM-protected
+  signed numbers, worded year ranges.
+
+### Unchanged by design
+
+- `structuredContent` field names and values, ISO3 codes, dataset ids, metric
+  keys, export columns/payloads and extraction manifests are identical in
+  every locale. English text output is unchanged except two fixes: year-over-
+  year deltas now show an explicit `+` sign, and denominator years in
+  `top_host_countries` are no longer rendered with a thousands separator.
+
 ### Changed
 
 - **Rebranded to Malja MCP (ملجأ — "refuge")** and moved to

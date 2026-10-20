@@ -48,7 +48,11 @@ export function registerChartTools(server: McpServer, ctx: AppContext): void {
         spec: z.union([z.record(z.unknown()), z.string()]),
       },
     },
-    async ({ countries, metric, role, normalize_by, format, kind, year_from, year_to }) => {
+    async (
+      { countries, metric, role, normalize_by, format, kind, year_from, year_to },
+      _extra,
+      tr,
+    ) => {
       const chosenMetric = metric ?? 'refugees';
       const chosenRole = role ?? 'asylum';
       const normalizeBy = normalize_by ?? 'none';
@@ -69,6 +73,7 @@ export function registerChartTools(server: McpServer, ctx: AppContext): void {
       );
 
       let unit = 'people';
+      let unitLabel = tr.unit('people');
       let series: Series[];
       if (normalizeBy !== 'none') {
         const denominators = await fetchDenominators(
@@ -78,8 +83,9 @@ export function registerChartTools(server: McpServer, ctx: AppContext): void {
           resolved.map((r) => r.ref.iso3),
         );
         unit = denominators.unit;
+        unitLabel = tr.unit(normalizeBy);
         series = resolved.map(({ ref, points }) => ({
-          label: ref.name,
+          label: tr.country(ref.iso3, ref.name),
           points: points.flatMap((p) => {
             const normalized = normalizeValue(denominators, ref.iso3, p.year, p.value);
             return normalized === null
@@ -89,7 +95,7 @@ export function registerChartTools(server: McpServer, ctx: AppContext): void {
         }));
       } else {
         series = resolved.map(({ ref, points }) => ({
-          label: ref.name,
+          label: tr.country(ref.iso3, ref.name),
           points: points.map((p) => ({ x: p.year, y: p.value })),
         }));
       }
@@ -99,21 +105,30 @@ export function registerChartTools(server: McpServer, ctx: AppContext): void {
           content: [
             {
               type: 'text',
-              text: `No ${chosenMetric} data found for those countries in ${yearFrom}–${yearTo}.`,
+              text: tr.m.charts.noData(tr.metric(chosenMetric), tr.range(yearFrom, yearTo)),
             },
           ],
           isError: true,
         };
       }
 
-      const metricLabel = normalizeBy !== 'none' ? `${chosenMetric} ${unit}` : chosenMetric;
-      const title = `${metricLabel} (${chosenRole} side), ${yearFrom}–${yearTo} — ${source.toUpperCase()}`;
+      const metricLabel =
+        normalizeBy !== 'none'
+          ? `${tr.metric(chosenMetric)} ${unitLabel}`
+          : tr.metric(chosenMetric);
+      const title = tr.m.charts.title(
+        metricLabel,
+        tr.side(chosenRole),
+        tr.range(yearFrom, yearTo),
+        source.toUpperCase(),
+      );
       const input: ChartSpecInput = {
         title,
         kind: kind ?? 'line',
-        xLabel: 'Year',
+        xLabel: tr.m.common.year,
         yLabel: metricLabel,
         series,
+        ...tr.chartOptions(),
       };
 
       let spec: Record<string, unknown> | string;
@@ -121,11 +136,11 @@ export function registerChartTools(server: McpServer, ctx: AppContext): void {
       switch (format) {
         case 'chartjs':
           spec = toChartJs(input);
-          text = `Chart.js v4 config for "${title}":\n\n\`\`\`json\n${JSON.stringify(spec, null, 2)}\n\`\`\``;
+          text = `${tr.m.charts.chartjsIntro(title)}\n\n\`\`\`json\n${JSON.stringify(spec, null, 2)}\n\`\`\``;
           break;
         case 'vega-lite':
           spec = toVegaLite(input);
-          text = `Vega-Lite v5 spec for "${title}":\n\n\`\`\`json\n${JSON.stringify(spec, null, 2)}\n\`\`\``;
+          text = `${tr.m.charts.vegaIntro(title)}\n\n\`\`\`json\n${JSON.stringify(spec, null, 2)}\n\`\`\``;
           break;
         case 'mermaid':
           spec = toMermaid(input);
@@ -133,7 +148,7 @@ export function registerChartTools(server: McpServer, ctx: AppContext): void {
           break;
         case 'svg':
           spec = toSvg(input);
-          text = `SVG chart for "${title}":\n\n\`\`\`svg\n${spec}\n\`\`\``;
+          text = `${tr.m.charts.svgIntro(title)}\n\n\`\`\`svg\n${spec}\n\`\`\``;
           break;
       }
 
@@ -166,7 +181,7 @@ export function registerChartTools(server: McpServer, ctx: AppContext): void {
         geojson: z.record(z.unknown()),
       },
     },
-    async ({ year, metric, by, limit }) => {
+    async ({ year, metric, by, limit }, _extra, tr) => {
       const chosenMetric = metric ?? 'refugees';
       const chosenBy = by ?? 'asylum';
 
@@ -200,7 +215,7 @@ export function registerChartTools(server: McpServer, ctx: AppContext): void {
         content: [
           {
             type: 'text',
-            text: `GeoJSON map — top ${top.length} ${chosenBy === 'asylum' ? 'host' : 'origin'} countries by ${chosenMetric}, ${mapYear} (${featureCount} features${skipped.length > 0 ? `; no centroid for: ${skipped.join(', ')}` : ''})\n\n\`\`\`json\n${JSON.stringify(featureCollection)}\n\`\`\``,
+            text: `${tr.m.charts.mapHeading(tr.num(top.length), chosenBy, tr.metric(chosenMetric), tr.year(mapYear), tr.num(featureCount), skipped.length > 0 ? skipped.join(', ') : undefined)}\n\n\`\`\`json\n${JSON.stringify(featureCollection)}\n\`\`\``,
           },
         ],
         structuredContent: {

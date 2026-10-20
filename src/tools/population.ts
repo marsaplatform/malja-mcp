@@ -9,7 +9,6 @@ import {
   yearFromInput,
   yearToInput,
 } from '../schemas/common.js';
-import { formatNumber, markdownTable } from '../viz/table.js';
 import {
   datasetProvenance,
   defaultYearRange,
@@ -48,7 +47,7 @@ export function registerPopulationTools(server: McpServer, ctx: AppContext): voi
         source: z.string(),
       },
     },
-    async ({ country, role, other_country, year_from, year_to, page, limit }) => {
+    async ({ country, role, other_country, year_from, year_to, page, limit }, _extra, tr) => {
       const chosenRole = role ?? 'asylum';
       const ref = await resolveCountry(ctx, country);
       const { yearFrom, yearTo } = defaultYearRange(year_from, year_to);
@@ -73,10 +72,10 @@ export function registerPopulationTools(server: McpServer, ctx: AppContext): voi
         limit: limit ?? 100,
       });
 
-      const table = markdownTable(
-        ['Year', 'Refugees', 'Asylum-seekers', 'IDPs', 'Stateless', 'Total of concern'],
+      const table = tr.table(
+        tr.m.population.headers,
         result.items.map((r) => [
-          String(r.year),
+          tr.year(r.year),
           r.metrics['refugees'] ?? null,
           r.metrics['asylum_seekers'] ?? null,
           r.metrics['idps'] ?? null,
@@ -89,7 +88,7 @@ export function registerPopulationTools(server: McpServer, ctx: AppContext): voi
         content: [
           {
             type: 'text',
-            text: `Displacement figures — **${ref.name}** (${chosenRole} side), ${yearFrom}–${yearTo}\n\n${table}\n\n_Source: ${citation}_`,
+            text: `${tr.m.population.heading(tr.country(ref.iso3, ref.name), tr.side(chosenRole), tr.range(yearFrom, yearTo))}\n\n${table}\n\n${tr.sourceLine(citation, source)}`,
           },
         ],
         structuredContent: {
@@ -127,8 +126,9 @@ export function registerPopulationTools(server: McpServer, ctx: AppContext): voi
         source: z.string(),
       },
     },
-    async ({ country, role }) => {
+    async ({ country, role }, _extra, tr) => {
       const ref = await resolveCountry(ctx, country);
+      const name = tr.country(ref.iso3, ref.name);
       const chosenRole = role ?? 'asylum';
       const { source, citation } = await datasetProvenance(ctx, 'demographics');
       const aggregate = await latestAggregates(
@@ -141,7 +141,7 @@ export function registerPopulationTools(server: McpServer, ctx: AppContext): voi
           content: [
             {
               type: 'text',
-              text: `No recent demographic data for ${ref.name} on the ${chosenRole} side. UNHCR demographics cover recent years only — try the refugee_population tool for totals.`,
+              text: tr.m.demographics.noData(name, chosenRole),
             },
           ],
           isError: true,
@@ -149,13 +149,6 @@ export function registerPopulationTools(server: McpServer, ctx: AppContext): voi
       }
 
       const buckets = ['0_4', '5_11', '12_17', '18_59', '60'] as const;
-      const bucketLabels: Record<(typeof buckets)[number], string> = {
-        '0_4': '0–4',
-        '5_11': '5–11',
-        '12_17': '12–17',
-        '18_59': '18–59',
-        '60': '60+',
-      };
       const female: Record<string, number> = {};
       const male: Record<string, number> = {};
       for (const bucket of buckets) {
@@ -166,25 +159,25 @@ export function registerPopulationTools(server: McpServer, ctx: AppContext): voi
       const fTotal = aggregate.metrics['f_total'] ?? 0;
       const mTotal = aggregate.metrics['m_total'] ?? 0;
 
-      const table = markdownTable(
-        ['Age group', 'Female', 'Male', 'Share of total'],
+      const table = tr.table(
+        tr.m.demographics.headers,
         buckets.map((bucket) => {
           const rowTotal = (female[bucket] ?? 0) + (male[bucket] ?? 0);
           return [
-            bucketLabels[bucket],
+            tr.text(tr.m.demographics.age[bucket] ?? bucket),
             female[bucket] ?? 0,
             male[bucket] ?? 0,
-            total > 0 ? `${((rowTotal / total) * 100).toFixed(1)}%` : '—',
+            total > 0 ? tr.pct((rowTotal / total) * 100) : '—',
           ];
         }),
       );
 
-      const pctFemale = total > 0 ? ((fTotal / total) * 100).toFixed(1) : '—';
+      const pctFemale = total > 0 ? tr.pct((fTotal / total) * 100) : '—';
       return {
         content: [
           {
             type: 'text',
-            text: `Demographics — **${ref.name}** (${chosenRole} side), ${aggregate.year}\n\n${table}\n\nTotal: **${formatNumber(total)}** (${pctFemale}% female)\n\n_Source: ${citation}_`,
+            text: `${tr.m.demographics.heading(name, tr.side(chosenRole), tr.year(aggregate.year))}\n\n${table}\n\n${tr.m.demographics.totalLine(tr.num(total), pctFemale)}\n\n${tr.sourceLine(citation, source)}`,
           },
         ],
         structuredContent: {
@@ -219,34 +212,36 @@ export function registerPopulationTools(server: McpServer, ctx: AppContext): voi
         source: z.string(),
       },
     },
-    async ({ country, role }) => {
+    async ({ country, role }, _extra, tr) => {
       const chosenRole = role ?? 'asylum';
       const { source, citation } = await datasetProvenance(ctx, 'population');
       let scope = 'Global';
+      let scopeLabel = tr.m.latest.global;
       let filter = {};
       if (country) {
         const ref = await resolveCountry(ctx, country);
         scope = ref.name;
+        scopeLabel = tr.country(ref.iso3, ref.name);
         filter = roleFilter(chosenRole, ref.iso3);
       }
 
       const aggregate = await latestAggregates(ctx, 'population', filter);
       if (!aggregate) {
         return {
-          content: [{ type: 'text', text: `No recent statistics found for ${scope}.` }],
+          content: [{ type: 'text', text: tr.m.latest.noData(scopeLabel) }],
           isError: true,
         };
       }
 
-      const table = markdownTable(
-        ['Indicator', 'People'],
-        Object.entries(aggregate.metrics).map(([k, v]) => [k, v]),
+      const table = tr.table(
+        [tr.m.common.indicator, tr.m.common.people],
+        Object.entries(aggregate.metrics).map(([k, v]) => [tr.metric(k), v]),
       );
       return {
         content: [
           {
             type: 'text',
-            text: `Latest statistics — **${scope}**${country ? ` (${chosenRole} side)` : ''}, ${aggregate.year}\n\n${table}\n\n_Source: ${citation}_`,
+            text: `${tr.m.latest.heading(scopeLabel, country ? tr.side(chosenRole) : '', tr.year(aggregate.year))}\n\n${table}\n\n${tr.sourceLine(citation, source)}`,
           },
         ],
         structuredContent: {

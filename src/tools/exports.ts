@@ -11,7 +11,6 @@ import {
 } from '../schemas/common.js';
 import { objectsToCsv } from '../viz/csv.js';
 import { toGeoJson } from '../viz/geojson.js';
-import { markdownTable } from '../viz/table.js';
 import { buildCodebook, codebookMarkdown } from './codebook.js';
 import {
   datasetProvenance,
@@ -104,18 +103,22 @@ export function registerExportTools(server: McpServer, ctx: AppContext): void {
           .optional(),
       },
     },
-    async ({
-      dataset,
-      format,
-      country,
-      role,
-      group_by,
-      year_from,
-      year_to,
-      limit,
-      include_manifest,
-      include_codebook,
-    }) => {
+    async (
+      {
+        dataset,
+        format,
+        country,
+        role,
+        group_by,
+        year_from,
+        year_to,
+        limit,
+        include_manifest,
+        include_codebook,
+      },
+      _extra,
+      tr,
+    ) => {
       const { yearFrom, yearTo } = defaultYearRange(year_from, year_to);
       const query: {
         dataset: DatasetId;
@@ -165,7 +168,7 @@ export function registerExportTools(server: McpServer, ctx: AppContext): void {
         case 'csv': {
           const csv = objectsToCsv(rows.map(flatten));
           data = manifest ? manifestAsCsvHeader(manifest) + csv : csv;
-          text = `CSV export — ${dataset}, ${rows.length} rows${manifest ? ' (manifest in `#` comment lines — read with `comment="#"`)' : ''}:\n\n\`\`\`csv\n${data}\`\`\``;
+          text = `${tr.m.exports.csvIntro(dataset, tr.num(rows.length), manifest !== undefined)}\n\n\`\`\`csv\n${data}\`\`\``;
           break;
         }
         case 'json': {
@@ -174,19 +177,25 @@ export function registerExportTools(server: McpServer, ctx: AppContext): void {
             rows: rows as unknown as Record<string, unknown>[],
             ...(manifest ? { manifest } : {}),
           };
-          text = `JSON export — ${dataset}, ${rows.length} rows:\n\n\`\`\`json\n${JSON.stringify(data, null, 2)}\n\`\`\``;
+          text = `${tr.m.exports.jsonIntro(dataset, tr.num(rows.length))}\n\n\`\`\`json\n${JSON.stringify(data, null, 2)}\n\`\`\``;
           break;
         }
         case 'markdown': {
           const flat = rows.map(flatten);
           const headers = flat.length > 0 ? Object.keys(flat[0]!) : [];
-          data = markdownTable(
+          data = tr.table(
             headers,
-            flat.map((row) => headers.map((h) => row[h] as string | number | null)),
+            flat.map((row) =>
+              headers.map((h) =>
+                h === 'year' && typeof row[h] === 'number'
+                  ? tr.year(row[h])
+                  : (row[h] as string | number | null),
+              ),
+            ),
           );
           text = data;
           if (manifest) {
-            text += `\n\n> Extraction manifest: \`${JSON.stringify(manifest)}\``;
+            text += `\n\n> ${tr.m.exports.manifestLabel}: \`${JSON.stringify(manifest)}\``;
           }
           break;
         }
@@ -194,7 +203,7 @@ export function registerExportTools(server: McpServer, ctx: AppContext): void {
           const { featureCollection, skipped } = toGeoJson(rows);
           // `manifest` rides along as a GeoJSON foreign member (RFC 7946 §6.1).
           data = manifest ? { ...featureCollection, manifest } : featureCollection;
-          text = `GeoJSON export — ${dataset}, ${(featureCollection['features'] as unknown[]).length} features${skipped.length > 0 ? ` (no centroid: ${skipped.slice(0, 10).join(', ')}${skipped.length > 10 ? '…' : ''})` : ''}:\n\n\`\`\`json\n${JSON.stringify(data)}\n\`\`\``;
+          text = `${tr.m.exports.geojsonIntro(dataset, tr.num((featureCollection['features'] as unknown[]).length), skipped.length > 0 ? `${skipped.slice(0, 10).join(', ')}${skipped.length > 10 ? '…' : ''}` : undefined)}\n\n\`\`\`json\n${JSON.stringify(data)}\n\`\`\``;
           break;
         }
       }
@@ -202,12 +211,12 @@ export function registerExportTools(server: McpServer, ctx: AppContext): void {
       let codebook: ReturnType<typeof buildCodebook> | undefined;
       if (include_codebook) {
         const presentFields = [...new Set(rows.map(flatten).flatMap((row) => Object.keys(row)))];
-        codebook = buildCodebook(dataset as DatasetId, presentFields);
-        text += `\n\n## Codebook\n\n${codebookMarkdown(codebook)}`;
+        codebook = buildCodebook(dataset as DatasetId, presentFields, tr);
+        text += `\n\n${tr.m.exports.codebookHeading}\n\n${codebookMarkdown(codebook, tr)}`;
       }
 
       if (wasTruncated) {
-        text += `\n\n_Note: output truncated to ${rows.length} rows. Narrow the year range or filter by country for a complete set._`;
+        text += `\n\n${tr.m.exports.truncated(tr.num(rows.length))}`;
       }
 
       return {

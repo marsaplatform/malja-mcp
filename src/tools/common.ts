@@ -2,7 +2,9 @@ import type { McpServer, ToolCallback } from '@modelcontextprotocol/sdk/server/m
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import type { ZodRawShape, z } from 'zod';
 import type { AppContext } from '../context.js';
-import { CountryNotFoundError, toUserMessage } from '../errors.js';
+import { CountryNotFoundError, LocalizedError, toUserMessage } from '../errors.js';
+import { LocaleSchema, isLocale, translator } from '../i18n/index.js';
+import type { Translator } from '../i18n/index.js';
 import type { CountryRef, DatasetId, ListQuery, NormalizedRecord } from '../providers/types.js';
 
 /**
@@ -19,10 +21,18 @@ export interface ToolConfig<I extends ZodRawShape, O extends ZodRawShape> {
   outputSchema?: O;
 }
 
+/** Translator for a tool call: the per-call `locale` wins over MALJA_LOCALE. */
+export function translatorFor(ctx: AppContext, locale: unknown): Translator {
+  return translator(isLocale(locale) ? locale : ctx.config.locale, ctx.config.digits);
+}
+
 /**
  * Register a tool with the platform conventions baked in:
  *  - read-only/open-world annotations (this server never mutates anything)
- *  - errors become `isError` results with an LLM-actionable message
+ *  - an optional `locale` input ("en" | "ar") on every tool; the handler
+ *    receives the matching {@link Translator} for all human-readable text
+ *  - errors become `isError` results with an LLM-actionable message, in the
+ *    caller's locale
  *  - every call is timed into analytics for the dashboard
  */
 export function defineTool<I extends ZodRawShape, O extends ZodRawShape>(
@@ -30,15 +40,21 @@ export function defineTool<I extends ZodRawShape, O extends ZodRawShape>(
   ctx: AppContext,
   name: string,
   config: ToolConfig<I, O>,
-  handler: (args: z.objectOutputType<I, z.ZodTypeAny>, extra: ToolExtra) => Promise<CallToolResult>,
+  handler: (
+    args: z.objectOutputType<I, z.ZodTypeAny>,
+    extra: ToolExtra,
+    tr: Translator,
+  ) => Promise<CallToolResult>,
 ): void {
+  const inputSchema = { ...config.inputSchema, locale: LocaleSchema.optional() } as I;
   const wrapped = (async (
     args: z.objectOutputType<I, z.ZodTypeAny>,
     extra: ToolExtra,
   ): Promise<CallToolResult> => {
     const started = Date.now();
+    const tr = translatorFor(ctx, (args as { locale?: unknown }).locale);
     try {
-      const result = await handler(args, extra);
+      const result = await handler(args, extra, tr);
       const elapsed = Date.now() - started;
       ctx.analytics.recordToolCall(name, elapsed, result.isError === true);
       ctx.logger.info(`tools/call ${name}`, { ms: elapsed, isError: result.isError === true });
@@ -48,7 +64,7 @@ export function defineTool<I extends ZodRawShape, O extends ZodRawShape>(
       ctx.logger.warn(`tool ${name} failed`, {
         error: err instanceof Error ? err.message : String(err),
       });
-      return { content: [{ type: 'text', text: toUserMessage(err) }], isError: true };
+      return { content: [{ type: 'text', text: toUserMessage(err, tr) }], isError: true };
     }
   }) as ToolCallback<I>;
 
@@ -56,6 +72,7 @@ export function defineTool<I extends ZodRawShape, O extends ZodRawShape>(
     name,
     {
       ...config,
+      inputSchema,
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
     wrapped,
@@ -185,7 +202,7 @@ export function defaultYearRange(
   const to = yearTo ?? currentYear();
   const from = yearFrom ?? to - (span - 1);
   if (from > to) {
-    throw new Error(`year_from (${from}) must not be after year_to (${to})`);
+    throw new LocalizedError((tr) => tr.m.errors.yearRange(tr.year(from), tr.year(to)));
   }
   return { yearFrom: from, yearTo: to };
 }

@@ -138,6 +138,10 @@ No API key is required today. The service is operated on a best-effort basis by 
 - Fuzzy name resolution in **English and Arabic** — «مصر», "egypt", `EGY`, "DRC", "ivory coast" all land correctly; Arabic matching folds hamza/alef forms, taa marbuta and the definite article («الأردن» = «الاردن» = «اردن»)
 - The UNHCR↔ISO3 code mismatch (99/232 countries) handled invisibly
 
+**Arabic output — ملجأ بالعربية**
+
+- Every tool takes `locale: "ar"` (or set `MALJA_LOCALE=ar` server-wide): reports, tables, captions, caveats, errors, chart labels and codebooks come back in Modern Standard Arabic with standard humanitarian terminology (لاجئون، طالبو لجوء، نازحون داخلياً، عديمو الجنسية) and UN Arabic country names — while `structuredContent`, ISO3 codes and dataset ids stay English for machine consumers. Western digits by default, Arabic-Indic (٠–٩) with `MALJA_DIGITS=arab`. Details: [docs/tools.md](docs/tools.md#language--arabic-output).
+
 **Analytics**
 
 - `normalize_by`: per-capita (per 1,000 residents) and per-GDP (per US$1bn) comparisons, rankings and charts, with per-year denominator matching
@@ -387,7 +391,6 @@ Releases: bump the version, tag `v*`, push — CI publishes the GitHub release w
 **🔭 Future (contributions welcome)**
 
 - ReliefWeb disasters dataset (the situation-reports pipeline already shipped)
-- Full Arabic report generation (`locale: "ar"`)
 - UNHCR Operational Data Portal situations
 - Sturdier statistics (confidence intervals, changepoint detection)
 - Redis cache backend
@@ -441,7 +444,19 @@ Each category is a separate metric (`refugees`, `idps`, `asylum_seekers`, `state
 
 <details><summary><strong>Does Arabic really work?</strong></summary>
 
-Yes — country resolution covers official UN Arabic names for 100% of countries served, plus common variants, with spelling-variant folding («الأردن» = «الاردن» = «اردن»). Tool _output_ is currently English; full Arabic report generation is on the roadmap.
+Yes — in both directions. Country resolution covers official UN Arabic names for 100% of countries served, plus common variants, with spelling-variant folding («الأردن» = «الاردن» = «اردن»). And every tool can _answer_ in Arabic: pass `locale: "ar"` (or set `MALJA_LOCALE=ar`). For example, `refugee_population` with `{ "country": "مصر", "year_from": 2023, "year_to": 2023, "locale": "ar" }` returns (recorded UNHCR data):
+
+```text
+أرقام النزوح — **مصر** (بحسب بلد اللجوء)، 2023
+
+| السنة | اللاجئون | طالبو اللجوء | النازحون داخلياً | عديمو الجنسية | إجمالي المشمولين بالاهتمام |
+| --- | --- | --- | --- | --- | --- |
+| 2023 | 240,507 | 232,244 | 0 | 10 | 472,761 |
+
+_المصدر: المفوضية السامية للأمم المتحدة لشؤون اللاجئين (UNHCR) — UNHCR Refugee Data Finder, https://www.unhcr.org/refugee-statistics/_
+```
+
+Structured output (`structuredContent`, ISO3 codes, dataset ids) stays in English so scripts keep working. See [docs/tools.md](docs/tools.md#language--arabic-output) for digits and right-to-left details.
 </details>
 
 <details><summary><strong>Can I use it without any AI at all?</strong></summary>

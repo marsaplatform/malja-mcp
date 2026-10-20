@@ -11,6 +11,7 @@ Conventions:
 - Call get_metadata first to learn which providers and datasets are actually enabled.
 - Countries accept names or ISO3 codes, in English or Arabic; when unsure of spelling, call search_country first.
 - role="asylum" means people hosted IN a country; role="origin" means people displaced FROM it.
+- Every tool accepts locale="ar" for Modern Standard Arabic text output (locale="en" is the default). When the user writes in Arabic, pass locale="ar". Structured output stays in English either way.
 - All data is read-only, sourced from official public APIs, and cached locally. Displacement figures are end-year stocks. Cite the year and the \`source\` field of each payload — different tools draw on different providers, so never attribute everything to one source.
 - Start broad (get_metadata, country_profile) before drilling into specific datasets; use situation_reports to ground trends and anomalies in published reporting.`;
 

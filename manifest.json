@@ -27,7 +27,8 @@
         "MALJA_PROVIDERS": "${user_config.providers}",
         "MALJA_CACHE": "${user_config.cache}",
         "MALJA_HDX_APP_ID": "${user_config.hdx_app_id}",
-        "MALJA_RELIEFWEB_APPNAME": "${user_config.reliefweb_appname}"
+        "MALJA_RELIEFWEB_APPNAME": "${user_config.reliefweb_appname}",
+        "MALJA_LOCALE": "${user_config.locale}"
       }
     }
   },
@@ -51,6 +52,13 @@
       "title": "HDX HAPI app identifier",
       "description": "Required only for the hdx provider — free at https://hapi.humdata.org/docs#/Generate%20App%20Identifier.",
       "default": "",
+      "required": false
+    },
+    "locale": {
+      "type": "string",
+      "title": "Output language",
+      "description": "\"en\" (default) or \"ar\" for Modern Standard Arabic reports and tables. Tools also accept a per-call locale.",
+      "default": "en",
       "required": false
     },
     "reliefweb_appname": {
