@@ -163,8 +163,8 @@ export function registerPrompts(server: McpServer, ctx: AppContext): void {
             text: [
               `Find anomalies in the displacement data for ${c}.`,
               '',
-              'Run trend_analysis for refugees, asylum_seekers and idps on both roles over the last 20 years (year_from set accordingly). Collect every anomalous year reported. Then, for each anomalous year, call conflict_events and situation_reports (year_from = year_to = that year) to look for corroboration in recorded violence and published reporting.',
-              'Deliver: a table of anomalies (year, metric, direction, z-score) and, for each, an explanation — grounded in the reports and conflict data when they corroborate it, and clearly labelled as hypothesis when they do not.',
+              'Run trend_analysis for refugees, asylum_seekers and idps on both roles over the last 20 years (year_from set accordingly). Collect every anomalous year and every changepoint (structural break) reported. Then, for each anomalous year or break, call conflict_events and situation_reports (year_from = year_to = that year) to look for corroboration in recorded violence and published reporting.',
+              'Deliver: a table of anomalies and breaks (year, metric, kind — anomaly or changepoint, direction, z-score or level shift) and, for each, an explanation — grounded in the reports and conflict data when they corroborate it, and clearly labelled as hypothesis when they do not.',
             ]
               .concat(respondIn(locale))
               .join('\n'),

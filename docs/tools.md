@@ -7,7 +7,8 @@ Conventions shared by every tool:
   queries return an `isError` result suggesting `search_country`.
 - `role`: `"asylum"` (default) = people hosted **in** the country;
   `"origin"` = people displaced **from** it.
-- `normalize_by` (`compare_countries`, `top_host_countries`, `generate_chart`):
+- `normalize_by` (`compare_countries`, `top_host_countries`, `generate_chart`,
+  `durable_solutions`):
   `"population"` → values per 1,000 residents · `"gdp"` → per US$1bn GDP ·
   `"none"` (default). Denominators come from the `context-indicators` dataset
   (World Bank provider, enabled by default), are matched per year, and the
@@ -125,6 +126,41 @@ Latest available year only (UNHCR publishes recent demographics only).
 → `{ yearly: [{ year, recognized, complementary, rejected, closed, total, recognition_rate_pct }] }`
 Recognition rate = (recognized + complementary) / substantive decisions.
 
+### durable_solutions
+
+`country` · `role` (default **`"origin"`**) · `other_country` · `year_from` · `year_to` · `normalize_by`
+→ `{ measure: "flow", years: [{ year, metrics: { returned_refugees?, resettlement?, naturalisation?, returned_idps? }, total, total_normalized?, denominator_year? }], period_totals, period_total, normalize_by, unit }`
+
+UNHCR durable solutions from the keyless `api.unhcr.org/population/v1/solutions/`
+endpoint. **Aggregation semantics:** unlike `refugee_population` (end-year
+stocks), these are **flows recorded during each year**, so the tool reports a
+period total and a solution mix — summing years is meaningful here and only
+here. A metric UNHCR did not report (`"-"` upstream) is **absent** from
+`metrics` and shown as `—`; it is never turned into `0`.
+
+| role               | `returned_refugees`                      | `resettlement`                         | `naturalisation`               | `returned_idps`       |
+| ------------------ | ---------------------------------------- | -------------------------------------- | ------------------------------ | --------------------- |
+| `origin` (default) | refugees who returned **to** the country | nationals resettled to third countries | nationals naturalised abroad   | IDP returns inside it |
+| `asylum`           | refugees who left it to return **home**  | people resettled **to** it             | refugees naturalised **in** it | IDP returns inside it |
+
+`other_country` cross-filters the opposite side (`country="Syria"`,
+`other_country="Lebanon"` → Syrians returning from Lebanon). `normalize_by:
+"population"` adds the yearly total per 1,000 residents of `country`
+(`"gdp"`: per US$1bn GDP), with the denominator year disclosed. Also exported
+via `export_data({ dataset: "solutions" })` (codebook included) and the
+`solutions://{code}` resource (10-year origin-side flows, JSON).
+
+```text
+durable_solutions({ country: "سوريا", year_from: 2021, year_to: 2025, locale: "ar" })
+
+الحلول الدائمة — **سوريا** (بحسب بلد المنشأ)، من 2021 إلى 2025
+| السنة | عودة اللاجئين | إعادة التوطين | التجنّس | عودة النازحين داخلياً | إجمالي الحلول |
+| 2024 | 512,718 | 25,532 | 17,595 | 513,896 | 1,069,741 |
+| 2025 | 1,341,148 | 8,714 | 14,676 | 1,964,201 | 3,328,739 |
+| **إجمالي الفترة** | 1,979,203 | 109,927 | 86,274 | 2,962,766 | 5,138,170 |
+**توزيع الحلول خلال الفترة:** عودة اللاجئين 38.5% · إعادة التوطين 2.1% · التجنّس 1.7% · عودة النازحين داخلياً 57.7%
+```
+
 ### conflict_events
 
 `country` · `year_from` · `year_to` — requires the `hdx` provider
@@ -157,14 +193,62 @@ in what was actually reported. Source: ReliefWeb (UN OCHA).
 ### trend_analysis
 
 `country` · `metric` · `role` · `year_from` · `year_to`
-→ `{ series, year_over_year, trend: { slope_per_year, r2, direction, cagr_pct }, anomalies: [{year, change, zScore}] }`
+→ `{ series, year_over_year, trend: { slope_per_year, r2, direction, cagr_pct }, anomalies: [{year, change, zScore}], changepoints: [{ year, level_shift, slope_before, slope_after }], segments: [{ from, to, slope_per_year }] }`
 Anomalies are years whose YoY change deviates ≥2σ from the series mean.
+
+**Changepoints** are structural breaks — a jump in level and/or a change of
+slope that persists. Method (pure TypeScript, no dependencies):
+
+- exact penalised segmentation by **Optimal Partitioning** (the exact dynamic
+  programme PELT accelerates; yearly series are short, so it is exact and instant);
+- piecewise-**linear** cost (residual sum of squares of a least-squares line
+  per segment), so a steady trend is _not_ split into a staircase;
+- BIC/SIC-type penalty `3·σ²·ln n` per extra segment, with σ estimated
+  robustly from second differences (MAD) and floored at 2% of the series'
+  median level — a perfectly smooth series yields no breaks;
+- ≥3 years per segment: a break in the last two years is dated to the start
+  of the final 3-year window at the latest. Use the anomaly z-scores for the
+  most recent years, and a wide window (`year_from`) for power.
+
+`level_shift` is the jump at the break year versus the previous segment's
+line extrapolated into that year. Recorded UNHCR data: Sudan IDPs (origin,
+2010–2025) → 2023, +6,196,505; Syria refugees (origin) → 2012; Egypt hosted
+refugees → 2013 (Syrian arrivals) and 2023. Breaks are candidates to explain
+(e.g. with `situation_reports`), not proof.
+
+```text
+trend_analysis({ country: "السودان", role: "origin", metric: "idps", year_from: 2010, year_to: 2025, locale: "ar" })
+
+**سنوات شاذة إحصائياً:** 2023 (‎+5,500,105، z=3.0)
+**نقاط التحوّل (الانقطاعات الهيكلية):** 2017 (قفزة ‎-1,108,043 مقارنةً بالاتجاه السابق؛ الميل من ‎+132,690 إلى ‎+341,773 سنوياً)، 2023 (قفزة ‎+6,196,505 مقارنةً بالاتجاه السابق؛ الميل من ‎+341,773 إلى ‎+43,243 سنوياً)
+```
 
 ### forecast
 
-`country` · `metric` · `role` · `years_ahead` (1–5, default 3)
-→ `{ historical, projected, method, caveat }`
+`country` · `metric` · `role` · `years_ahead` (1–5, default 3) · `since_break` (default false) · `chart` (`svg`|`chartjs`|`vega-lite`, optional)
+→ `{ historical, projected: [{ year, value, lower_80, upper_80, lower_95, upper_95 }], fit_from, fit_to, changepoints, method, intervals, caveat, chart? }`
 Ordinary least squares over the last 10 years, floored at 0. **Always relay the caveat.**
+
+- **Prediction intervals** (80% and 95%): `ŷ ± t(1−α/2, n−2) · s · √(1 + 1/n + (x₀−x̄)²/Sxx)`
+  with exact Student-t quantiles (pure TS). They assume the straight-line
+  model with independent residuals and cover ordinary year-to-year noise
+  only — not shocks — so the output says real uncertainty is larger. With
+  few points (e.g. 3 → 1 degree of freedom) they are honestly very wide.
+- **Structural breaks** in the 10-year history are detected (see
+  `trend_analysis`) and disclosed; `since_break: true` fits only the years
+  since the latest break when ≥3 remain (`fit_from`/`fit_to` report the window).
+- **`chart`**: observed line, dashed projection, 95% and 80% bands and
+  changepoint markers (SVG and Vega-Lite natively; Chart.js bands via `fill`,
+  markers via `chartjs-plugin-annotation`). RTL/Arabic like every chart.
+
+```text
+forecast({ country: "مصر", locale: "ar" })
+
+| السنة | اللاجئون | النوع | الحد الأدنى 80% | الحد الأعلى 80% | الحد الأدنى 95% | الحد الأعلى 95% |
+| 2025 | 220,033 | فعلي | — | — | — | — |
+| 2026 | 246,280 | متوقَّع | 200,965 | 291,596 | 170,549 | 322,011 |
+_رُصد انقطاع هيكلي في 2023، والخط مُلاءَم عبره. يمكن تمرير since_break: true._
+```
 
 ### top_host_countries
 
@@ -178,9 +262,12 @@ silently dropped.
 
 ### generate_chart
 
-`countries` (1–5) · `metric` · `role` · `normalize_by` · `format` (`chartjs`|`vega-lite`|`mermaid`|`svg`) · `kind` (`line`|`bar`) · `year_from` · `year_to`
+`countries` (1–5) · `metric` · `role` · `normalize_by` · `format` (`chartjs`|`vega-lite`|`mermaid`|`svg`) · `kind` (`line`|`bar`) · `show_changepoints` · `year_from` · `year_to`
 → `{ format, title, unit, spec }` — object for chartjs/vega-lite, string for mermaid/svg.
 With `normalize_by`, the y-axis and title carry the unit (e.g. "refugees per 1,000 residents").
+`show_changepoints: true` adds a dashed marker at each detected structural
+break per series (SVG, Vega-Lite; Chart.js via `chartjs-plugin-annotation`;
+ignored by Mermaid).
 
 ### generate_map
 

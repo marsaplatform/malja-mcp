@@ -22,6 +22,7 @@ const EXPECTED_TOOLS = [
   'latest_statistics',
   'asylum_applications',
   'asylum_decisions',
+  'durable_solutions',
   'conflict_events',
   'food_security',
   'humanitarian_funding',

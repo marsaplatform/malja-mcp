@@ -129,6 +129,31 @@ export const ar: Messages = {
     recognitionNote: (citation: string, producer: string) =>
       `_معدل الاعتراف = (قرارات الاعتراف + الحماية التكميلية) ÷ القرارات الموضوعية. المصدر: ${producer ? `${producer} — ` : ''}${citation}_`,
   },
+  solutions: {
+    heading: (name: string, side: string, range: string) =>
+      `الحلول الدائمة — **${name}**${side}، ${range}`,
+    headers: [
+      'السنة',
+      'عودة اللاجئين',
+      'إعادة التوطين',
+      'التجنّس',
+      'عودة النازحين داخلياً',
+      'إجمالي الحلول',
+    ],
+    normalizedHeader: (unit: string) => `الإجمالي ${unit}`,
+    periodTotal: 'إجمالي الفترة',
+    noData: (name: string, side: string, range: string) =>
+      `لا تتوفر بيانات عن الحلول الدائمة في ${name}${side} (${range}). لا تُبلغ المفوضية عن العودة وإعادة التوطين والتجنّس إلا حيث حدثت — جرّب role="origin" أو نطاقاً أوسع من السنوات.`,
+    perspective: {
+      origin: (name: string) =>
+        `_منظور بلد المنشأ: اللاجئون العائدون إلى ${name}، ومواطنو ${name} الذين أُعيد توطينهم أو تجنّسوا في الخارج، وعودة النازحين داخلياً في ${name}._`,
+      asylum: (name: string) =>
+        `_منظور بلد اللجوء: اللاجئون الذين غادروا ${name} عائدين إلى بلدانهم، والأشخاص الذين أُعيد توطينهم في ${name} أو تجنّسوا فيها، وعودة النازحين داخلياً في ${name}._`,
+    },
+    mixLine: (items: string) => `**توزيع الحلول خلال الفترة:** ${items}`,
+    flowNote:
+      '_الحلول الدائمة تدفقات مسجّلة خلال كل سنة وليست أرصدة في نهاية العام، لذا يصحّ جمعها عبر السنوات (بخلاف refugee_population). تعني العلامة «—» أن المفوضية لم تُبلغ عن قيمة، وهذا لا يعني الصفر._',
+  },
   trend: {
     noData: (metric: string, name: string, side: string, range: string) =>
       `لا توجد بيانات عن مؤشر «${metric}» في ${name}${side} للفترة ${range}.`,
@@ -147,6 +172,12 @@ export const ar: Messages = {
       `**الاتجاه العام:** ${direction} (${slope} سنوياً، R²=${r2})`,
     cagrLine: (cagr: string) => `**معدل النمو السنوي المركّب:** ${cagr}`,
     anomaliesLine: (text: string) => `**سنوات شاذة إحصائياً:** ${text}`,
+    changepointsLine: (text: string) => `**نقاط التحوّل (الانقطاعات الهيكلية):** ${text}`,
+    changepoint: (year: string, shift: string, slopeBefore: string, slopeAfter: string) =>
+      `${year} (قفزة ${shift} مقارنةً بالاتجاه السابق؛ الميل من ${slopeBefore} إلى ${slopeAfter} سنوياً)`,
+    noChangepoints: 'لم تُرصد أي نقطة تحوّل',
+    changepointMethod:
+      '_نقاط التحوّل: تجزئة مثلى مُعاقَبة (التقسيم الأمثل) بدالة تكلفة خطية مجزّأة، وعقوبة من نوع BIC، وتقدير متين للضوضاء (MAD)، وبحد أدنى 3 سنوات لكل مقطع — لذا يُؤرَّخ أي انقطاع في آخر سنتين ببداية آخر نافذة من 3 سنوات على الأكثر؛ راجع درجات z للسنوات الأخيرة. هذه انقطاعات مرشّحة تحتاج إلى تفسير (مثلاً عبر situation_reports)، وليست دليلاً قاطعاً._',
   },
   forecast: {
     notEnough: (metric: string, name: string, found: string) =>
@@ -157,6 +188,19 @@ export const ar: Messages = {
     observed: 'فعلي',
     projected: 'متوقَّع',
     heading: (metric: string, name: string) => `الإسقاط — **${metric}**، ${name}`,
+    intervalHeaders: ['الحد الأدنى 80%', 'الحد الأعلى 80%', 'الحد الأدنى 95%', 'الحد الأعلى 95%'],
+    intervalNote:
+      '_فترات التنبؤ (80% و95%) مشتقة من ملاءمة المربعات الصغرى (توزيع t لستيودنت بدرجات حرية n−2). وهي تفترض نموذج الخط المستقيم واستقلال البواقي، ولا تغطي إلا التذبذب المعتاد من سنة إلى أخرى — لا الصدمات كاندلاع نزاع جديد، لذا فإن عدم اليقين الفعلي أكبر._',
+    fitWindow: (range: string) => `_الملاءمة على الفترة: ${range}._`,
+    breakAcross: (year: string) =>
+      `_رُصد انقطاع هيكلي في ${year}، والخط مُلاءَم عبره. يمكن تمرير since_break: true._`,
+    breakSince: (year: string) =>
+      `_رُصد انقطاع هيكلي في ${year}، والخط مُلاءَم على البيانات اللاحقة له فقط._`,
+    chartTitle: (metric: string, name: string, source: string) =>
+      `${metric} — ${name}: القيم الفعلية والمتوقَّعة — ${source}`,
+    observedSeries: (name: string) => `${name} (فعلي)`,
+    projectedSeries: (name: string) => `${name} (متوقَّع)`,
+    band: (level: string) => `فترة التنبؤ ${level}`,
   },
   ranking: {
     noLatestYear: 'تعذّر تحديد آخر سنة تتوفر عنها بيانات.',
@@ -223,6 +267,8 @@ export const ar: Messages = {
     ) =>
       `خريطة GeoJSON — ${by === 'asylum' ? 'البلدان المضيفة' : 'بلدان المنشأ'} الأعلى حسب مؤشر «${metric}» (العدد: ${count})، ${year} (عدد المعالم: ${features}${skipped ? `؛ بلا إحداثيات مركزية: ${skipped}` : ''})`,
     refugeesHostedIn: (name: string) => `اللاجئون المستضافون في ${name}`,
+    breakMarker: (year: string) => `تحوّل ${year}`,
+    breakMarkerFor: (name: string, year: string) => `${name}: تحوّل ${year}`,
     millions: (v: string) => `${v} مليون`,
     thousands: (v: string) => `${v} ألف`,
   },
@@ -334,6 +380,9 @@ export const ar: Messages = {
       returned_refugees: 'اللاجئون الذين عادوا خلال العام.',
       idps: 'النازحون داخلياً (المشمولون بحماية المفوضية).',
       returned_idps: 'النازحون داخلياً الذين عادوا خلال العام.',
+      resettlement:
+        'اللاجئون الذين أُعيد توطينهم في بلد ثالث خلال العام (تدفق). في منظور بلد اللجوء: بلد إعادة التوطين.',
+      naturalisation: 'اللاجئون الذين اكتسبوا جنسية بلد اللجوء خلال العام (تدفق).',
       stateless: 'الأشخاص الذين لا يحملون جنسية معترفاً بها.',
       ooc: 'فئات أخرى مشمولة باهتمام المفوضية.',
       oip: 'أشخاص آخرون بحاجة إلى حماية دولية.',
@@ -375,6 +424,8 @@ export const ar: Messages = {
       demographics: 'إجمالي الأشخاص المشمولين بالتوزيع حسب العمر والجنس.',
       'asylum-applications': 'طلبات اللجوء المقدَّمة.',
       'asylum-decisions': 'إجمالي القرارات الموضوعية.',
+      solutions:
+        'مجموع الحلول الدائمة المسجّلة خلال العام (عودة اللاجئين + إعادة التوطين + التجنّس + عودة النازحين داخلياً) — تدفق وليس رصيداً.',
       'context-indicators': 'إجمالي السكان على المستوى الوطني (SP.POP.TOTL).',
       idps: 'النازحون داخلياً (آخر تقييم خلال العام).',
       'conflict-events': 'أحداث النزاع المسجَّلة خلال العام.',
@@ -417,6 +468,8 @@ export const ar: Messages = {
     returned_refugees: 'اللاجئون العائدون',
     idps: 'النازحون داخلياً',
     returned_idps: 'النازحون داخلياً العائدون',
+    resettlement: 'إعادة التوطين',
+    naturalisation: 'التجنّس',
     stateless: 'عديمو الجنسية',
     ooc: 'فئات أخرى مشمولة باهتمام المفوضية',
     oip: 'أشخاص آخرون بحاجة إلى حماية دولية',
@@ -451,6 +504,7 @@ export const ar: Messages = {
     demographics: 'التركيبة الديموغرافية (العمر والجنس)',
     'asylum-applications': 'طلبات اللجوء',
     'asylum-decisions': 'قرارات اللجوء',
+    solutions: 'الحلول الدائمة (العودة وإعادة التوطين والتجنّس)',
     'context-indicators': 'مؤشرات سياقية (السكان والناتج المحلي)',
     idps: 'النازحون داخلياً',
     'conflict-events': 'أحداث النزاع',

@@ -3,6 +3,7 @@ import { ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { AppContext } from '../context.js';
 import { toChartJs } from '../viz/chartjs.js';
 import { buildCountryReport } from '../tools/reports.js';
+import { fetchSolutions } from '../tools/solutions.js';
 import {
   aggregateByYear,
   currentYear,
@@ -25,6 +26,7 @@ import {
  *   country://{code}          — latest humanitarian snapshot for a country
  *   report://{code}           — full markdown situation report
  *   chart://{code}            — Chart.js config of the country's refugee trend
+ *   solutions://{code}        — 10-year durable-solution flows (returns, resettlement…)
  */
 export function registerResources(server: McpServer, ctx: AppContext): void {
   server.registerResource(
@@ -221,6 +223,43 @@ export function registerResources(server: McpServer, ctx: AppContext): void {
       return {
         contents: [
           { uri: uri.href, mimeType: 'application/json', text: JSON.stringify(config, null, 2) },
+        ],
+      };
+    },
+  );
+
+  server.registerResource(
+    'solutions',
+    new ResourceTemplate('solutions://{code}', {
+      list: undefined,
+      complete: { code: completeCountryCode },
+    }),
+    {
+      title: 'Durable solutions',
+      description:
+        'Durable-solution FLOWS for people from a country over the last 10 years (refugee returns, resettlement, naturalisation, IDP returns), e.g. solutions://SYR',
+      mimeType: 'application/json',
+    },
+    async (uri, { code }) => {
+      const ref = await resolveCountry(ctx, String(code));
+      const yearTo = currentYear();
+      const summary = await fetchSolutions(ctx, ref, 'origin', { yearFrom: yearTo - 9, yearTo });
+      const payload = {
+        country: ref.name,
+        country_code: ref.iso3,
+        role: 'origin',
+        measure: 'flow',
+        year_from: summary.yearFrom,
+        year_to: summary.yearTo,
+        years: summary.years,
+        period_totals: summary.periodTotals,
+        period_total: summary.periodTotal,
+        source: summary.source,
+        citation: summary.citation,
+      };
+      return {
+        contents: [
+          { uri: uri.href, mimeType: 'application/json', text: JSON.stringify(payload, null, 2) },
         ],
       };
     },

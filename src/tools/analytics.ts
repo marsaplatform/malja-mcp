@@ -8,13 +8,20 @@ import {
   yearFromInput,
   yearToInput,
 } from '../schemas/common.js';
+import type { Translator } from '../i18n/index.js';
 import {
   cagr,
   detectAnomalies,
-  forecastLinear,
+  detectChangepoints,
+  forecastLinearIntervals,
   linearRegression,
   yearOverYear,
 } from '../shared/stats.js';
+import type { ChangepointResult } from '../shared/stats.js';
+import { toChartJs } from '../viz/chartjs.js';
+import type { ChartSpecInput } from '../viz/series.js';
+import { toSvg } from '../viz/svg.js';
+import { toVegaLite } from '../viz/vega.js';
 import {
   aggregateByYear,
   currentYear,
@@ -47,6 +54,38 @@ async function countrySeries(
   return { ref, series: metricSeries(aggregateByYear(records), metric) };
 }
 
+const ChangepointSchema = z.object({
+  year: z.number(),
+  level_shift: z.number(),
+  slope_before: z.number(),
+  slope_after: z.number(),
+});
+
+/** Structured (English, rounded) changepoints for outputSchema payloads. */
+function changepointPayload(result: ChangepointResult) {
+  return result.changepoints.map((c) => ({
+    year: c.year,
+    level_shift: Math.round(c.levelShift),
+    slope_before: Math.round(c.slopeBefore),
+    slope_after: Math.round(c.slopeAfter),
+  }));
+}
+
+/** "2023 (jump +599,037 vs prior trend; slope +31,370 → +661,907/year)" list. */
+export function changepointText(result: ChangepointResult, tr: Translator): string {
+  if (result.changepoints.length === 0) return tr.m.trend.noChangepoints;
+  return result.changepoints
+    .map((c) =>
+      tr.m.trend.changepoint(
+        tr.year(c.year),
+        tr.signed(Math.round(c.levelShift)),
+        tr.signed(Math.round(c.slopeBefore)),
+        tr.signed(Math.round(c.slopeAfter)),
+      ),
+    )
+    .join(tr.m.meta.listSeparator);
+}
+
 export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void {
   defineTool(
     server,
@@ -55,7 +94,7 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
     {
       title: 'Trend analysis',
       description:
-        'Analyse how a displacement metric evolved for a country: yearly series, year-over-year changes, linear trend (slope, R²), CAGR and statistically anomalous years. Default: refugees hosted, last 10 years.',
+        'Analyse how a displacement metric evolved for a country: yearly series, year-over-year changes, linear trend (slope, R²), CAGR, statistically anomalous years (z-scores of yearly changes) and changepoints (structural breaks in level/slope, exact penalised segmentation). Default: refugees hosted, last 10 years — widen year_from for better changepoint power.',
       inputSchema: {
         country: countryInput,
         metric: z
@@ -87,6 +126,10 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
           cagr_pct: z.number().nullable(),
         }),
         anomalies: z.array(z.object({ year: z.number(), change: z.number(), zScore: z.number() })),
+        changepoints: z.array(ChangepointSchema),
+        segments: z.array(
+          z.object({ from: z.number(), to: z.number(), slope_per_year: z.number() }),
+        ),
         source: z.string(),
       },
     },
@@ -125,6 +168,7 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
       const regression = linearRegression(series);
       const changes = yearOverYear(series);
       const anomalies = detectAnomalies(series);
+      const breaks = detectChangepoints(series);
       const growth = cagr(series);
       const direction =
         Math.abs(regression.slope) < Math.max(1, (series.at(-1)?.value ?? 0) * 0.005)
@@ -178,6 +222,9 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
               ),
               tr.m.trend.cagrLine(growth !== null ? tr.pct(growth) : tr.m.common.na),
               tr.m.trend.anomaliesLine(anomalyText),
+              tr.m.trend.changepointsLine(changepointText(breaks, tr)),
+              '',
+              tr.m.trend.changepointMethod,
               '',
               tr.sourceLine(citation, source),
             ].join('\n'),
@@ -206,6 +253,12 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
             change: a.change,
             zScore: Math.round(a.zScore * 100) / 100,
           })),
+          changepoints: changepointPayload(breaks),
+          segments: breaks.segments.map((s) => ({
+            from: s.from,
+            to: s.to,
+            slope_per_year: Math.round(s.slope * 100) / 100,
+          })),
           source,
         },
       };
@@ -217,26 +270,52 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
     ctx,
     'forecast',
     {
-      title: 'Forecast (naive)',
+      title: 'Forecast (naive, with prediction intervals)',
       description:
-        'Naive linear projection of a displacement metric 1–5 years ahead, based on the last 10 years. This is a statistical extrapolation, NOT a UNHCR planning figure — always present it with that caveat.',
+        'Naive linear projection of a displacement metric 1–5 years ahead, based on the last 10 years, with 80% and 95% OLS prediction intervals. Structural breaks in the history are detected and reported; since_break=true fits only the data after the latest break. Optional chart (svg / chartjs / vega-lite) with the interval band. This is a statistical extrapolation, NOT a UNHCR planning figure — always present it with that caveat.',
       inputSchema: {
         country: countryInput,
         metric: z.string().optional().describe('Metric to project (default refugees)'),
         role: CountryRoleSchema.optional(),
         years_ahead: z.number().int().min(1).max(5).optional().describe('Horizon (default 3)'),
+        since_break: z
+          .boolean()
+          .optional()
+          .describe(
+            'Fit only the years since the latest detected structural break (needs ≥3 years after it). Default false.',
+          ),
+        chart: z
+          .enum(['svg', 'chartjs', 'vega-lite'])
+          .optional()
+          .describe('Also return a chart of observed + projected values with the interval band'),
       },
       outputSchema: {
         country: z.string(),
         country_code: z.string(),
         metric: z.string(),
         historical: z.array(YearValueSchema),
-        projected: z.array(YearValueSchema),
+        projected: z.array(
+          z.object({
+            year: z.number(),
+            value: z.number(),
+            lower_80: z.number(),
+            upper_80: z.number(),
+            lower_95: z.number(),
+            upper_95: z.number(),
+          }),
+        ),
+        fit_from: z.number(),
+        fit_to: z.number(),
+        changepoints: z.array(ChangepointSchema),
         method: z.string(),
+        intervals: z.string(),
         caveat: z.string(),
+        chart: z
+          .object({ format: z.string(), spec: z.union([z.record(z.unknown()), z.string()]) })
+          .optional(),
       },
     },
-    async ({ country, metric, role, years_ahead }, _extra, tr) => {
+    async ({ country, metric, role, years_ahead, since_break, chart }, _extra, tr) => {
       const chosenMetric = metric ?? 'refugees';
       const metricLabel = tr.metric(chosenMetric);
       const horizon = years_ahead ?? 3;
@@ -249,39 +328,127 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
         yearTo - 9,
         yearTo,
       );
+      const name = tr.country(ref.iso3, ref.name);
 
       if (series.length < 3) {
         return {
           content: [
             {
               type: 'text',
-              text: tr.m.forecast.notEnough(
-                metricLabel,
-                tr.country(ref.iso3, ref.name),
-                tr.num(series.length),
-              ),
+              text: tr.m.forecast.notEnough(metricLabel, name, tr.num(series.length)),
             },
           ],
           isError: true,
         };
       }
 
-      const projected = forecastLinear(series, horizon);
+      const breaks = detectChangepoints(series);
+      const lastBreak = breaks.changepoints.at(-1);
+      const sinceBreak = lastBreak ? series.filter((p) => p.year >= lastBreak.year) : [];
+      const useBreak = since_break === true && lastBreak !== undefined && sinceBreak.length >= 3;
+      const fitSeries = useBreak ? sinceBreak : series;
+      const fitFrom = fitSeries[0]!.year;
+      const fitTo = fitSeries.at(-1)!.year;
+      const projected = forecastLinearIntervals(fitSeries, horizon);
       const caveat = tr.m.forecast.caveat;
 
       const table = tr.table(
-        [tr.m.common.year, metricLabel, tr.m.forecast.type],
+        [tr.m.common.year, metricLabel, tr.m.forecast.type, ...tr.m.forecast.intervalHeaders],
         [
-          ...series.map((p) => [tr.year(p.year), p.value, tr.m.forecast.observed] as const),
-          ...projected.map((p) => [tr.year(p.year), p.value, tr.m.forecast.projected] as const),
+          ...series.map(
+            (p) =>
+              [tr.year(p.year), p.value, tr.m.forecast.observed, null, null, null, null] as const,
+          ),
+          ...projected.map(
+            (p) =>
+              [
+                tr.year(p.year),
+                p.value,
+                tr.m.forecast.projected,
+                p.lower80,
+                p.upper80,
+                p.lower95,
+                p.upper95,
+              ] as const,
+          ),
         ],
       );
+
+      const notes = [tr.m.forecast.fitWindow(tr.range(fitFrom, fitTo))];
+      if (lastBreak) {
+        notes.push(
+          useBreak
+            ? tr.m.forecast.breakSince(tr.year(lastBreak.year))
+            : tr.m.forecast.breakAcross(tr.year(lastBreak.year)),
+        );
+      }
+      notes.push(tr.m.forecast.intervalNote);
+
+      let chartPayload: { format: string; spec: Record<string, unknown> | string } | undefined;
+      let chartText = '';
+      if (chart) {
+        const { source } = await datasetProvenance(ctx, 'population');
+        const last = series.at(-1)!;
+        const anchor = { x: last.year, low: last.value, high: last.value };
+        const input: ChartSpecInput = {
+          title: tr.m.forecast.chartTitle(metricLabel, name, source.toUpperCase()),
+          kind: 'line',
+          xLabel: tr.m.common.year,
+          yLabel: metricLabel,
+          series: [
+            {
+              label: tr.m.forecast.observedSeries(name),
+              points: series.map((p) => ({ x: p.year, y: p.value })),
+            },
+            {
+              label: tr.m.forecast.projectedSeries(name),
+              dashed: true,
+              points: [
+                { x: last.year, y: last.value },
+                ...projected.map((p) => ({ x: p.year, y: p.value })),
+              ],
+            },
+          ],
+          bands: [
+            {
+              label: tr.m.forecast.band(tr.pct(95, 0)),
+              points: [
+                anchor,
+                ...projected.map((p) => ({ x: p.year, low: p.lower95, high: p.upper95 })),
+              ],
+            },
+            {
+              label: tr.m.forecast.band(tr.pct(80, 0)),
+              points: [
+                anchor,
+                ...projected.map((p) => ({ x: p.year, low: p.lower80, high: p.upper80 })),
+              ],
+            },
+          ],
+          markers: breaks.changepoints.map((c) => ({
+            x: c.year,
+            label: tr.m.charts.breakMarker(tr.year(c.year)),
+          })),
+          ...tr.chartOptions(),
+        };
+        const spec =
+          chart === 'svg'
+            ? toSvg(input)
+            : chart === 'chartjs'
+              ? toChartJs(input)
+              : toVegaLite(input);
+        chartPayload = { format: chart, spec };
+        chartText =
+          typeof spec === 'string'
+            ? `\n\n${tr.m.charts.svgIntro(input.title)}\n\n\`\`\`svg\n${spec}\n\`\`\``
+            : `\n\n${chart === 'chartjs' ? tr.m.charts.chartjsIntro(input.title) : tr.m.charts.vegaIntro(input.title)}\n\n\`\`\`json\n${JSON.stringify(spec, null, 2)}\n\`\`\``;
+      }
 
       return {
         content: [
           {
             type: 'text',
-            text: `${tr.m.forecast.heading(metricLabel, tr.country(ref.iso3, ref.name))}\n\n${table}\n\n⚠️ ${caveat}`,
+            text: `${tr.m.forecast.heading(metricLabel, name)}\n\n${table}\n\n${notes.join('\n')}\n\n⚠️ ${caveat}${chartText}`,
           },
         ],
         structuredContent: {
@@ -289,9 +456,24 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
           country_code: ref.iso3,
           metric: chosenMetric,
           historical: series,
-          projected,
-          method: 'ordinary least squares over the last 10 observed years',
+          projected: projected.map((p) => ({
+            year: p.year,
+            value: p.value,
+            lower_80: p.lower80,
+            upper_80: p.upper80,
+            lower_95: p.lower95,
+            upper_95: p.upper95,
+          })),
+          fit_from: fitFrom,
+          fit_to: fitTo,
+          changepoints: changepointPayload(breaks),
+          method: useBreak
+            ? `ordinary least squares on ${fitFrom}–${fitTo} (since the latest structural break)`
+            : 'ordinary least squares over the last 10 observed years',
+          intervals:
+            'OLS prediction intervals, Student-t with n-2 degrees of freedom (80% and 95%); lower bounds floored at 0',
           caveat,
+          ...(chartPayload ? { chart: chartPayload } : {}),
         },
       };
     },

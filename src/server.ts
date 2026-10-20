@@ -5,7 +5,7 @@ import { registerPrompts } from './prompts/index.js';
 import { registerResources } from './resources/index.js';
 import { registerTools } from './tools/index.js';
 
-const INSTRUCTIONS = `Malja MCP exposes trusted humanitarian open data through semantic tools. Depending on configuration it serves: UNHCR refugee statistics (displacement, demographics, asylum), World Bank context indicators (national population, GDP — the denominators behind normalize_by per-capita views), HDX/HAPI crisis data (ACLED conflict events, IPC food security, OCHA FTS funding) and ReliefWeb situation reports (narrative context).
+const INSTRUCTIONS = `Malja MCP exposes trusted humanitarian open data through semantic tools. Depending on configuration it serves: UNHCR refugee statistics (displacement, demographics, asylum, durable solutions), World Bank context indicators (national population, GDP — the denominators behind normalize_by per-capita views), HDX/HAPI crisis data (ACLED conflict events, IPC food security, OCHA FTS funding) and ReliefWeb situation reports (narrative context).
 
 Conventions:
 - Call get_metadata first to learn which providers and datasets are actually enabled.

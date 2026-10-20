@@ -33,7 +33,7 @@ export interface UnhcrCountryRaw {
 }
 
 export type UnhcrDataEndpoint =
-  'population' | 'demographics' | 'asylum-applications' | 'asylum-decisions';
+  'population' | 'demographics' | 'asylum-applications' | 'asylum-decisions' | 'solutions';
 
 export interface UnhcrDataParams {
   /** UNHCR country code(s) of origin. */
@@ -65,7 +65,7 @@ export class UnhcrClient {
     return envelope.items;
   }
 
-  /** Query one of the four statistical endpoints. */
+  /** Query one of the statistical endpoints. */
   data(endpoint: UnhcrDataEndpoint, params: UnhcrDataParams): Promise<UnhcrEnvelope<unknown>> {
     const search = new URLSearchParams();
     if (params.coo) search.set('coo', params.coo);
