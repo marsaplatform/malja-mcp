@@ -123,6 +123,34 @@ export class MockProvider implements HumanitarianProvider {
           origin_code: 'SYR',
         }));
       }
+    } else if (query.dataset === 'solutions') {
+      // Flows: deterministic per year; resettlement only reported on the origin
+      // side, "-" (absent) in 2016 to exercise not-reported vs zero.
+      const iso3 = (query.asylum_iso3 ?? query.origin_iso3)?.toUpperCase();
+      const country = COUNTRIES.find((c) => c.iso3 === iso3);
+      if (country) {
+        for (let year = yearFrom; year <= yearTo; year++) {
+          const metrics: Record<string, number> = {
+            returned_refugees: 1_000 * (year - 2014),
+            naturalisation: 100,
+          };
+          if (query.origin_iso3 && year !== 2016) metrics['resettlement'] = 500;
+          if (query.origin_iso3) metrics['returned_idps'] = 2_000;
+          records.push({
+            country: country.name,
+            country_code: country.iso3,
+            ...(query.origin_iso3
+              ? { origin: country.name, origin_code: country.iso3 }
+              : { asylum: country.name, asylum_code: country.iso3 }),
+            year,
+            population: Object.values(metrics).reduce((s, v) => s + v, 0),
+            metrics,
+            source: 'mock',
+            last_updated: '2026-01-01T00:00:00.000Z',
+            dataset: 'solutions',
+          });
+        }
+      }
     } else if (query.dataset === 'context-indicators') {
       const iso3 = (query.asylum_iso3 ?? query.origin_iso3)?.toUpperCase();
       const subjects = iso3 ? COUNTRIES.filter((c) => c.iso3 === iso3) : COUNTRIES;
@@ -310,6 +338,7 @@ export class MockProvider implements HumanitarianProvider {
           'demographics',
           'asylum-applications',
           'asylum-decisions',
+          'solutions',
           'context-indicators',
           'conflict-events',
           'humanitarian-funding',
