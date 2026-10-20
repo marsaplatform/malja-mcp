@@ -78,52 +78,55 @@ Three invariants hold everywhere: **(1)** nothing provider-specific leaks outsid
 
 ## Two ways to use it
 
-> **TL;DR** — researchers and organizations who care about control: self-host. Everyone who just wants answers: use the hosted endpoint.
+> **Today:** self-host (stdio on your machine, or HTTP in a container). **Hosted endpoint:** coming soon — there is no public Malja URL yet, so nothing below points at one.
 
-|                     | 🖥️ **Self-hosted**                                                      | ☁️ **Hosted endpoint**                                                                    |
-| ------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Setup               | Install Node/Docker, run the server                                     | **None** — paste one URL                                                                  |
-| Who runs it         | You, on your machine or infra                                           | Maintainer-operated at `malja-mcp.example.com`                                            |
-| Privacy             | Queries never leave your machine (except to the public data APIs)       | Queries pass through the hosted server                                                    |
-| Offline / fieldwork | ✅ full offline mode with a warmed cache                                | ❌ needs internet                                                                         |
-| Configuration       | Every knob: providers, cache, rate limits                               | Fixed server-side                                                                         |
-| Updates             | You pull releases                                                       | Updated for you (caching, normalization, rate limiting, source fixes, monitoring handled) |
-| Version             | Always the latest release                                               | Rolling; may briefly lag the newest release — check `/api/status`                         |
-| Guarantees          | Yours to make                                                           | Best-effort community service, no SLA today                                               |
-| Cost                | Free (MIT)                                                              | Free today; free and paid plans **may** be introduced later                               |
-| Best for            | Researchers, NGOs with data policies, enterprises, air-gapped fieldwork | Quick starts, demos, journalists, students                                                |
+|                     | 🖥️ **Self-hosted** (available now)                                      | ☁️ **Hosted endpoint** (coming soon)         |
+| ------------------- | ----------------------------------------------------------------------- | -------------------------------------------- |
+| Setup               | Install Node/Docker, run the server                                     | None — paste one URL (once launched)         |
+| Privacy             | Queries never leave your machine (except to the public data APIs)       | Queries would pass through the hosted server |
+| Offline / fieldwork | ✅ full offline mode with a warmed cache                                | ❌ needs internet                            |
+| Configuration       | Every knob: providers, cache, rate limits                               | Fixed server-side                            |
+| Best for            | Researchers, NGOs with data policies, enterprises, air-gapped fieldwork | Quick starts, demos, journalists, students   |
 
-### Mode 1 — Self-hosted
+### Connect a self-hosted server
 
-You install and run the server yourself. You own everything: the process, the cache, the configuration. Your MCP client talks to it over stdio (desktop) or HTTP (remote/containers). Full instructions in [Installation](#installation) below.
+Build once (see [Installation](#installation)), then:
 
-```jsonc
-// Claude Desktop — claude_desktop_config.json
+**Claude Desktop** — `claude_desktop_config.json`
+
+```json
 {
   "mcpServers": {
     "malja": {
       "command": "node",
-      "args": ["/absolute/path/to/malja-mcp/dist/index.js"],
-    },
-  },
+      "args": ["/absolute/path/to/malja-mcp/dist/index.js"]
+    }
+  }
 }
 ```
 
-### Mode 2 — Hosted endpoint
+**Cursor** — `~/.cursor/mcp.json` (same `mcpServers` block as above)
 
-> **TODO (Malja MCP):** the hosted Malja endpoint is not live yet. `malja-mcp.example.com` below is a placeholder — replace it with the real URL once deployed.
+**Claude Code**
 
-No infrastructure. Connect any Streamable-HTTP-capable MCP client to:
-
-```
-https://malja-mcp.example.com/mcp
+```bash
+claude mcp add malja -- node /absolute/path/to/malja-mcp/dist/index.js
 ```
 
-- **claude.ai / Claude Desktop (remote connector):** add a custom connector with that URL.
-- **Claude Code:** `claude mcp add --transport http malja https://malja-mcp.example.com/mcp`
-- **Anything that speaks HTTP:** see [examples/http-client.md](examples/http-client.md) — the endpoint is stateless JSON-RPC, no session juggling.
+**Over HTTP (Docker / a server you run):** `docker compose up -d --build`, then point any Streamable-HTTP client at
+`http://<your-host>:8642/mcp` — e.g. `claude mcp add --transport http malja http://localhost:8642/mcp`.
+Keep it behind your reverse proxy/VPN: it is read-only but unauthenticated by design.
 
-No API key is required today. The service is operated on a best-effort basis by the maintainer; free and paid tiers may be introduced in the future — nothing beyond what you see here is promised. If you need guarantees, self-host: it is the same code.
+### بالعربية — بداية سريعة
+
+ملجأ خادم MCP مفتوح المصدر يمنح مساعدك الذكي وصولًا للقراءة فقط إلى بيانات المفوضية (UNHCR) والبنك الدولي وHDX وReliefWeb، مع مصدر مرفق بكل نتيجة، ويفهم أسماء الدول بالعربية («مصر»، «الأردن»، «السودان»).
+
+- **الآن:** شغّله ذاتيًا: `git clone` ثم `npm install && npm run build`، وأضف `node /absolute/path/to/malja-mcp/dist/index.js` إلى Claude Desktop أو Cursor بالإعداد أعلاه، أو في Claude Code: `claude mcp add malja -- node /absolute/path/to/malja-mcp/dist/index.js`.
+- **عبر Docker:** `docker compose up -d --build` ثم `http://localhost:8642/mcp`.
+- **النسخة المستضافة:** قريبًا. لا يوجد رابط عام بعد.
+- جرّب أن تسأل: «قارن بين عدد اللاجئين في مصر والأردن خلال آخر خمس سنوات مع المصادر».
+
+صفحة المشروع: <https://spaces.marsaplatform.com/s/k3sb9ww3dj/>
 
 ## Features
 
@@ -222,6 +225,8 @@ claude mcp add malja -- npx -y malja-mcp
 ```
 
 ### Claude Desktop — one click (no terminal)
+
+> **Note:** no release has been published yet; the `.mcpb` bundle appears on the Releases page once releases are enabled. Until then use the source install below.
 
 Download **`malja-mcp.mcpb`** from the [latest release](https://github.com/marsaplatform/malja-mcp/releases/latest) and double-click it. Done.
 
@@ -353,16 +358,16 @@ used to exhaust the upstream quotas all providers share.
 
 ## Repository tour
 
-| Path                                                        | What lives there                                                                                                                                                                                                                                                                                                                                              |
-| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`src/`](src/)                                              | The server. `providers/` (one directory per data source — the only place provider quirks may exist), `tools/`, `resources/`, `prompts/`, `shared/` (HTTP, cache, rate limiting, stats, country matching), `viz/`, `http/` (Streamable HTTP + dashboard)                                                                                                       |
-| [`docs/`](docs/)                                            | [tools.md](docs/tools.md) (tool reference) · [architecture.md](docs/architecture.md) · [for-researchers.md](docs/for-researchers.md) · [how-mcp-works.md](docs/how-mcp-works.md) (MCP primer) · [adding-providers.md](docs/adding-providers.md) · [development.md](docs/development.md) · `index.html` (Arabic landing page, served at malja-mcp.example.com) |
-| [`examples/`](examples/)                                    | Client configs, worked conversations with tool traces, HTTP client recipes, runnable [Python/R notebooks](examples/notebooks/)                                                                                                                                                                                                                                |
-| [`tests/`](tests/)                                          | 259 tests: MCP compliance suite (official SDK client ↔ real server), fixture-based provider suites (no network), unit tests                                                                                                                                                                                                                                   |
-| [`paper/`](paper/)                                          | JOSS paper draft (`paper.md` + `paper.bib`)                                                                                                                                                                                                                                                                                                                   |
-| [`marketing/`](marketing/)                                  | Launch kit: platform-native announcement drafts                                                                                                                                                                                                                                                                                                               |
-| [`Dockerfile`](Dockerfile) / [`compose.yaml`](compose.yaml) | Organizational self-hosting (image published to GHCR on every release)                                                                                                                                                                                                                                                                                        |
-| [`.github/`](.github/)                                      | CI (Node 20/22/24), release automation (npm + `.mcpb` + Docker on tag), issue templates incl. a provider-request template                                                                                                                                                                                                                                     |
+| Path                                                        | What lives there                                                                                                                                                                                                                                                                                                             |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`src/`](src/)                                              | The server. `providers/` (one directory per data source — the only place provider quirks may exist), `tools/`, `resources/`, `prompts/`, `shared/` (HTTP, cache, rate limiting, stats, country matching), `viz/`, `http/` (Streamable HTTP + dashboard)                                                                      |
+| [`docs/`](docs/)                                            | [tools.md](docs/tools.md) (tool reference) · [architecture.md](docs/architecture.md) · [for-researchers.md](docs/for-researchers.md) · [how-mcp-works.md](docs/how-mcp-works.md) (MCP primer) · [adding-providers.md](docs/adding-providers.md) · [development.md](docs/development.md) · `index.html` (Arabic landing page) |
+| [`examples/`](examples/)                                    | Client configs, worked conversations with tool traces, HTTP client recipes, runnable [Python/R notebooks](examples/notebooks/)                                                                                                                                                                                               |
+| [`tests/`](tests/)                                          | 259 tests: MCP compliance suite (official SDK client ↔ real server), fixture-based provider suites (no network), unit tests                                                                                                                                                                                                  |
+| [`paper/`](paper/)                                          | JOSS paper draft (`paper.md` + `paper.bib`)                                                                                                                                                                                                                                                                                  |
+| [`marketing/`](marketing/)                                  | Launch kit: platform-native announcement drafts                                                                                                                                                                                                                                                                              |
+| [`Dockerfile`](Dockerfile) / [`compose.yaml`](compose.yaml) | Organizational self-hosting (image published to GHCR on every release)                                                                                                                                                                                                                                                       |
+| [`.github/`](.github/)                                      | CI (Node 20/22/24), release automation (npm + `.mcpb` + Docker on tag), issue templates incl. a provider-request template                                                                                                                                                                                                    |
 
 ## Development
 
@@ -529,6 +534,16 @@ Yes — that's what the Docker image and compose file are for. MIT license, comm
 
 No. Everything is aggregate national statistics from public sources. Still: these numbers represent people — present them with the care they deserve (see [Data & responsibility](#data-attribution--responsibility)).
 </details>
+
+## Sibling Marsa projects · مشاريع مرسى الشقيقة
+
+| Project                        | What                                                                                                             | Link                                                                                            |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| **Atlas MCP · أطلس**           | Source-cited migration & asylum services, organizations and legal references for Egypt (21 tools, no key)        | <https://atlas.marsaplatform.com/mcp> · [GitHub](https://github.com/marsaplatform/atlas-mcp)    |
+| **ERX · مرصد مصر البحثي**      | Egypt Research Commons: source-grounded research archive + MCP for Egyptian public affairs (free key for hosted) | <https://egypt-research.marsaplatform.com> · [GitHub](https://github.com/marsaplatform/erx-mcp) |
+| **Marsa Spaces · مساحات مرسى** | Static publishing with expiring/permanent links and a per-space MCP server (`/mcp/s/<id>`)                       | <https://spaces.marsaplatform.com> · [GitHub](https://github.com/marsaplatform/marsa)           |
+
+All projects: <https://marsaplatform.com/products>.
 
 ## Contributing
 
