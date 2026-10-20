@@ -171,64 +171,10 @@ export function detectEvents(
       }
     }
 
-    // Period comparison: latest year vs the year before.
     const last = series.at(-1);
-    const prev = series.at(-2);
-    if (!last || last.year !== latest || !prev || prev.year !== latest - 1) continue;
-    const change = last.value - prev.value;
-    const pct = pctChange(prev.value, last.value);
-    const z = robustChangeZ(series);
+    if (!last || last.year !== latest) continue;
 
-    // 3. Significant jump.
-    const bigEnough = Math.abs(change) >= options.minChange;
-    const fromZero = prev.value === 0 && last.value > 0;
-    const pctJump = pct !== null && Math.abs(pct) >= options.jumpThresholdPct;
-    const unusual = z !== null && Math.abs(z) >= ROBUST_Z_UNUSUAL;
-    if (bigEnough && (fromZero || pctJump || unusual)) {
-      events.push({
-        id: id('jump', metric, last.year),
-        type: 'jump',
-        severity:
-          fromZero || (pct !== null && Math.abs(pct) >= 2 * options.jumpThresholdPct)
-            ? 'warning'
-            : 'notice',
-        metric,
-        year: last.year,
-        baseline_year: prev.year,
-        previous: prev.value,
-        current: last.value,
-        change,
-        change_pct: pct,
-        robust_z: z,
-        direction: change >= 0 ? 'up' : 'down',
-      });
-    }
-
-    // 4. Threshold crossings.
-    for (const rule of options.thresholds) {
-      if (rule.metric !== metric) continue;
-      const up = prev.value < rule.value && last.value >= rule.value;
-      const down = prev.value >= rule.value && last.value < rule.value;
-      const dir = rule.direction ?? 'any';
-      if ((up && dir !== 'down') || (down && dir !== 'up')) {
-        events.push({
-          id: id('threshold', metric, rule.value, up ? 'up' : 'down', last.year),
-          type: 'threshold_crossing',
-          severity: 'warning',
-          metric,
-          year: last.year,
-          baseline_year: prev.year,
-          previous: prev.value,
-          current: last.value,
-          change,
-          change_pct: pct,
-          threshold: rule.value,
-          direction: up ? 'up' : 'down',
-        });
-      }
-    }
-
-    // 5. Records within the monitored window.
+    // 3. Records within the monitored window.
     const earlier = series.slice(0, -1).map((p) => p.value);
     if (earlier.length >= MIN_HISTORY) {
       const max = Math.max(...earlier);
@@ -257,6 +203,62 @@ export function detectEvents(
           type: 'record_low',
           previous: min,
         });
+    }
+
+    // Period comparison: latest year vs the year before.
+    const prev = series.at(-2);
+    if (!prev || prev.year !== latest - 1) continue;
+    const change = last.value - prev.value;
+    const pct = pctChange(prev.value, last.value);
+    const z = robustChangeZ(series);
+
+    // 4. Significant jump.
+    const bigEnough = Math.abs(change) >= options.minChange;
+    const fromZero = prev.value === 0 && last.value > 0;
+    const pctJump = pct !== null && Math.abs(pct) >= options.jumpThresholdPct;
+    const unusual = z !== null && Math.abs(z) >= ROBUST_Z_UNUSUAL;
+    if (bigEnough && (fromZero || pctJump || unusual)) {
+      events.push({
+        id: id('jump', metric, last.year),
+        type: 'jump',
+        severity:
+          fromZero || (pct !== null && Math.abs(pct) >= 2 * options.jumpThresholdPct)
+            ? 'warning'
+            : 'notice',
+        metric,
+        year: last.year,
+        baseline_year: prev.year,
+        previous: prev.value,
+        current: last.value,
+        change,
+        change_pct: pct,
+        robust_z: z,
+        direction: change >= 0 ? 'up' : 'down',
+      });
+    }
+
+    // 5. Threshold crossings.
+    for (const rule of options.thresholds) {
+      if (rule.metric !== metric) continue;
+      const up = prev.value < rule.value && last.value >= rule.value;
+      const down = prev.value >= rule.value && last.value < rule.value;
+      const dir = rule.direction ?? 'any';
+      if ((up && dir !== 'down') || (down && dir !== 'up')) {
+        events.push({
+          id: id('threshold', metric, rule.value, up ? 'up' : 'down', last.year),
+          type: 'threshold_crossing',
+          severity: 'warning',
+          metric,
+          year: last.year,
+          baseline_year: prev.year,
+          previous: prev.value,
+          current: last.value,
+          change,
+          change_pct: pct,
+          threshold: rule.value,
+          direction: up ? 'up' : 'down',
+        });
+      }
     }
   }
 

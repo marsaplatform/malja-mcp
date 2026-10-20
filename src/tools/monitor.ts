@@ -252,8 +252,11 @@ export function registerMonitorTools(server: McpServer, ctx: AppContext): void {
         const present = aggregates.some((a) => metric in a.metrics);
         const nonZero = aggregates.some((a) => (a.metrics[metric] ?? 0) !== 0);
         if (!present || (!requested && !nonZero)) continue;
+        // Unreported cells ("-" upstream) are absent, not zero: skip those years.
         values[metric] = Object.fromEntries(
-          aggregates.map((a) => [String(a.year), a.metrics[metric] ?? 0]),
+          aggregates
+            .filter((a) => metric in a.metrics)
+            .map((a) => [String(a.year), a.metrics[metric]!]),
         );
       }
 

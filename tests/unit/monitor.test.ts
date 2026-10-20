@@ -113,6 +113,16 @@ describe('detectEvents', () => {
   });
 });
 
+describe('detectEvents gaps', () => {
+  it('records do not need the previous year; YoY checks do', () => {
+    const values: MetricValues = {
+      refugees: { '2018': 10_000, '2019': 11_000, '2020': 12_000, '2021': 13_000, '2023': 40_000 },
+    };
+    const events = detectEvents(values, undefined, opts);
+    expect(events.map((e) => e.type)).toEqual(['record_high']);
+  });
+});
+
 describe('helpers', () => {
   it('robustChangeZ needs history and variation', () => {
     expect(robustChangeZ([1, 2, 3].map((v, i) => ({ year: 2000 + i, value: v })))).toBeNull();

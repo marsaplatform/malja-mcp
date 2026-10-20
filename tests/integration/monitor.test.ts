@@ -39,10 +39,11 @@ type Structured = {
 const FIXTURES = join(import.meta.dirname, '..', 'fixtures', 'unhcr');
 const fixture = (name: string) => readFileSync(join(FIXTURES, name), 'utf8');
 
-function stubUnhcr() {
+function stubUnhcr(mutate: (item: Record<string, unknown>) => void = () => {}) {
   const population = JSON.parse(fixture('population-sudan-2016-2025.json')) as {
-    items: { year: number }[];
+    items: ({ year: number } & Record<string, unknown>)[];
   };
+  population.items.forEach(mutate);
   vi.stubGlobal('fetch', (async (input: Parameters<typeof fetch>[0]) => {
     const url = new URL(String(input));
     let body: unknown = { page: 1, maxPages: 0, total: [], items: [] };
@@ -204,6 +205,26 @@ describe('monitor_changes (UNHCR fixtures, Sudan)', () => {
       'النازحون داخلياً — عُدِّلت أرقام عام 2024 من 11,400,000 إلى 11,559,970',
     );
     expect(structured.summary.has_alerts).toBe(true);
+  });
+
+  it('treats unreported ("-") cells as missing, not zero', async () => {
+    stubUnhcr((item) => {
+      if (item.year === 2024) item['idps'] = '-';
+    });
+    const call = await connect(unhcrContext());
+    const { structured } = await call({
+      country: 'Sudan',
+      thresholds: [{ metric: 'idps', value: 10_000_000 }],
+    });
+    expect(structured.metrics.find((m) => m.metric === 'idps')).toMatchObject({
+      previous: null,
+      latest: 9_139_309,
+      change: null,
+    });
+    // No jump or crossing against a fabricated 0; only the record among reported years.
+    expect(structured.events.filter((e) => e.metric === 'idps').map((e) => e.type)).toEqual([
+      'record_high',
+    ]);
   });
 
   it('rejects a snapshot of another series', async () => {
