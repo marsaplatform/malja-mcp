@@ -61,8 +61,10 @@ export function embeddedFontFaces(): string {
       // Font files missing (unusual install): fall back to system fonts.
     }
   }
-  fontFaceCache = faces.join('\n');
-  return fontFaceCache;
+  // Cache only a complete result, so a transient read failure is retried.
+  const css = faces.join('\n');
+  if (faces.length === 2) fontFaceCache = css;
+  return css;
 }
 
 const STYLES = `

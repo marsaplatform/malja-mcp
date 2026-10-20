@@ -36,8 +36,8 @@ afterEach(async () => {
   while (closers.length) await closers.pop()!();
 });
 
-async function connect(env: NodeJS.ProcessEnv = {}) {
-  const server = createServer(buildTestContext(undefined, env));
+async function connect(env: NodeJS.ProcessEnv = {}, ctx = buildTestContext(undefined, env)) {
+  const server = createServer(ctx);
   const client = new Client({ name: 'export-suite', version: '1.0.0' });
   const [c, s] = InMemoryTransport.createLinkedPair();
   await Promise.all([server.connect(s), client.connect(c)]);
@@ -143,6 +143,25 @@ describe('export_report — HTML', () => {
     expect(html).not.toContain('<svg onload');
     expect(html).toContain('<td class="num">1,000</td>');
     expect(html).toContain('dir="rtl"');
+  });
+
+  it('export links survive across per-request servers sharing a context (HTTP mode)', async () => {
+    const ctx = buildTestContext();
+    const first = await connect({}, ctx);
+    const { structured } = await exportReport(first, { country: 'Egypt' });
+    const second = await connect({}, ctx);
+    expect(await readText(second, structured.uri)).toContain('<!doctype html>');
+  });
+
+  it('an empty country does not make client markdown trusted', async () => {
+    const client = await connect();
+    const { structured } = await exportReport(client, {
+      country: '  ',
+      markdown: '# T\n\n```svg\n<svg onload="alert(1)"></svg>\n```',
+    });
+    const html = await readText(client, structured.uri);
+    expect(html).not.toContain('<svg onload');
+    expect(structured.manifest).toMatchObject({ content_sha256: expect.any(String) });
   });
 
   it('embeds the document when inline: true', async () => {

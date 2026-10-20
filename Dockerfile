@@ -23,6 +23,7 @@ ENV NODE_ENV=production \
 WORKDIR /app
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
+COPY assets/fonts ./assets/fonts
 COPY package.json LICENSE README.md ./
 RUN mkdir -p /data && chown -R node:node /data /app
 USER node

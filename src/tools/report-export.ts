@@ -75,8 +75,24 @@ function manifestRows(manifest: ExtractionManifest & { content_sha256?: string }
   return rows;
 }
 
+/**
+ * One store per application context, not per McpServer: Streamable HTTP builds
+ * a fresh server for every request, and the `export://` link returned by one
+ * request must still resolve on the next.
+ */
+const STORES = new WeakMap<AppContext, ExportStore>();
+
+function storeFor(ctx: AppContext): ExportStore {
+  let store = STORES.get(ctx);
+  if (!store) {
+    store = new ExportStore();
+    STORES.set(ctx, store);
+  }
+  return store;
+}
+
 export function registerReportExportTools(server: McpServer, ctx: AppContext): void {
-  const store = new ExportStore();
+  const store = storeFor(ctx);
 
   server.registerResource(
     'export',
@@ -164,7 +180,8 @@ export function registerReportExportTools(server: McpServer, ctx: AppContext): v
       let slug: string;
       let manifest: (ExtractionManifest & { content_sha256?: string }) | undefined;
 
-      if (country) {
+      const countryMode = country !== undefined && country.trim() !== '';
+      if (countryMode) {
         const ref = await resolveCountry(ctx, country);
         const { yearFrom, yearTo } = defaultYearRange(year_from, year_to);
         body = await buildCountryReport(
@@ -219,7 +236,7 @@ export function registerReportExportTools(server: McpServer, ctx: AppContext): v
       const includeManifest = include_manifest ?? true;
       const bodyHtml = markdownToHtml(body, {
         // Only server-generated reports may inline SVG; client markdown is always escaped.
-        trustedSvg: country !== undefined,
+        trustedSvg: countryMode,
         mermaidNote: tr.m.htmlReport.mermaidNote,
       });
       const html = buildHtmlDocument({
