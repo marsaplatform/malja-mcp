@@ -85,6 +85,40 @@ describe('markdownToHtml', () => {
     expect(renderInline('x\uE001y\uE002 \uE0000\uE000')).toBe('xy 0');
   });
 
+  it('always terminates, whatever the input (fence info strings, stray markers)', () => {
+    expect(markdownToHtml('```c++\nint x;\n```')).toContain(
+      '<code class="language-c++">int x;</code>',
+    );
+    expect(markdownToHtml('```js twoslash\nx\n```')).toContain('language-js');
+    expect(markdownToHtml('````\n```\ninner\n````')).toContain('```\ninner');
+    const pieces = [
+      '```',
+      '````x y',
+      '|',
+      '| a |',
+      '>',
+      '-',
+      '- ',
+      '#',
+      '####### h',
+      '---',
+      '***',
+      '  ',
+      'text',
+      '```svg',
+      '`',
+      '|---|',
+    ];
+    let seed = 7;
+    const rnd = () => (seed = (seed * 1103515245 + 12345) % 2 ** 31) / 2 ** 31;
+    for (let n = 0; n < 300; n++) {
+      const doc = Array.from({ length: 12 }, () => pieces[Math.floor(rnd() * pieces.length)]).join(
+        '\n',
+      );
+      expect(typeof markdownToHtml(doc)).toBe('string');
+    }
+  });
+
   it('italic markers do not split identifiers like refugee_population', () => {
     expect(renderInline('_see refugee_population first._')).toBe(
       '<em>see refugee_population first.</em>',

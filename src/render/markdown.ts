@@ -132,13 +132,16 @@ export function markdownToHtml(markdown: string, options: MarkdownOptions = {}):
   while (i < lines.length) {
     const line = lines[i]!;
 
-    const fence = /^```\s*([\w-]*)\s*$/.exec(line);
+    // Any line opening with ``` starts a fence; the info string's first word
+    // (letters, digits, + - _) is the language: ```c++, ```js twoslash, ````.
+    const fence = /^(`{3,})\s*([\w+-]*)/.exec(line);
     if (fence) {
+      const close = new RegExp(`^\`{${fence[1]!.length},}\\s*$`);
       const body: string[] = [];
       i++;
-      while (i < lines.length && !/^```\s*$/.test(lines[i]!)) body.push(lines[i++]!);
+      while (i < lines.length && !close.test(lines[i]!)) body.push(lines[i++]!);
       i++; // closing fence
-      out.push(renderFence(fence[1] ?? '', body.join('\n'), options));
+      out.push(renderFence(fence[2] ?? '', body.join('\n'), options));
       continue;
     }
 
@@ -196,6 +199,8 @@ export function markdownToHtml(markdown: string, options: MarkdownOptions = {}):
     ) {
       paragraph.push(lines[i++]!);
     }
+    // Never stall: a line no block rule claimed is rendered as text.
+    if (paragraph.length === 0) paragraph.push(lines[i++]!);
     out.push(`<p>${paragraph.map(renderInline).join('<br>\n')}</p>`);
   }
   return out.join('\n');
