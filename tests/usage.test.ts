@@ -54,7 +54,14 @@ describe('usage counter (memory backend)', () => {
   });
 });
 
-describe('usage counter (sqlite backend)', () => {
+// node:sqlite ships with Node >= 22.5; on older runtimes the counter falls back
+// to memory (by design), so the durability tests only make sense where it exists.
+const hasNodeSqlite = await import('node:sqlite').then(
+  () => true,
+  () => false,
+);
+
+describe.skipIf(!hasNodeSqlite)('usage counter (sqlite backend)', () => {
   it('persists counts across instances', async () => {
     const first = await UsageCounter.create({ databasePath: DB, keySecret: SECRET });
     first.record('tool:country_profile', 'wp:customer-7', 'ip');
