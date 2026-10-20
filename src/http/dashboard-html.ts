@@ -11,14 +11,14 @@ export const DASHBOARD_HTML = /* html */ String.raw`<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>humanitarian-mcp — dashboard</title>
+<title>malja-mcp — dashboard</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js" defer></script>
 </head>
 <body class="bg-neutral-950 text-neutral-300 font-mono text-sm min-h-screen" x-data="dashboard()" x-init="init()">
 
 <header class="border-b border-neutral-800 px-6 py-4 flex flex-wrap items-baseline gap-x-6 gap-y-1">
-  <h1 class="text-neutral-100 text-base font-bold tracking-widest uppercase">humanitarian-mcp</h1>
+  <h1 class="text-neutral-100 text-base font-bold tracking-widest uppercase">malja-mcp</h1>
   <span class="text-neutral-500" x-text="status.server ? 'v' + status.server.version : '…'"></span>
   <span class="text-neutral-500">MCP endpoint: <span class="text-blue-400" x-text="status.endpoint || '…'"></span></span>
   <span class="ml-auto" :class="connected ? 'text-green-500' : 'text-red-500'"
@@ -158,7 +158,7 @@ export const DASHBOARD_HTML = /* html */ String.raw`<!doctype html>
 </main>
 
 <footer class="px-6 py-4 text-neutral-600 text-xs">
-  humanitarian-mcp demo dashboard — data © UNHCR Refugee Data Finder. This page is for demonstration;
+  malja-mcp demo dashboard — data © UNHCR Refugee Data Finder. This page is for demonstration;
   connect an MCP client to the endpoint above for real use.
 </footer>
 

@@ -40,9 +40,9 @@ function stubFetch(status = 200): { impl: typeof fetch; urls: string[] } {
 
 function buildProvider() {
   const config = loadConfig({
-    HMCP_RATE_LIMIT_RPS: '1000',
-    HMCP_LOG_LEVEL: 'error',
-    HMCP_RELIEFWEB_APPNAME: 'hmcp-test-abc123',
+    MALJA_RATE_LIMIT_RPS: '1000',
+    MALJA_LOG_LEVEL: 'error',
+    MALJA_RELIEFWEB_APPNAME: 'malja-test-abc123',
   });
   const cache = new InstrumentedCache(new MemoryCache());
   return new ReliefWebProvider(config, cache, new Logger('error', () => {}));
@@ -84,7 +84,7 @@ describe('ReliefWebProvider', () => {
     });
 
     const reportsUrl = decodeURIComponent(urls.find((u) => u.includes('/v2/reports')) ?? '');
-    expect(reportsUrl).toContain('appname=hmcp-test-abc123');
+    expect(reportsUrl).toContain('appname=malja-test-abc123');
     expect(reportsUrl).toContain('filter[operator]=AND');
     // ReliefWeb tags countries with lowercase iso3.
     expect(reportsUrl).toMatch(/filter\[conditions]\[\d]\[field]=country\.iso3/);

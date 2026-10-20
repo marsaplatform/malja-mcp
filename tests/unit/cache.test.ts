@@ -35,7 +35,7 @@ describe('MemoryCache', () => {
 });
 
 describe('SqliteCache', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'hmcp-cache-'));
+  const dir = mkdtempSync(join(tmpdir(), 'malja-cache-'));
   afterAll(() => rmSync(dir, { recursive: true, force: true }));
 
   it('round-trips entries through node:sqlite (skips when unavailable)', async () => {

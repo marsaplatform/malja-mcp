@@ -11,10 +11,10 @@ const URL_ = 'https://api.example.test/data';
 function build(opts: { offline?: boolean; fetchImpl: typeof fetch; ttl?: number }) {
   const cache = new InstrumentedCache(new MemoryCache());
   const config = loadConfig({
-    HMCP_OFFLINE: opts.offline ? '1' : '0',
-    HMCP_CACHE_TTL: String(opts.ttl ?? 3600),
-    HMCP_RATE_LIMIT_RPS: '1000',
-    HMCP_LOG_LEVEL: 'error',
+    MALJA_OFFLINE: opts.offline ? '1' : '0',
+    MALJA_CACHE_TTL: String(opts.ttl ?? 3600),
+    MALJA_RATE_LIMIT_RPS: '1000',
+    MALJA_LOG_LEVEL: 'error',
   });
   const client = new HttpClient({
     cache,
@@ -111,7 +111,7 @@ describe('HttpClient', () => {
     const neverCalled = vi.fn();
     const offlineClient = new HttpClient({
       cache: warmed.cache,
-      config: loadConfig({ HMCP_OFFLINE: '1', HMCP_LOG_LEVEL: 'error' }),
+      config: loadConfig({ MALJA_OFFLINE: '1', MALJA_LOG_LEVEL: 'error' }),
       logger: new Logger('error', () => {}),
       limiter: new RateLimiter(1000),
       provider: 'test',

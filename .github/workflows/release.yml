@@ -7,12 +7,17 @@ on:
   push:
     tags: ['v*']
 
+# Malja MCP: releases are OFF until the maintainers opt in by setting the
+# repository variable MALJA_RELEASE_ENABLED=true (Settings → Secrets and
+# variables → Actions → Variables). This keeps a stray tag push from publishing
+# anything before the npm package / GHCR image / hosted endpoint are set up.
 permissions:
   contents: write
   id-token: write # npm provenance
 
 jobs:
   release:
+    if: vars.MALJA_RELEASE_ENABLED == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,6 +35,11 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          PKG_NAME="$(node -p "require('./package.json').name")"
+          if [ "$PKG_NAME" != "malja-mcp" ]; then
+            echo "::error::Refusing to publish unexpected package name '$PKG_NAME'"
+            exit 1
+          fi
           if [ -z "$NODE_AUTH_TOKEN" ]; then
             echo "::warning::NPM_TOKEN secret not configured — skipping npm publish"
           else
@@ -48,16 +58,17 @@ jobs:
             m.version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version;
             fs.writeFileSync(path + '/manifest.json', JSON.stringify(m, null, 2));
           " "$STAGE"
-          (cd "$STAGE" && npm ci --omit=dev && npx --yes @anthropic-ai/mcpb pack . humanitarian-mcp.mcpb)
-          mv "$STAGE/humanitarian-mcp.mcpb" .
+          (cd "$STAGE" && npm ci --omit=dev && npx --yes @anthropic-ai/mcpb pack . malja-mcp.mcpb)
+          mv "$STAGE/malja-mcp.mcpb" .
 
       - name: GitHub release with bundle attached
         uses: softprops/action-gh-release@v2
         with:
-          files: humanitarian-mcp.mcpb
+          files: malja-mcp.mcpb
           generate_release_notes: true
 
   docker:
+    if: vars.MALJA_RELEASE_ENABLED == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -72,7 +83,7 @@ jobs:
       - uses: docker/metadata-action@v5
         id: meta
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: ghcr.io/marsaplatform/malja-mcp
           tags: |
             type=semver,pattern={{version}}
             type=raw,value=latest

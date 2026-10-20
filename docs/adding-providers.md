@@ -98,7 +98,7 @@ case 'worldbank':
   break;
 ```
 
-Enable with `HMCP_PROVIDERS=unhcr,worldbank`. Registration order is priority
+Enable with `MALJA_PROVIDERS=unhcr,worldbank`. Registration order is priority
 order when several providers serve the same dataset.
 
 ## 4. Test it

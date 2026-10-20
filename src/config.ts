@@ -35,7 +35,7 @@ export interface Config {
   readonly reliefwebAppname: string;
 }
 
-export const SERVER_NAME = 'humanitarian-mcp';
+export const SERVER_NAME = 'malja-mcp';
 export const SERVER_VERSION = '0.6.0';
 
 const LOG_LEVELS = ['debug', 'info', 'warn', 'error'] as const;
@@ -56,45 +56,67 @@ function boolFromEnv(env: NodeJS.ProcessEnv, key: string, fallback: boolean): bo
   return raw === '1' || raw.toLowerCase() === 'true';
 }
 
+/** Current environment-variable prefix. */
+export const ENV_PREFIX = 'MALJA_';
+/** Prefix used before the Malja MCP rebrand (humanitarian-mcp); still honoured as a fallback. */
+export const LEGACY_ENV_PREFIX = 'HMCP_';
+
+/**
+ * Return a copy of `env` where every legacy `HMCP_*` variable is mirrored to
+ * its `MALJA_*` name unless the new name is already set. Lets existing
+ * deployments keep working after the rename. Deprecated — will be removed in a
+ * future major release.
+ */
+export function withLegacyEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+  const out: NodeJS.ProcessEnv = { ...env };
+  for (const [key, value] of Object.entries(env)) {
+    if (!key.startsWith(LEGACY_ENV_PREFIX) || value === undefined) continue;
+    const modern = ENV_PREFIX + key.slice(LEGACY_ENV_PREFIX.length);
+    if (out[modern] === undefined) out[modern] = value;
+  }
+  return out;
+}
+
 /** Build a {@link Config} from an environment (defaults to `process.env`). */
-export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
-  const providersRaw = env['HMCP_PROVIDERS'] ?? 'unhcr,worldbank';
+export function loadConfig(rawEnv: NodeJS.ProcessEnv = process.env): Config {
+  const env = withLegacyEnv(rawEnv);
+  const providersRaw = env['MALJA_PROVIDERS'] ?? 'unhcr,worldbank';
   const providers = providersRaw
     .split(',')
     .map((p) => p.trim().toLowerCase())
     .filter((p) => p.length > 0);
   if (providers.length === 0) {
-    throw new Error('HMCP_PROVIDERS must enable at least one provider');
+    throw new Error('MALJA_PROVIDERS must enable at least one provider');
   }
 
-  const cacheBackend = (env['HMCP_CACHE'] ?? 'memory').toLowerCase();
+  const cacheBackend = (env['MALJA_CACHE'] ?? 'memory').toLowerCase();
   if (cacheBackend !== 'memory' && cacheBackend !== 'sqlite') {
-    throw new Error(`Invalid HMCP_CACHE: expected "memory" or "sqlite", got "${cacheBackend}"`);
+    throw new Error(`Invalid MALJA_CACHE: expected "memory" or "sqlite", got "${cacheBackend}"`);
   }
 
-  const logLevelRaw = (env['HMCP_LOG_LEVEL'] ?? 'info').toLowerCase();
+  const logLevelRaw = (env['MALJA_LOG_LEVEL'] ?? 'info').toLowerCase();
   const logLevel = LOG_LEVELS.find((l) => l === logLevelRaw);
   if (!logLevel) {
-    throw new Error(`Invalid HMCP_LOG_LEVEL: expected one of ${LOG_LEVELS.join(', ')}`);
+    throw new Error(`Invalid MALJA_LOG_LEVEL: expected one of ${LOG_LEVELS.join(', ')}`);
   }
 
   return {
     providers,
     cacheBackend,
-    cachePath: env['HMCP_CACHE_PATH'] ?? '.cache/humanitarian-mcp.sqlite',
-    cacheTtlSeconds: intFromEnv(env, 'HMCP_CACHE_TTL', 3600),
-    cacheStaleTtlSeconds: intFromEnv(env, 'HMCP_CACHE_STALE_TTL', 7 * 24 * 3600),
-    offline: boolFromEnv(env, 'HMCP_OFFLINE', false),
-    rateLimitRps: Math.max(1, intFromEnv(env, 'HMCP_RATE_LIMIT_RPS', 4)),
+    cachePath: env['MALJA_CACHE_PATH'] ?? '.cache/malja-mcp.sqlite',
+    cacheTtlSeconds: intFromEnv(env, 'MALJA_CACHE_TTL', 3600),
+    cacheStaleTtlSeconds: intFromEnv(env, 'MALJA_CACHE_STALE_TTL', 7 * 24 * 3600),
+    offline: boolFromEnv(env, 'MALJA_OFFLINE', false),
+    rateLimitRps: Math.max(1, intFromEnv(env, 'MALJA_RATE_LIMIT_RPS', 4)),
     logLevel,
-    analytics: boolFromEnv(env, 'HMCP_ANALYTICS', true),
-    httpPort: intFromEnv(env, 'HMCP_HTTP_PORT', 8642),
-    httpHost: env['HMCP_HTTP_HOST']?.trim() || '127.0.0.1',
-    httpRateLimitRpm: intFromEnv(env, 'HMCP_HTTP_RATE_LIMIT_RPM', 120),
+    analytics: boolFromEnv(env, 'MALJA_ANALYTICS', true),
+    httpPort: intFromEnv(env, 'MALJA_HTTP_PORT', 8642),
+    httpHost: env['MALJA_HTTP_HOST']?.trim() || '127.0.0.1',
+    httpRateLimitRpm: intFromEnv(env, 'MALJA_HTTP_RATE_LIMIT_RPM', 120),
     userAgent:
-      env['HMCP_USER_AGENT'] ??
-      `${SERVER_NAME}/${SERVER_VERSION} (+https://github.com/ahmedvnabil/humanitarian-mcp)`,
-    hdxAppIdentifier: env['HMCP_HDX_APP_ID']?.trim() ?? '',
-    reliefwebAppname: env['HMCP_RELIEFWEB_APPNAME']?.trim() ?? '',
+      env['MALJA_USER_AGENT'] ??
+      `${SERVER_NAME}/${SERVER_VERSION} (+https://github.com/marsaplatform/malja-mcp)`,
+    hdxAppIdentifier: env['MALJA_HDX_APP_ID']?.trim() ?? '',
+    reliefwebAppname: env['MALJA_RELIEFWEB_APPNAME']?.trim() ?? '',
   };
 }

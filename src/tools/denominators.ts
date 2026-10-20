@@ -69,7 +69,7 @@ export async function fetchDenominators(
     provider = await ctx.registry.forDataset('context-indicators');
   } catch {
     throw new Error(
-      'normalize_by needs the "context-indicators" dataset. Enable the World Bank provider: HMCP_PROVIDERS=unhcr,worldbank',
+      'normalize_by needs the "context-indicators" dataset. Enable the World Bank provider: MALJA_PROVIDERS=unhcr,worldbank',
     );
   }
   const meta = await provider.metadata();

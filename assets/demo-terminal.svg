@@ -3,7 +3,7 @@
   <rect x="0" y="0" width="900" height="470" fill="#141c2e"/>
   <rect x="1.5" y="1.5" width="897" height="467" fill="none" stroke="#e3a83a" stroke-width="3"/>
   <!-- header -->
-  <text x="36" y="30" font-size="14" font-weight="bold" fill="#f6f1e7">humanitarian-mcp</text>
+  <text x="36" y="30" font-size="14" font-weight="bold" fill="#f6f1e7">malja-mcp</text>
   <circle cx="712" cy="25" r="4" fill="#3fc79f">
     <animate attributeName="opacity" values="1;0.3;1" dur="2.4s" repeatCount="indefinite"/>
   </circle>

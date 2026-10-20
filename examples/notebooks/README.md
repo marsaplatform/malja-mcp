@@ -1,13 +1,13 @@
 # Runnable analysis notebooks
 
-Reproducible research workflows against a **local** humanitarian-mcp server —
+Reproducible research workflows against a **local** malja-mcp server —
 the same tool calls an AI assistant makes, driven from Python or R.
 
 ## Setup (one terminal)
 
 ```bash
-git clone https://github.com/ahmedvnabil/humanitarian-mcp
-cd humanitarian-mcp && npm install && npm run dashboard
+git clone https://github.com/marsaplatform/malja-mcp
+cd malja-mcp && npm install && npm run dashboard
 # → http://localhost:8642  (leave it running)
 ```
 
@@ -27,5 +27,5 @@ Python needs `pandas`, `requests`, `statsmodels`, `matplotlib`
 R needs `httr2`, `jsonlite` (`install.packages(c("httr2", "jsonlite"))`).
 
 The conflict × displacement workflow needs the `hdx` provider — start the
-server with `HMCP_PROVIDERS=unhcr,worldbank,hdx HMCP_HDX_APP_ID=<id> npm run dashboard`
+server with `MALJA_PROVIDERS=unhcr,worldbank,hdx MALJA_HDX_APP_ID=<id> npm run dashboard`
 (free identifier: see `.env.example`). The other three run with the defaults.

@@ -31,5 +31,5 @@ body:
     id: logs
     attributes:
       label: Relevant stderr logs
-      description: Run with HMCP_LOG_LEVEL=debug if possible.
+      description: Run with MALJA_LOG_LEVEL=debug if possible.
       render: shell

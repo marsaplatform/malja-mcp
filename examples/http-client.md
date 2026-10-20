@@ -7,7 +7,7 @@ npm run dashboard    # serves POST /mcp + the dashboard on :8642
 ```
 
 > Every snippet below also works against the hosted endpoint — replace
-> `http://localhost:8642/mcp` with `https://humanitarian-mcp.zad.tools/mcp`
+> `http://localhost:8642/mcp` with `https://malja-mcp.example.com/mcp`
 > (no key required; see the README's "Two ways to use it").
 
 ## From the TypeScript SDK

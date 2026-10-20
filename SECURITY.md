@@ -2,7 +2,7 @@
 
 ## Scope
 
-humanitarian-mcp is a **read-only** bridge to public humanitarian APIs. It
+malja-mcp is a **read-only** bridge to public humanitarian APIs. It
 holds no credentials, stores no personal data, and never writes to upstream
 systems. The attack surface is therefore small but real:
 
@@ -21,6 +21,6 @@ You can expect an initial response within a week.
 
 - Run the stdio transport for desktop use; it exposes nothing on the network.
 - If you deploy `--http`, put it behind your own auth/reverse proxy and set
-  `HMCP_RATE_LIMIT_RPS` conservatively.
-- `HMCP_OFFLINE=1` with a pre-warmed SQLite cache gives you a fully
+  `MALJA_RATE_LIMIT_RPS` conservatively.
+- `MALJA_OFFLINE=1` with a pre-warmed SQLite cache gives you a fully
   air-gapped deployment.

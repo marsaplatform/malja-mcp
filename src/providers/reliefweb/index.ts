@@ -187,7 +187,7 @@ export class ReliefWebProvider implements HumanitarianProvider {
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       const detail = message.includes('403')
-        ? `${message} — ReliefWeb requires a pre-approved appname; request one at ${RELIEFWEB_APPNAME_DOCS} and set HMCP_RELIEFWEB_APPNAME.`
+        ? `${message} — ReliefWeb requires a pre-approved appname; request one at ${RELIEFWEB_APPNAME_DOCS} and set MALJA_RELIEFWEB_APPNAME.`
         : message;
       return {
         provider: this.id,

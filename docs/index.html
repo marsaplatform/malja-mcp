@@ -1,29 +1,30 @@
 <!doctype html>
 <html lang="en" dir="ltr">
   <head>
+    <!-- TODO(malja): malja-mcp.example.com is a placeholder for the future hosted endpoint/landing URL; npm package malja-mcp not yet published. -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>humanitarian-mcp — trusted humanitarian data inside your AI assistant</title>
+    <title>Malja MCP (ملجأ) — trusted humanitarian data inside your AI assistant</title>
     <meta
       name="description"
       content="Open-source MCP server that gives AI assistants clean, cited access to refugee and displacement data from UNHCR, the World Bank, HDX and ReliefWeb. Built for researchers, journalists and aid organizations. 21 tools, 8 one-click prompts, no API keys, works offline."
     />
     <meta
       property="og:title"
-      content="humanitarian-mcp — refugee and displacement data in your AI assistant's hands"
+      content="malja-mcp — refugee and displacement data in your AI assistant's hands"
     />
     <meta
       property="og:description"
       content="UNHCR refugee statistics as semantic tools for any MCP-speaking assistant: trend analysis, charts, reports and data exports."
     />
-    <meta property="og:image" content="https://humanitarian-mcp.zad.tools/social-preview.png" />
-    <meta property="og:url" content="https://humanitarian-mcp.zad.tools/" />
+    <meta property="og:image" content="https://malja-mcp.example.com/social-preview.png" />
+    <meta property="og:url" content="https://malja-mcp.example.com/" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="canonical" href="https://humanitarian-mcp.zad.tools/" />
-    <link rel="alternate" hreflang="en" href="https://humanitarian-mcp.zad.tools/" />
-    <link rel="alternate" hreflang="ar" href="https://humanitarian-mcp.zad.tools/ar/" />
-    <link rel="alternate" hreflang="x-default" href="https://humanitarian-mcp.zad.tools/" />
+    <link rel="canonical" href="https://malja-mcp.example.com/" />
+    <link rel="alternate" hreflang="en" href="https://malja-mcp.example.com/" />
+    <link rel="alternate" hreflang="ar" href="https://malja-mcp.example.com/ar/" />
+    <link rel="alternate" hreflang="x-default" href="https://malja-mcp.example.com/" />
     <link
       rel="icon"
       type="image/svg+xml"
@@ -35,10 +36,10 @@
       {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        "name": "humanitarian-mcp",
+        "name": "malja-mcp",
         "description": "Open-source Model Context Protocol server that gives AI assistants clean, cited access to UNHCR refugee statistics.",
-        "url": "https://humanitarian-mcp.zad.tools/",
-        "sameAs": "https://github.com/ahmedvnabil/humanitarian-mcp",
+        "url": "https://malja-mcp.example.com/",
+        "sameAs": "https://github.com/marsaplatform/malja-mcp",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "macOS, Windows, Linux",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
@@ -202,16 +203,14 @@
     <!-- ━━ Header ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
     <header class="bg-ink text-paper">
       <div class="max-w-6xl mx-auto px-6 py-4 flex flex-wrap items-center gap-x-8 gap-y-2">
-        <span class="font-mono text-sm text-amber">humanitarian-mcp</span>
+        <span class="font-mono text-sm text-amber">malja-mcp</span>
         <nav aria-label="Main navigation" class="ml-auto flex items-center gap-6 text-sm">
           <a href="#why" class="text-fog hover:text-paper">Why?</a>
           <a href="#who" class="text-fog hover:text-paper">Who is it for?</a>
           <a href="#usage" class="text-fog hover:text-paper">Get running</a>
           <a href="#workshops" class="text-fog hover:text-paper">Workshops</a>
           <a href="#honest" class="text-fog hover:text-paper">Where we stand</a>
-          <a
-            href="https://github.com/ahmedvnabil/humanitarian-mcp"
-            class="text-amber hover:text-paper"
+          <a href="https://github.com/marsaplatform/malja-mcp" class="text-amber hover:text-paper"
             >GitHub ↗</a
           >
           <a
@@ -243,9 +242,9 @@
             inside your <span class="text-amber">AI assistant</span>.
           </h1>
           <p class="mt-7 text-fog text-lg max-w-xl animate-fadeup" style="animation-delay: 0.1s">
-            <span class="font-mono text-paper">humanitarian-mcp</span> is an open-source MCP server
-            that lets Claude, Cursor, <span class="whitespace-nowrap">VS Code</span> and any MCP
-            client query the trusted humanitarian sources directly:
+            <span class="font-mono text-paper">malja-mcp</span> is an open-source MCP server that
+            lets Claude, Cursor, <span class="whitespace-nowrap">VS Code</span> and any MCP client
+            query the trusted humanitarian sources directly:
             <strong class="text-paper">UNHCR</strong> for displacement and asylum, the
             <strong class="text-paper">World Bank</strong> for population and economic context,
             <strong class="text-paper">HDX</strong> for conflict, food security and funding, and
@@ -263,7 +262,7 @@
             tools.
             <a
               class="text-amber hover:text-paper"
-              href="https://github.com/ahmedvnabil/humanitarian-mcp/blob/main/docs/how-mcp-works.md"
+              href="https://github.com/marsaplatform/malja-mcp/blob/main/docs/how-mcp-works.md"
               >How does it work? ↗</a
             >
           </p>
@@ -468,7 +467,7 @@
           </div>
           <div class="p-5 bg-ink text-paper">
             <p class="text-xs font-semibold text-amber mb-3">
-              With <span class="font-mono">humanitarian-mcp</span>
+              With <span class="font-mono">malja-mcp</span>
             </p>
             <p class="text-sm"><span class="text-teal font-bold">you ›</span> The same question.</p>
             <p class="mt-2 text-sm text-fog">
@@ -502,7 +501,7 @@
           class="px-5 py-3 border-b-2 border-ink flex items-center gap-3 text-xs text-soft bg-sand/60"
         >
           <span class="w-2.5 h-2.5 rounded-full bg-teal inline-block"></span>
-          <span>claude — humanitarian-mcp connected</span>
+          <span>claude — malja-mcp connected</span>
         </div>
         <div class="p-6 text-[15px] leading-8">
           <p>
@@ -643,8 +642,7 @@
           <li>
             <strong class="font-head text-teal">2 ·</strong> The package is published on npm — no
             cloning, no building. Your app's config (tabs below) simply points at
-            <code class="font-mono text-ink">npx humanitarian-mcp</code>. For a quick try in the
-            terminal:
+            <code class="font-mono text-ink">npx malja-mcp</code>. For a quick try in the terminal:
           </li>
         </ol>
 
@@ -652,7 +650,7 @@
           <code
             id="install"
             class="flex-1 px-4 py-3 text-sm font-mono text-ink overflow-x-auto whitespace-nowrap"
-            >npx humanitarian-mcp --version</code
+            >npx malja-mcp --version</code
           >
           <button
             class="px-5 text-xs font-body bg-ink text-paper font-bold hover:bg-teal"
@@ -716,7 +714,7 @@
               <code
                 id="c-hosted"
                 class="flex-1 px-4 py-3 text-sm font-mono text-ink overflow-x-auto whitespace-nowrap"
-                >https://humanitarian-mcp.zad.tools/mcp</code
+                >https://malja-mcp.example.com/mcp</code
               >
               <button
                 class="px-5 text-xs font-body bg-ink text-paper font-bold hover:bg-teal"
@@ -735,7 +733,7 @@
                 <strong class="text-ink">In Claude Code:</strong>
                 <code class="font-mono text-[13px] bg-paper border border-rule px-2 py-1"
                   >claude mcp add --transport http humanitarian
-                  https://humanitarian-mcp.zad.tools/mcp</code
+                  https://malja-mcp.example.com/mcp</code
                 >
               </li>
             </ul>
@@ -758,9 +756,9 @@
             >
 {
   "mcpServers": {
-    "humanitarian": {
+    "malja": {
       "command": "npx",
-      "args": ["-y", "humanitarian-mcp"]
+      "args": ["-y", "malja-mcp"]
     }
   }
 }</pre>
@@ -779,7 +777,7 @@
               id="c-code"
               class="text-[13px] font-mono bg-paper border border-rule p-4 overflow-x-auto leading-6"
             >
-claude mcp add humanitarian -- npx -y humanitarian-mcp</pre>
+claude mcp add malja -- npx -y malja-mcp</pre>
             <p class="text-soft text-sm mt-5 mb-2">Then try:</p>
             <ul class="text-sm space-y-2 text-ink">
               <li>“Write a full humanitarian report on Sudan”</li>
@@ -832,8 +830,8 @@ npm run dashboard
 # → http://localhost:8642</pre>
             <p class="text-soft text-sm mt-4">
               Optional settings:
-              <code class="font-mono text-ink">HMCP_CACHE=sqlite</code> keeps data between sessions
-              · <code class="font-mono text-ink">HMCP_OFFLINE=1</code> serves from the cache only —
+              <code class="font-mono text-ink">MALJA_CACHE=sqlite</code> keeps data between sessions
+              · <code class="font-mono text-ink">MALJA_OFFLINE=1</code> serves from the cache only —
               useful in the field where there is no connection.
             </p>
           </div>
@@ -950,7 +948,7 @@ demographics({ country: "Egypt" })
           The full guide with R and Python examples and citation rules:
           <a
             class="text-amber hover:text-paper"
-            href="https://github.com/ahmedvnabil/humanitarian-mcp/blob/main/docs/for-researchers.md"
+            href="https://github.com/marsaplatform/malja-mcp/blob/main/docs/for-researchers.md"
             >docs/for-researchers.md ↗</a
           >
           · every figure ships with its reference year and source — always verifiable at the
@@ -997,7 +995,7 @@ demographics({ country: "Egypt" })
               <th class="p-3 text-left font-semibold"></th>
               <th class="p-3 text-left font-semibold">Earlier UNHCR tools</th>
               <th class="p-3 text-left font-semibold">hdx-mcp</th>
-              <th class="p-3 text-left font-bold text-amber">humanitarian-mcp</th>
+              <th class="p-3 text-left font-bold text-amber">malja-mcp</th>
             </tr>
           </thead>
           <tbody class="bg-card">
@@ -1067,10 +1065,10 @@ demographics({ country: "Egypt" })
           developers:
           <a
             class="text-teal border-b border-teal hover:text-ink hover:border-ink"
-            href="https://github.com/ahmedvnabil/humanitarian-mcp/blob/main/docs/adding-providers.md"
+            href="https://github.com/marsaplatform/malja-mcp/blob/main/docs/adding-providers.md"
             >the step-by-step provider guide ↗</a
           >. Or install it with one npm command (<code class="font-mono text-ink"
-            >npx humanitarian-mcp</code
+            >npx malja-mcp</code
           >).
         </p>
 
@@ -1127,13 +1125,13 @@ demographics({ country: "Egypt" })
           under 153 tests, including a full MCP compliance suite through the official SDK client.
           <a
             class="text-teal border-b border-teal hover:text-ink hover:border-ink"
-            href="https://github.com/ahmedvnabil/humanitarian-mcp/blob/main/docs/tools.md"
+            href="https://github.com/marsaplatform/malja-mcp/blob/main/docs/tools.md"
             >Full reference: docs/tools.md ↗</a
           >
         </p>
 
         <a
-          href="https://github.com/ahmedvnabil/humanitarian-mcp"
+          href="https://github.com/marsaplatform/malja-mcp"
           class="mt-7 inline-block px-7 py-3 border-2 border-ink bg-ink text-paper font-bold text-sm hover:bg-teal hover:border-teal"
           >⭐ Star it to follow new providers as they land</a
         >
@@ -1245,7 +1243,7 @@ demographics({ country: "Egypt" })
             <p class="pb-5 text-sm text-soft leading-relaxed">
               Nowhere. The server runs locally on your machine, read-only, and talks only to the
               UNHCR API — no tracking, no third parties. And with
-              <code class="font-mono text-ink">HMCP_OFFLINE=1</code> it serves from the cache with
+              <code class="font-mono text-ink">MALJA_OFFLINE=1</code> it serves from the cache with
               no connection at all.
             </p>
           </details>
@@ -1322,12 +1320,12 @@ demographics({ country: "Egypt" })
               Copy the install command
             </button>
             <a
-              href="https://github.com/ahmedvnabil/humanitarian-mcp"
+              href="https://github.com/marsaplatform/malja-mcp"
               class="px-7 py-3 border-2 border-inkline text-paper font-semibold text-sm hover:border-amber hover:text-amber"
               >⭐ Star it on GitHub</a
             >
             <a
-              href="https://github.com/ahmedvnabil/humanitarian-mcp/blob/main/docs/for-researchers.md"
+              href="https://github.com/marsaplatform/malja-mcp/blob/main/docs/for-researchers.md"
               class="px-7 py-3 border-2 border-inkline text-paper font-semibold text-sm hover:border-amber hover:text-amber"
               >Read the researcher guide ↗</a
             >
@@ -1347,10 +1345,8 @@ demographics({ country: "Egypt" })
         </p>
         <p>
           An independent project, not affiliated with UNHCR · MIT license ·
-          <a
-            class="text-amber hover:text-paper"
-            href="https://github.com/ahmedvnabil/humanitarian-mcp"
-            >github.com/ahmedvnabil/humanitarian-mcp ↗</a
+          <a class="text-amber hover:text-paper" href="https://github.com/marsaplatform/malja-mcp"
+            >github.com/marsaplatform/malja-mcp ↗</a
           >
           · set in the
           <a class="text-amber hover:text-paper" href="https://github.com/ahmedvnabil/zad-font"

@@ -207,7 +207,7 @@ describe('tool surface', () => {
       year_to: 2023,
     });
     expect(json.manifest.extracted_at).toMatch(/^\d{4}-\d{2}-\d{2}T/);
-    expect(json.manifest.server).toMatch(/^humanitarian-mcp\//);
+    expect(json.manifest.server).toMatch(/^malja-mcp\//);
     expect(json.manifest.source).toBe('mock');
     expect(json.data.manifest).toBeDefined();
 
@@ -219,7 +219,7 @@ describe('tool surface', () => {
       year_from: 2023,
       year_to: 2023,
     })) as { data: string };
-    expect(csv.data).toMatch(/^# humanitarian-mcp extraction manifest/);
+    expect(csv.data).toMatch(/^# malja-mcp extraction manifest/);
     expect(csv.data).toContain('# citation:');
 
     // Opt-out keeps payloads clean.

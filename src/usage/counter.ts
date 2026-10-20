@@ -22,6 +22,7 @@
 import { randomBytes, createHash } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
+import { withLegacyEnv } from '../config.js';
 import {
   ingestUsage,
   resolveEntitlement,
@@ -114,7 +115,11 @@ export class UsageCounter {
   private hashClient(client: string): string {
     const day = today();
     if (this.dailySalt.day !== day) this.dailySalt = { day, salt: randomBytes(16).toString('hex') };
-    return createHash('sha256').update(this.dailySalt.salt).update(client).digest('hex').slice(0, 24);
+    return createHash('sha256')
+      .update(this.dailySalt.salt)
+      .update(client)
+      .digest('hex')
+      .slice(0, 24);
   }
 
   /**
@@ -171,9 +176,9 @@ export class UsageCounter {
    * limit). A key that is present must be valid; a valid key over its generous
    * monthly ceiling is throttled back to anonymous rather than blocked.
    */
-  async gate(apiKey: string | null): Promise<
-    { keyed: false } | { keyed: true; subject: string; overLimit: boolean }
-  > {
+  async gate(
+    apiKey: string | null,
+  ): Promise<{ keyed: false } | { keyed: true; subject: string; overLimit: boolean }> {
     if (!apiKey || !this.opts.keySecret) return { keyed: false };
     const { verifyFreeKey } = await import('./keys.js');
     const subject = await verifyFreeKey(apiKey, this.opts.keySecret);
@@ -240,7 +245,9 @@ export class UsageCounter {
         days: [],
       };
     }
-    const totals = this.db.prepare('SELECT keyed, SUM(count) c FROM usage_daily GROUP BY keyed').all();
+    const totals = this.db
+      .prepare('SELECT keyed, SUM(count) c FROM usage_daily GROUP BY keyed')
+      .all();
     let keyed = 0,
       anonymous = 0;
     for (const row of totals) {
@@ -312,12 +319,13 @@ export class UsageCounter {
   }
 }
 
-export function usageOptionsFromEnv(env: NodeJS.ProcessEnv = process.env): CounterOptions {
+export function usageOptionsFromEnv(rawEnv: NodeJS.ProcessEnv = process.env): CounterOptions {
+  const env = withLegacyEnv(rawEnv);
   return {
-    databasePath: env.HMCP_USAGE_DATABASE_PATH || undefined,
-    metric: env.HMCP_USAGE_METRIC || 'hm_calls',
-    monthlyFreeLimit: Number(env.HMCP_FREE_MONTHLY_LIMIT || '50000'),
-    keySecret: env.HMCP_KEY_SECRET || undefined,
+    databasePath: env.MALJA_USAGE_DATABASE_PATH || undefined,
+    metric: env.MALJA_USAGE_METRIC || 'hm_calls',
+    monthlyFreeLimit: Number(env.MALJA_FREE_MONTHLY_LIMIT || '50000'),
+    keySecret: env.MALJA_KEY_SECRET || undefined,
     saaspress: saaspressConfig(env),
   };
 }

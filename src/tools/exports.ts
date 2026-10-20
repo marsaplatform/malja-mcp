@@ -45,7 +45,7 @@ export interface ExtractionManifest {
 /** Manifest as CSV comment lines (readable via `comment='#'` in pandas / R). */
 function manifestAsCsvHeader(manifest: ExtractionManifest): string {
   const lines = [
-    '# humanitarian-mcp extraction manifest — re-run this exact call to reproduce',
+    '# malja-mcp extraction manifest — re-run this exact call to reproduce',
     `# tool: ${manifest.tool}`,
     `# arguments: ${JSON.stringify(manifest.arguments)}`,
     `# extracted_at: ${manifest.extracted_at}`,

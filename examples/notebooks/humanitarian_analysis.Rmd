@@ -1,9 +1,9 @@
 ---
-title: "Humanitarian data analysis via humanitarian-mcp"
+title: "Humanitarian data analysis via malja-mcp"
 output: html_document
 ---
 
-Four reproducible research workflows against a local `humanitarian-mcp`
+Four reproducible research workflows against a local `malja-mcp`
 server. Start it first: `npm run dashboard` (see `README.md` in this folder).
 
 ```{r setup}

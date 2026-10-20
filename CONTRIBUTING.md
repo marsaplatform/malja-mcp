@@ -5,8 +5,8 @@ Thanks for helping make humanitarian data more accessible to AI assistants.
 ## Getting started
 
 ```bash
-git clone https://github.com/ahmedvnabil/humanitarian-mcp
-cd humanitarian-mcp
+git clone https://github.com/marsaplatform/malja-mcp
+cd malja-mcp
 npm install
 npm run check        # typecheck + lint + format + tests must pass
 ```
@@ -29,7 +29,7 @@ npm run check        # typecheck + lint + format + tests must pass
    analysis notebooks (`examples/notebooks/`).
 
 Not sure where to start? Open a
-[provider request](https://github.com/ahmedvnabil/humanitarian-mcp/issues/new/choose)
+[provider request](https://github.com/marsaplatform/malja-mcp/issues/new/choose)
 or pick anything labelled `help wanted`.
 
 ## Rules of the road

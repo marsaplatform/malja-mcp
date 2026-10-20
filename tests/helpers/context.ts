@@ -12,7 +12,7 @@ export function buildTestContext(
   provider: HumanitarianProvider = new MockProvider(),
   env: NodeJS.ProcessEnv = {},
 ): AppContext {
-  const config = loadConfig({ HMCP_PROVIDERS: provider.id, HMCP_LOG_LEVEL: 'error', ...env });
+  const config = loadConfig({ MALJA_PROVIDERS: provider.id, MALJA_LOG_LEVEL: 'error', ...env });
   const registry = new ProviderRegistry();
   registry.register(provider);
   return {

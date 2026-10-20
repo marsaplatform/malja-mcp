@@ -14,7 +14,7 @@ import { MockProvider } from '../helpers/mock-provider.js';
 describe('http mode', () => {
   const provider = new MockProvider();
   const healthSpy = vi.spyOn(provider, 'health');
-  const ctx = buildTestContext(provider, { HMCP_HTTP_RATE_LIMIT_RPM: '5' });
+  const ctx = buildTestContext(provider, { MALJA_HTTP_RATE_LIMIT_RPM: '5' });
   let server: Server;
   let base: string;
 
@@ -40,7 +40,7 @@ describe('http mode', () => {
       expect(response.status).toBe(200);
       const body = (await response.json()) as { status: string; name: string; version: string };
       expect(body.status).toBe('ok');
-      expect(body.name).toBe('humanitarian-mcp');
+      expect(body.name).toBe('malja-mcp');
       expect(body.version.length).toBeGreaterThan(0);
     }
     expect(healthSpy).not.toHaveBeenCalled();

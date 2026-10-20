@@ -35,9 +35,9 @@ export async function createContext(config: Config = loadConfig()): Promise<AppC
       case 'hdx':
         if (!config.hdxAppIdentifier) {
           throw new Error(
-            'The hdx provider needs HMCP_HDX_APP_ID — a free HAPI app identifier. ' +
+            'The hdx provider needs MALJA_HDX_APP_ID — a free HAPI app identifier. ' +
               'Generate one at https://hapi.humdata.org/docs#/Generate%20App%20Identifier ' +
-              '(base64 of "app-name:your-email"), then set HMCP_HDX_APP_ID=<identifier>.',
+              '(base64 of "app-name:your-email"), then set MALJA_HDX_APP_ID=<identifier>.',
           );
         }
         registry.register(new HdxProvider(config, cache, logger, config.hdxAppIdentifier));
@@ -45,16 +45,16 @@ export async function createContext(config: Config = loadConfig()): Promise<AppC
       case 'reliefweb':
         if (!config.reliefwebAppname) {
           throw new Error(
-            'The reliefweb provider needs HMCP_RELIEFWEB_APPNAME — a pre-approved ReliefWeb API appname. ' +
+            'The reliefweb provider needs MALJA_RELIEFWEB_APPNAME — a pre-approved ReliefWeb API appname. ' +
               'Request one via the short form at https://apidoc.reliefweb.int/parameters#appname ' +
-              '(ReliefWeb reviews it and replies by email), then set HMCP_RELIEFWEB_APPNAME=<appname>.',
+              '(ReliefWeb reviews it and replies by email), then set MALJA_RELIEFWEB_APPNAME=<appname>.',
           );
         }
         registry.register(new ReliefWebProvider(config, cache, logger));
         break;
       default:
         throw new Error(
-          `Unknown provider "${id}" in HMCP_PROVIDERS (known: unhcr, worldbank, reliefweb, hdx)`,
+          `Unknown provider "${id}" in MALJA_PROVIDERS (known: unhcr, worldbank, reliefweb, hdx)`,
         );
     }
   }

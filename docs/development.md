@@ -21,7 +21,7 @@ on older versions it falls back to memory with a warning.
 | `npm run test:watch`                  | vitest watch mode                                            |
 | `npm run test:coverage`               | v8 coverage report                                           |
 | `npm run lint:fix` / `npm run format` | auto-fix style                                               |
-| `npm run build`                       | emit `dist/` (what the `humanitarian-mcp` bin runs)          |
+| `npm run build`                       | emit `dist/` (what the `malja-mcp` bin runs)                 |
 
 ## Test layout
 
@@ -55,7 +55,7 @@ Principles:
 
 ## Debugging
 
-- Logs are JSON on **stderr** (stdout belongs to JSON-RPC). `HMCP_LOG_LEVEL=debug`
+- Logs are JSON on **stderr** (stdout belongs to JSON-RPC). `MALJA_LOG_LEVEL=debug`
   shows cache and retry decisions.
 - `npm run dashboard` gives you live logs, per-tool latency and a query
   playground without any MCP client.
@@ -67,7 +67,7 @@ curl -s -X POST http://localhost:8642/api/call \
   -d '{"tool":"trend_analysis","arguments":{"country":"Sudan","role":"origin"}}'
 ```
 
-- `HMCP_OFFLINE=1` + a warmed SQLite cache is the fastest way to iterate on
+- `MALJA_OFFLINE=1` + a warmed SQLite cache is the fastest way to iterate on
   tool formatting without hammering the API.
 
 ## Style
@@ -98,8 +98,8 @@ Releases are tag-driven and automated (`.github/workflows/release.yml`):
 4. Tag and push: `git tag -a vX.Y.Z -m "…" && git push origin vX.Y.Z`.
 
 The workflow then runs the full check and publishes: the GitHub release with
-`humanitarian-mcp.mcpb` attached, the Docker image to
-`ghcr.io/ahmedvnabil/humanitarian-mcp` (version + `latest`), and — once the
+`malja-mcp.mcpb` attached, the Docker image to
+`ghcr.io/marsaplatform/malja-mcp` (version + `latest`), and — once the
 `NPM_TOKEN` repository secret exists — the npm package with provenance.
 
 `files` in package.json ships only `dist`, README and LICENSE.

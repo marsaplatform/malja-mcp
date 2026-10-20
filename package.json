@@ -1,8 +1,9 @@
 {
-  "name": "humanitarian-mcp",
+  "name": "malja-mcp",
   "version": "0.7.0",
-  "description": "Model Context Protocol server for humanitarian open data — UNHCR today, ReliefWeb/HDX/IOM tomorrow. Semantic tools, resources and prompts over trusted public datasets.",
+  "description": "Malja MCP (ملجأ, \"refuge\") — Model Context Protocol server for humanitarian open data: UNHCR, World Bank, HDX and ReliefWeb. Semantic tools, resources and prompts over trusted public datasets.",
   "keywords": [
+    "malja",
     "mcp",
     "model-context-protocol",
     "humanitarian",
@@ -13,18 +14,18 @@
     "hdx"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/ahmedvnabil/humanitarian-mcp#readme",
+  "homepage": "https://github.com/marsaplatform/malja-mcp#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ahmedvnabil/humanitarian-mcp.git"
+    "url": "git+https://github.com/marsaplatform/malja-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/ahmedvnabil/humanitarian-mcp/issues"
+    "url": "https://github.com/marsaplatform/malja-mcp/issues"
   },
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "humanitarian-mcp": "dist/index.js"
+    "malja-mcp": "dist/index.js"
   },
   "files": [
     "dist",

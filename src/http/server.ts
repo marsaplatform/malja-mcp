@@ -23,7 +23,7 @@ import { UsageCounter, usageOptionsFromEnv } from '../usage/counter.js';
  * transport, so what it displays is exactly what any MCP client would see.
  *
  * Everything except /health is rate limited per client IP
- * (HMCP_HTTP_RATE_LIMIT_RPM, 0 = off) so one caller cannot exhaust the
+ * (MALJA_HTTP_RATE_LIMIT_RPM, 0 = off) so one caller cannot exhaust the
  * upstream quotas every enabled provider shares. Behind a reverse proxy the
  * client is read from X-Forwarded-For — the proxy must set that header; when
  * exposing the port directly, clients able to forge it can dodge the limiter.

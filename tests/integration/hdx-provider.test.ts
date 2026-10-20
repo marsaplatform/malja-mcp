@@ -41,7 +41,7 @@ function stubFetch(): { impl: typeof fetch; urls: string[] } {
 }
 
 function buildProvider() {
-  const config = loadConfig({ HMCP_RATE_LIMIT_RPS: '1000', HMCP_LOG_LEVEL: 'error' });
+  const config = loadConfig({ MALJA_RATE_LIMIT_RPS: '1000', MALJA_LOG_LEVEL: 'error' });
   const cache = new InstrumentedCache(new MemoryCache());
   return new HdxProvider(config, cache, new Logger('error', () => {}), APP_ID);
 }

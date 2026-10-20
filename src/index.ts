@@ -8,9 +8,9 @@ import { createServer } from './server.js';
 /**
  * Entry point.
  *
- *   humanitarian-mcp              stdio transport (Claude Desktop, Cursor, ...)
- *   humanitarian-mcp --http       streamable HTTP endpoint + demo dashboard
- *   humanitarian-mcp --version    print version and exit
+ *   malja-mcp              stdio transport (Claude Desktop, Cursor, ...)
+ *   malja-mcp --http       streamable HTTP endpoint + demo dashboard
+ *   malja-mcp --version    print version and exit
  */
 async function main(): Promise<void> {
   const args = process.argv.slice(2);

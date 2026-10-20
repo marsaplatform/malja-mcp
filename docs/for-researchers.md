@@ -1,4 +1,4 @@
-# humanitarian-mcp for researchers
+# malja-mcp for researchers
 
 Reproducible workflows from research question to citable dataset. Everything
 below uses real UNHCR figures served by this MCP — ask the questions in plain
@@ -127,8 +127,8 @@ Cite the data as UNHCR, Refugee Data Finder (year of extraction), and the
 tooling via GitHub's **"Cite this repository"** button (backed by
 [CITATION.cff](../CITATION.cff)), or as:
 
-> humanitarian-mcp (v0.5.1), open-source MCP server,
-> https://github.com/ahmedvnabil/humanitarian-mcp
+> malja-mcp (v0.5.1), open-source MCP server,
+> https://github.com/marsaplatform/malja-mcp
 
 Every `export_data` call attaches an extraction manifest (exact arguments,
 timestamp, server version, citation) — paste it in your appendix and anyone
@@ -137,5 +137,5 @@ can reproduce the pull. In CSV it rides in `#` comment lines:
 
 ## Offline fieldwork
 
-`HMCP_CACHE=sqlite` + one warm-up session, then `HMCP_OFFLINE=1` gives you the
+`MALJA_CACHE=sqlite` + one warm-up session, then `MALJA_OFFLINE=1` gives you the
 full toolset with zero connectivity — useful where fieldwork happens.

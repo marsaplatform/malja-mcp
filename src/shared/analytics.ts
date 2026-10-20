@@ -1,6 +1,6 @@
 /**
  * In-memory usage analytics. Powers the demo dashboard's statistics panel.
- * Never persisted, never sent anywhere; disable with HMCP_ANALYTICS=0.
+ * Never persisted, never sent anywhere; disable with MALJA_ANALYTICS=0.
  */
 
 export interface ToolCallStat {

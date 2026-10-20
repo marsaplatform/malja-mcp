@@ -2,21 +2,21 @@
 # client at http://<host>:8642/mcp (keep it behind your reverse proxy / VPN —
 # the server is read-only but unauthenticated).
 services:
-  humanitarian-mcp:
-    image: ghcr.io/ahmedvnabil/humanitarian-mcp:latest
+  malja-mcp:
+    image: ghcr.io/marsaplatform/malja-mcp:latest
     build: .
     restart: unless-stopped
     ports:
       - '8642:8642'
     volumes:
-      - hmcp-cache:/data
+      - malja-cache:/data
     environment:
-      HMCP_PROVIDERS: unhcr,worldbank
+      MALJA_PROVIDERS: unhcr,worldbank
       # Enable HDX (conflict, food security, funding, IDPs) with a free
       # app identifier — see .env.example:
-      # HMCP_PROVIDERS: unhcr,worldbank,hdx
-      # HMCP_HDX_APP_ID: ${HMCP_HDX_APP_ID}
-      HMCP_LOG_LEVEL: info
+      # MALJA_PROVIDERS: unhcr,worldbank,hdx
+      # MALJA_HDX_APP_ID: ${MALJA_HDX_APP_ID}
+      MALJA_LOG_LEVEL: info
 
 volumes:
-  hmcp-cache:
+  malja-cache:

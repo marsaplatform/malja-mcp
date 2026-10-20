@@ -1,0 +1,14 @@
+Malja MCP (ملجأ)
+Copyright (c) 2026 Malja MCP contributors / Marsa Platform
+
+This project is derived from humanitarian-mcp
+(https://github.com/ahmedvnabil/humanitarian-mcp), created by Ahmed Nabil and
+the Humanitarian MCP contributors, and distributed under the MIT License.
+The full commit history of humanitarian-mcp is preserved in this repository.
+
+The original MIT license text and copyright notice are retained in LICENSE,
+as required by that license.
+
+Data served by this software remains the property of its respective
+providers (UNHCR, World Bank, HDX/OCHA, ReliefWeb); see each payload's
+citation and the README for attribution requirements.

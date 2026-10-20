@@ -1,11 +1,11 @@
-# humanitarian-mcp — organisational self-hosting image.
+# malja-mcp — organisational self-hosting image.
 # Runs the Streamable HTTP endpoint + dashboard on :8642 with a persistent
 # SQLite cache under /data (mount a volume to keep it across restarts).
 #
-#   docker run -p 8642:8642 -v hmcp-cache:/data ghcr.io/ahmedvnabil/humanitarian-mcp
+#   docker run -p 8642:8642 -v malja-cache:/data ghcr.io/marsaplatform/malja-mcp
 #
 # For stdio mode (desktop clients), override the command:
-#   docker run -i ghcr.io/ahmedvnabil/humanitarian-mcp node dist/index.js
+#   docker run -i ghcr.io/marsaplatform/malja-mcp node dist/index.js
 
 FROM node:22-alpine AS build
 WORKDIR /app
@@ -17,9 +17,9 @@ RUN npm run build && npm prune --omit=dev
 
 FROM node:22-alpine
 ENV NODE_ENV=production \
-    HMCP_HTTP_HOST=0.0.0.0 \
-    HMCP_CACHE=sqlite \
-    HMCP_CACHE_PATH=/data/humanitarian-mcp.sqlite
+    MALJA_HTTP_HOST=0.0.0.0 \
+    MALJA_CACHE=sqlite \
+    MALJA_CACHE_PATH=/data/malja-mcp.sqlite
 WORKDIR /app
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist

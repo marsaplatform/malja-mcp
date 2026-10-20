@@ -1,12 +1,12 @@
 {
   "mcpServers": {
-    "humanitarian": {
+    "malja": {
       "command": "node",
-      "args": ["/absolute/path/to/humanitarian-mcp/dist/index.js"],
+      "args": ["/absolute/path/to/malja-mcp/dist/index.js"],
       "env": {
-        "HMCP_CACHE": "sqlite",
-        "HMCP_CACHE_PATH": "/absolute/path/to/humanitarian-mcp/.cache/hmcp.sqlite",
-        "HMCP_LOG_LEVEL": "info"
+        "MALJA_CACHE": "sqlite",
+        "MALJA_CACHE_PATH": "/absolute/path/to/malja-mcp/.cache/malja.sqlite",
+        "MALJA_LOG_LEVEL": "info"
       }
     }
   }

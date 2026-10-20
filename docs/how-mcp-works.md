@@ -81,5 +81,5 @@ Compare what the model must know:
 | Attribution           | remember to add it              | in every payload             |
 
 The same pattern generalizes: GitHub MCP hides the GitHub REST/GraphQL split,
-Slack MCP hides cursor pagination. **Humanitarian MCP hides humanitarian-data
+Slack MCP hides cursor pagination. **Malja MCP hides humanitarian-data
 plumbing.** That is the entire job of a good MCP server.

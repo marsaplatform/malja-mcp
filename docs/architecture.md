@@ -109,7 +109,7 @@ Three time horizons, per URL:
   an ETag is stored; a `304` costs no bandwidth and resets the clock.
 
 Network failure at any point falls back to whatever is cached, with a warning.
-`HMCP_OFFLINE=1` short-circuits everything to cache-only and fails loudly on a
+`MALJA_OFFLINE=1` short-circuits everything to cache-only and fails loudly on a
 miss. The country reference list uses a 7-day TTL since it changes ~never.
 
 Backends implement a four-method `Cache` interface; the SQLite backend uses
@@ -134,7 +134,7 @@ older Node versions.
   in-process MCP client over `InMemoryTransport` — the dashboard displays
   exactly what a real client negotiates, not a parallel implementation.
   Everything except `GET /health` (the no-upstream liveness probe) is rate
-  limited per client IP (`HMCP_HTTP_RATE_LIMIT_RPM`, default 120, 0 = off) so
+  limited per client IP (`MALJA_HTTP_RATE_LIMIT_RPM`, default 120, 0 = off) so
   one caller cannot exhaust the upstream quotas all providers share, and
   `/api/status` is memoized for 15 s so dashboard refreshes never fan out to
   provider health probes.

@@ -1,13 +1,15 @@
-# Humanitarian MCP
+# Malja MCP — ملجأ
+
+> **ملجأ** _(malja', "refuge")_ — بيانات اللاجئين والنزوح والأزمات الإنسانية الموثّقة، في متناول مساعدك الذكي.
 
 **Trusted humanitarian data — refugees, conflict, hunger, funding — as one clean, citable interface for AI assistants and research code.**
 
-![Humanitarian MCP — open humanitarian data, one MCP interface](assets/social-preview.png)
+![Malja MCP — open humanitarian data, one MCP interface](assets/social-preview.png)
 
-[![CI](https://github.com/ahmedvnabil/humanitarian-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/ahmedvnabil/humanitarian-mcp/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/ahmedvnabil/humanitarian-mcp?color=2563eb)](https://github.com/ahmedvnabil/humanitarian-mcp/releases)
-[![Docker](https://img.shields.io/badge/docker-ghcr.io-0db7ed?logo=docker&logoColor=white)](https://github.com/ahmedvnabil/humanitarian-mcp/pkgs/container/humanitarian-mcp)
-[![npm](https://img.shields.io/npm/v/humanitarian-mcp?logo=npm&color=cb3837)](https://www.npmjs.com/package/humanitarian-mcp)
+[![CI](https://github.com/marsaplatform/malja-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/marsaplatform/malja-mcp/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/marsaplatform/malja-mcp?color=2563eb)](https://github.com/marsaplatform/malja-mcp/releases)
+[![Docker](https://img.shields.io/badge/docker-ghcr.io-0db7ed?logo=docker&logoColor=white)](https://github.com/marsaplatform/malja-mcp/pkgs/container/malja-mcp)
+[![npm](https://img.shields.io/npm/v/malja-mcp?logo=npm&color=cb3837)](https://www.npmjs.com/package/malja-mcp)
 [![Research: citable](<https://img.shields.io/badge/research-citable%20(CITATION.cff)-8b5cf6>)](CITATION.cff)
 [![MCP](https://img.shields.io/badge/protocol-Model%20Context%20Protocol-7c3aed)](https://modelcontextprotocol.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-16a34a.svg)](LICENSE)
@@ -22,9 +24,9 @@
 
 ---
 
-## What is Humanitarian MCP?
+## What is Malja MCP?
 
-Humanitarian MCP is an open-source server that gives AI assistants and analysis scripts **reliable, normalized, read-only access** to trusted humanitarian datasets: 75 years of UNHCR displacement statistics, World Bank context indicators, HDX crisis data (conflict events, food security, humanitarian funding, internal displacement), and ReliefWeb situation reports.
+Malja MCP is an open-source server that gives AI assistants and analysis scripts **reliable, normalized, read-only access** to trusted humanitarian datasets: 75 years of UNHCR displacement statistics, World Bank context indicators, HDX crisis data (conflict events, food security, humanitarian funding, internal displacement), and ReliefWeb situation reports.
 
 **MCP in one paragraph:** the [Model Context Protocol](https://modelcontextprotocol.io) is an open standard — think "USB for AI tools" — that lets any AI application (Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, custom agents) plug into external systems through one protocol. A server like this one exposes _tools_ the model can call, _resources_ it can read, and _prompts_ it can reuse. Connect it once, and every question your assistant answers about displacement is grounded in the real numbers instead of its training data. New to MCP? Read [docs/how-mcp-works.md](docs/how-mcp-works.md).
 
@@ -49,7 +51,7 @@ Without a trusted middleware, an LLM pointed at raw humanitarian APIs re-discove
 ## Architecture
 
 <p align="center">
-  <img src="assets/data-flow.svg" width="900" alt="Animated data flow — UNHCR, World Bank, HDX and ReliefWeb feed Humanitarian MCP, which normalizes everything to ISO3 with one schema and a citation on every payload, then serves AI clients (Claude, Cursor, VS Code, custom agents) over stdio or HTTP, strictly read-only">
+  <img src="assets/data-flow.svg" width="900" alt="Animated data flow — UNHCR, World Bank, HDX and ReliefWeb feed Malja MCP, which normalizes everything to ISO3 with one schema and a citation on every payload, then serves AI clients (Claude, Cursor, VS Code, custom agents) over stdio or HTTP, strictly read-only">
 </p>
 
 <details><summary><strong>Detailed component diagram</strong></summary>
@@ -57,7 +59,7 @@ Without a trusted middleware, an LLM pointed at raw humanitarian APIs re-discove
 ```mermaid
 flowchart TD
     U["You"] --> C["Claude Desktop · Claude Code · Cursor · VS Code · Windsurf<br/>or your own MCP agent"]
-    C -->|"MCP (stdio or Streamable HTTP)"| S["Humanitarian MCP<br/>21 tools · 11+ resources · 8 prompts"]
+    C -->|"MCP (stdio or Streamable HTTP)"| S["Malja MCP<br/>21 tools · 11+ resources · 8 prompts"]
     S --> R["Provider registry<br/>(tools never see provider internals)"]
     R --> P1["UNHCR provider<br/>displacement · demographics · asylum"]
     R --> P2["World Bank provider<br/>population · GDP · poverty"]
@@ -81,7 +83,7 @@ Three invariants hold everywhere: **(1)** nothing provider-specific leaks outsid
 |                     | 🖥️ **Self-hosted**                                                      | ☁️ **Hosted endpoint**                                                                    |
 | ------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | Setup               | Install Node/Docker, run the server                                     | **None** — paste one URL                                                                  |
-| Who runs it         | You, on your machine or infra                                           | Maintainer-operated at `humanitarian-mcp.zad.tools`                                       |
+| Who runs it         | You, on your machine or infra                                           | Maintainer-operated at `malja-mcp.example.com`                                            |
 | Privacy             | Queries never leave your machine (except to the public data APIs)       | Queries pass through the hosted server                                                    |
 | Offline / fieldwork | ✅ full offline mode with a warmed cache                                | ❌ needs internet                                                                         |
 | Configuration       | Every knob: providers, cache, rate limits                               | Fixed server-side                                                                         |
@@ -99,9 +101,9 @@ You install and run the server yourself. You own everything: the process, the ca
 // Claude Desktop — claude_desktop_config.json
 {
   "mcpServers": {
-    "humanitarian": {
+    "malja": {
       "command": "node",
-      "args": ["/absolute/path/to/humanitarian-mcp/dist/index.js"],
+      "args": ["/absolute/path/to/malja-mcp/dist/index.js"],
     },
   },
 }
@@ -109,14 +111,16 @@ You install and run the server yourself. You own everything: the process, the ca
 
 ### Mode 2 — Hosted endpoint
 
+> **TODO (Malja MCP):** the hosted Malja endpoint is not live yet. `malja-mcp.example.com` below is a placeholder — replace it with the real URL once deployed.
+
 No infrastructure. Connect any Streamable-HTTP-capable MCP client to:
 
 ```
-https://humanitarian-mcp.zad.tools/mcp
+https://malja-mcp.example.com/mcp
 ```
 
 - **claude.ai / Claude Desktop (remote connector):** add a custom connector with that URL.
-- **Claude Code:** `claude mcp add --transport http humanitarian https://humanitarian-mcp.zad.tools/mcp`
+- **Claude Code:** `claude mcp add --transport http malja https://malja-mcp.example.com/mcp`
 - **Anything that speaks HTTP:** see [examples/http-client.md](examples/http-client.md) — the endpoint is stateless JSON-RPC, no session juggling.
 
 No API key is required today. The service is operated on a best-effort basis by the maintainer; free and paid tiers may be introduced in the future — nothing beyond what you see here is promised. If you need guarantees, self-host: it is the same code.
@@ -184,7 +188,7 @@ More worked conversations with tool traces: [examples/conversations.md](examples
 - **Documented data**: `include_codebook: true` generates variable-level documentation (meaning, unit, derivation — including how recognition rates and funding coverage are computed) for exactly the columns you exported.
 - **Join-ready**: every row carries ISO3, so merges against World Bank / V-Dem / UCDP panels need no country-name crosswalk.
 - **Honest methods**: end-year stock semantics, denominator years, truncation and forecast naivety are stated in the output, not hidden.
-- **Fieldwork-ready**: warm the SQLite cache once, then `HMCP_OFFLINE=1` gives the full toolset with zero connectivity.
+- **Fieldwork-ready**: warm the SQLite cache once, then `MALJA_OFFLINE=1` gives the full toolset with zero connectivity.
 
 Start here: [docs/for-researchers.md](docs/for-researchers.md) · [notebooks](examples/notebooks/).
 
@@ -194,34 +198,36 @@ Requires **Node.js ≥ 20** for source installs (SQLite cache uses built-in `nod
 
 ### From npm — no clone needed
 
+> **Note:** the `malja-mcp` npm package has not been published yet (releases are disabled until `MALJA_RELEASE_ENABLED=true`). Until then, install from source (below).
+
 ```bash
-npx humanitarian-mcp --version   # → humanitarian-mcp 0.6.0
+npx malja-mcp --version   # → malja-mcp 0.6.0
 ```
 
 Register it with Claude Code in one line:
 
 ```bash
-claude mcp add humanitarian -- npx -y humanitarian-mcp
+claude mcp add malja -- npx -y malja-mcp
 ```
 
 ### Claude Desktop — one click (no terminal)
 
-Download **`humanitarian-mcp.mcpb`** from the [latest release](https://github.com/ahmedvnabil/humanitarian-mcp/releases/latest) and double-click it. Done.
+Download **`malja-mcp.mcpb`** from the [latest release](https://github.com/marsaplatform/malja-mcp/releases/latest) and double-click it. Done.
 
 ### From source
 
 ```bash
-git clone https://github.com/ahmedvnabil/humanitarian-mcp
-cd humanitarian-mcp
+git clone https://github.com/marsaplatform/malja-mcp
+cd malja-mcp
 npm install
 npm run build
-node dist/index.js --version   # → humanitarian-mcp 0.6.0
+node dist/index.js --version   # → malja-mcp 0.6.0
 ```
 
 ### Docker
 
 ```bash
-docker run -p 8642:8642 -v hmcp-cache:/data ghcr.io/ahmedvnabil/humanitarian-mcp
+docker run -p 8642:8642 -v malja-cache:/data ghcr.io/marsaplatform/malja-mcp
 # → MCP endpoint at http://localhost:8642/mcp + dashboard at http://localhost:8642
 ```
 
@@ -234,9 +240,9 @@ Or `docker compose up -d` with the provided [compose.yaml](compose.yaml).
 ```json
 {
   "mcpServers": {
-    "humanitarian": {
+    "malja": {
       "command": "node",
-      "args": ["/absolute/path/to/humanitarian-mcp/dist/index.js"]
+      "args": ["/absolute/path/to/malja-mcp/dist/index.js"]
     }
   }
 }
@@ -249,7 +255,7 @@ Sample with cache tuning: [examples/claude-desktop-config.json](examples/claude-
 <details><summary><strong>Claude Code</strong></summary>
 
 ```bash
-claude mcp add humanitarian -- node /absolute/path/to/humanitarian-mcp/dist/index.js
+claude mcp add malja -- node /absolute/path/to/malja-mcp/dist/index.js
 ```
 
 </details>
@@ -259,9 +265,9 @@ claude mcp add humanitarian -- node /absolute/path/to/humanitarian-mcp/dist/inde
 ```json
 {
   "mcpServers": {
-    "humanitarian": {
+    "malja": {
       "command": "node",
-      "args": ["/absolute/path/to/humanitarian-mcp/dist/index.js"]
+      "args": ["/absolute/path/to/malja-mcp/dist/index.js"]
     }
   }
 }
@@ -274,10 +280,10 @@ claude mcp add humanitarian -- node /absolute/path/to/humanitarian-mcp/dist/inde
 ```json
 {
   "servers": {
-    "humanitarian": {
+    "malja": {
       "type": "stdio",
       "command": "node",
-      "args": ["/absolute/path/to/humanitarian-mcp/dist/index.js"]
+      "args": ["/absolute/path/to/malja-mcp/dist/index.js"]
     }
   }
 }
@@ -290,9 +296,9 @@ claude mcp add humanitarian -- node /absolute/path/to/humanitarian-mcp/dist/inde
 ```json
 {
   "mcpServers": {
-    "humanitarian": {
+    "malja": {
       "command": "node",
-      "args": ["/absolute/path/to/humanitarian-mcp/dist/index.js"]
+      "args": ["/absolute/path/to/malja-mcp/dist/index.js"]
     }
   }
 }
@@ -308,7 +314,7 @@ Then ask: _"What are the top refugee-hosting countries this year?"_
 # one-time: generate a free identifier (base64 of app-name:email — not a secret)
 curl 'https://hapi.humdata.org/api/v2/encode_app_identifier?application=<your-app>&email=<your-email>'
 
-HMCP_PROVIDERS=unhcr,worldbank,hdx HMCP_HDX_APP_ID=<identifier> node dist/index.js
+MALJA_PROVIDERS=unhcr,worldbank,hdx MALJA_HDX_APP_ID=<identifier> node dist/index.js
 ```
 
 ### Enable ReliefWeb situation reports (optional)
@@ -317,7 +323,7 @@ HMCP_PROVIDERS=unhcr,worldbank,hdx HMCP_HDX_APP_ID=<identifier> node dist/index.
 # one-time: request a pre-approved appname (short form, reviewed by ReliefWeb)
 # https://apidoc.reliefweb.int/parameters#appname
 
-HMCP_PROVIDERS=unhcr,worldbank,reliefweb HMCP_RELIEFWEB_APPNAME=<appname> node dist/index.js
+MALJA_PROVIDERS=unhcr,worldbank,reliefweb MALJA_RELIEFWEB_APPNAME=<appname> node dist/index.js
 ```
 
 All configuration knobs: [.env.example](.env.example).
@@ -331,21 +337,21 @@ npm run inspect     # → official MCP Inspector
 
 In `--http` mode, `GET /health` is a dependency-free liveness probe for uptime
 monitors, and every other route is rate limited per client IP
-(`HMCP_HTTP_RATE_LIMIT_RPM`, default 120/min) so a public endpoint cannot be
+(`MALJA_HTTP_RATE_LIMIT_RPM`, default 120/min) so a public endpoint cannot be
 used to exhaust the upstream quotas all providers share.
 
 ## Repository tour
 
-| Path                                                        | What lives there                                                                                                                                                                                                                                                                                                                                                   |
-| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [`src/`](src/)                                              | The server. `providers/` (one directory per data source — the only place provider quirks may exist), `tools/`, `resources/`, `prompts/`, `shared/` (HTTP, cache, rate limiting, stats, country matching), `viz/`, `http/` (Streamable HTTP + dashboard)                                                                                                            |
-| [`docs/`](docs/)                                            | [tools.md](docs/tools.md) (tool reference) · [architecture.md](docs/architecture.md) · [for-researchers.md](docs/for-researchers.md) · [how-mcp-works.md](docs/how-mcp-works.md) (MCP primer) · [adding-providers.md](docs/adding-providers.md) · [development.md](docs/development.md) · `index.html` (Arabic landing page, served at humanitarian-mcp.zad.tools) |
-| [`examples/`](examples/)                                    | Client configs, worked conversations with tool traces, HTTP client recipes, runnable [Python/R notebooks](examples/notebooks/)                                                                                                                                                                                                                                     |
-| [`tests/`](tests/)                                          | 153 tests: MCP compliance suite (official SDK client ↔ real server), fixture-based provider suites (no network), unit tests                                                                                                                                                                                                                                        |
-| [`paper/`](paper/)                                          | JOSS paper draft (`paper.md` + `paper.bib`)                                                                                                                                                                                                                                                                                                                        |
-| [`marketing/`](marketing/)                                  | Launch kit: platform-native announcement drafts                                                                                                                                                                                                                                                                                                                    |
-| [`Dockerfile`](Dockerfile) / [`compose.yaml`](compose.yaml) | Organizational self-hosting (image published to GHCR on every release)                                                                                                                                                                                                                                                                                             |
-| [`.github/`](.github/)                                      | CI (Node 20/22/24), release automation (npm + `.mcpb` + Docker on tag), issue templates incl. a provider-request template                                                                                                                                                                                                                                          |
+| Path                                                        | What lives there                                                                                                                                                                                                                                                                                                                                              |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`src/`](src/)                                              | The server. `providers/` (one directory per data source — the only place provider quirks may exist), `tools/`, `resources/`, `prompts/`, `shared/` (HTTP, cache, rate limiting, stats, country matching), `viz/`, `http/` (Streamable HTTP + dashboard)                                                                                                       |
+| [`docs/`](docs/)                                            | [tools.md](docs/tools.md) (tool reference) · [architecture.md](docs/architecture.md) · [for-researchers.md](docs/for-researchers.md) · [how-mcp-works.md](docs/how-mcp-works.md) (MCP primer) · [adding-providers.md](docs/adding-providers.md) · [development.md](docs/development.md) · `index.html` (Arabic landing page, served at malja-mcp.example.com) |
+| [`examples/`](examples/)                                    | Client configs, worked conversations with tool traces, HTTP client recipes, runnable [Python/R notebooks](examples/notebooks/)                                                                                                                                                                                                                                |
+| [`tests/`](tests/)                                          | 153 tests: MCP compliance suite (official SDK client ↔ real server), fixture-based provider suites (no network), unit tests                                                                                                                                                                                                                                   |
+| [`paper/`](paper/)                                          | JOSS paper draft (`paper.md` + `paper.bib`)                                                                                                                                                                                                                                                                                                                   |
+| [`marketing/`](marketing/)                                  | Launch kit: platform-native announcement drafts                                                                                                                                                                                                                                                                                                               |
+| [`Dockerfile`](Dockerfile) / [`compose.yaml`](compose.yaml) | Organizational self-hosting (image published to GHCR on every release)                                                                                                                                                                                                                                                                                        |
+| [`.github/`](.github/)                                      | CI (Node 20/22/24), release automation (npm + `.mcpb` + Docker on tag), issue templates incl. a provider-request template                                                                                                                                                                                                                                     |
 
 ## Development
 
@@ -370,7 +376,7 @@ Releases: bump the version, tag `v*`, push — CI publishes the GitHub release w
 - v0.5.0 — codebooks, Python/R notebooks, JOSS paper draft
 - v0.5.1 — HDX fixes from the first live verification round (per-theme admin levels, server-side year windows, pagination)
 - v0.6.0 — **ReliefWeb provider** (situation reports + latest report links), `situation_reports` tool, `crisis_overview` prompt, hardened public HTTP mode (per-IP rate limiting, `GET /health`), bilingual landing page
-- **Published to npm** — `npx humanitarian-mcp` is live
+- Published to npm as `humanitarian-mcp` (pre-rebrand); `malja-mcp` package pending
 
 **🚧 In progress**
 
@@ -455,7 +461,7 @@ The hosted instance runs this open-source code, which keeps in-memory usage coun
 
 <details><summary><strong>Does it work offline / in the field?</strong></summary>
 
-Yes (self-hosted): run once online with `HMCP_CACHE=sqlite` to warm the cache, then `HMCP_OFFLINE=1` serves everything from cache and fails loudly on misses.
+Yes (self-hosted): run once online with `MALJA_CACHE=sqlite` to warm the cache, then `MALJA_OFFLINE=1` serves everything from cache and fails loudly on misses.
 </details>
 
 <details><summary><strong>Which AI clients are supported?</strong></summary>
@@ -514,19 +520,19 @@ Software (also available via GitHub's **"Cite this repository"** button — [CIT
 **BibTeX**
 
 ```bibtex
-@software{nabil_humanitarian_mcp_2026,
+@software{nabil_malja_mcp_2026,
   author  = {Nabil, Ahmed},
-  title   = {humanitarian-mcp: a Model Context Protocol server for humanitarian open data},
+  title   = {malja-mcp: a Model Context Protocol server for humanitarian open data},
   year    = {2026},
   version = {0.6.0},
-  url     = {https://github.com/ahmedvnabil/humanitarian-mcp},
+  url     = {https://github.com/marsaplatform/malja-mcp},
   license = {MIT}
 }
 ```
 
-**APA** — Nabil, A. (2026). _humanitarian-mcp: A Model Context Protocol server for humanitarian open data_ (Version 0.6.0) [Computer software]. https://github.com/ahmedvnabil/humanitarian-mcp
+**APA** — Nabil, A. (2026). _malja-mcp: A Model Context Protocol server for humanitarian open data_ (Version 0.6.0) [Computer software]. https://github.com/marsaplatform/malja-mcp
 
-**Chicago** — Nabil, Ahmed. _humanitarian-mcp: A Model Context Protocol Server for Humanitarian Open Data_. V. 0.6.0. Computer software, 2026. https://github.com/ahmedvnabil/humanitarian-mcp.
+**Chicago** — Nabil, Ahmed. _malja-mcp: A Model Context Protocol Server for Humanitarian Open Data_. V. 0.6.0. Computer software, 2026. https://github.com/marsaplatform/malja-mcp.
 
 Cite the **data** as its producers: UNHCR Refugee Data Finder; World Bank World Development Indicators (CC BY 4.0); ACLED / IPC / OCHA FTS / IOM DTM via HDX HAPI — every export's manifest carries the exact citation string for its dataset. Method notes: [docs/for-researchers.md](docs/for-researchers.md).
 

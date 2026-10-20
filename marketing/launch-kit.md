@@ -1,4 +1,4 @@
-# Launch kit — humanitarian-mcp
+# Launch kit — malja-mcp
 
 Platform-native drafts, ready to paste after the repo goes live. One core
 angle, adapted per platform — do not cross-post the same copy.
@@ -9,7 +9,7 @@ angle, adapted per platform — do not cross-post the same copy.
 > its own country codes that contradict ISO for **99 of 232 countries**
 > (Egypt is `ARE` — which is the UAE's ISO code). Every AI assistant hitting
 > the raw API rediscovers these traps and silently gets wrong answers.
-> humanitarian-mcp fixes them **once**, behind the Model Context Protocol,
+> malja-mcp fixes them **once**, behind the Model Context Protocol,
 > for every assistant at the same time.
 
 Supporting specifics (use these, not adjectives): 99/232 code mismatches ·
@@ -31,7 +31,7 @@ empty results instead of errors when you guess wrong.
 
 So I fixed it once, for every assistant.
 
-**2/** humanitarian-mcp: an open-source MCP server for humanitarian open data.
+**2/** malja-mcp: an open-source MCP server for humanitarian open data.
 
 Your assistant asks: "compare refugee populations in Egypt and Jordan"
 It gets: clean tables, ISO3 codes, year-stamped figures, UNHCR citation.
@@ -68,7 +68,7 @@ one directory implementing one interface, and there's a step-by-step guide.
 **7/** MIT licensed. Try it in 10 seconds — a hosted endpoint is live, or run
 it locally with Claude Desktop, Claude Code, Cursor — anything that speaks MCP.
 
-humanitarian-mcp.zad.tools
+malja-mcp.example.com
 
 If you work in humanitarian data or build MCP servers, I'd genuinely value
 your eyes on it.
@@ -87,7 +87,7 @@ mismatches like this, and wrong guesses return empty data instead of errors.
 An AI assistant built on that either hallucinates or goes silent. Neither is
 acceptable when the numbers describe displaced people.
 
-humanitarian-mcp is my answer: an open-source Model Context Protocol server
+malja-mcp is my answer: an open-source Model Context Protocol server
 that gives any AI assistant (Claude, Cursor, custom agents) clean, cited
 access to three live sources — UNHCR's 75 years of refugee statistics, World
 Bank context indicators, and HDX crisis data (conflict, food security,
@@ -113,7 +113,7 @@ _(first comment: repo link + quick-start)_
 
 ## 3 · Show HN
 
-**Title:** Show HN: Humanitarian MCP – UNHCR refugee data as an MCP server
+**Title:** Show HN: Malja MCP – UNHCR refugee data as an MCP server
 
 **Body:**
 
@@ -149,8 +149,8 @@ particularly welcome scrutiny of the normalization semantics from anyone who
 works with this data professionally, and feedback on the MCP surface design
 from folks building servers.
 
-Repo: https://github.com/ahmedvnabil/humanitarian-mcp
-Hosted endpoint + landing page (Arabic): https://humanitarian-mcp.zad.tools
+Repo: https://github.com/marsaplatform/malja-mcp
+Hosted endpoint + landing page (Arabic): https://malja-mcp.example.com
 
 ---
 
@@ -185,6 +185,6 @@ your org (LinkedIn) · "add ReliefWeb with me" (community posts).
 ## Missing inputs before publishing
 
 - [ ] Repo actually pushed (badges 404 until then)
-- [ ] npm name `humanitarian-mcp` availability if publishing the package
+- [ ] npm name `malja-mcp` availability if publishing the package
 - [ ] Optional but high-impact: 30-second GIF of the dashboard "Try a query" panel
 - [ ] Your preferred author handle/name in package.json (`author` field is empty)

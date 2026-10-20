@@ -36,7 +36,7 @@ const MAX_THEME_PAGES = 10;
  * funding (OCHA FTS) and food security (IPC).
  *
  * HAPI speaks ISO3 natively — no code translation needed — but requires a
- * free app identifier (HMCP_HDX_APP_ID); context.ts enforces that with an
+ * free app identifier (MALJA_HDX_APP_ID); context.ts enforces that with an
  * actionable error before this class is ever constructed.
  */
 

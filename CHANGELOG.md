@@ -4,11 +4,28 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- **Rebranded to Malja MCP (ملجأ — "refuge")** and moved to
+  `marsaplatform/malja-mcp`. Package / CLI / MCP server name is now
+  `malja-mcp`; Docker image `ghcr.io/marsaplatform/malja-mcp`; `.mcpb` bundle
+  `malja-mcp.mcpb`.
+- Environment variables renamed `HMCP_*` → `MALJA_*`. The old `HMCP_*` names
+  are still read as a deprecated fallback (new names win when both are set).
+- Release workflow is disabled until the repository variable
+  `MALJA_RELEASE_ENABLED=true` is set; npm publish refuses any package name
+  other than `malja-mcp`.
+- Forked from [humanitarian-mcp](https://github.com/ahmedvnabil/humanitarian-mcp)
+  (MIT); history below predates the rename. See `NOTICE`.
+
 ## [0.7.0] — 2026-08-12
 
 Usage measurement for an open, free service — privacy-first, no paywall.
 
 ### Added
+
 - **Anonymous aggregate metrics** (always on): per-day, per-tool request counts
   split keyed vs anonymous, plus a same-day unique-client estimate. Uniqueness
   uses a per-day in-memory salt so stored hashes cannot be linked across days or

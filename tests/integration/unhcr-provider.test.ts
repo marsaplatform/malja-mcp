@@ -48,9 +48,9 @@ function stubFetch(): { impl: typeof fetch; urls: string[] } {
 
 function buildProvider(offline = false, cache = new InstrumentedCache(new MemoryCache())) {
   const config = loadConfig({
-    HMCP_OFFLINE: offline ? '1' : '0',
-    HMCP_RATE_LIMIT_RPS: '1000',
-    HMCP_LOG_LEVEL: 'error',
+    MALJA_OFFLINE: offline ? '1' : '0',
+    MALJA_RATE_LIMIT_RPS: '1000',
+    MALJA_LOG_LEVEL: 'error',
   });
   const provider = new UnhcrProvider(config, cache, new Logger('error', () => {}));
   return { provider, cache };

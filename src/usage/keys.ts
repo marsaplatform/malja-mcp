@@ -1,5 +1,5 @@
 /**
- * Free Humanitarian MCP API keys.
+ * Free Malja MCP API keys.
  *
  * The server stays fully open — anonymous calls always work under the per-IP
  * rate limit. A free key (issued after a one-field email sign-up on the
@@ -7,7 +7,7 @@
  * rate limit up to a generous monthly ceiling. There is no paywall.
  *
  * Keys are stateless: `hm_<customerId>_<hmac16>`, where the signature is an
- * HMAC over the id with HMCP_KEY_SECRET (shared only with the issuing store).
+ * HMAC over the id with MALJA_KEY_SECRET (shared only with the issuing store).
  * No key database exists; a cancelled account fails the monthly-cap lookup at
  * the billing layer, not here.
  */

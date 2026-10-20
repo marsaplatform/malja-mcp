@@ -1,5 +1,5 @@
 ---
-title: 'humanitarian-mcp: a Model Context Protocol server for humanitarian open data'
+title: 'malja-mcp: a Model Context Protocol server for humanitarian open data'
 tags:
   - humanitarian data
   - forced displacement
@@ -20,7 +20,7 @@ bibliography: paper.bib
 
 # Summary
 
-`humanitarian-mcp` is an open-source server that exposes trusted humanitarian
+`malja-mcp` is an open-source server that exposes trusted humanitarian
 open datasets to AI assistants and analysis scripts through the Model Context
 Protocol (MCP) [@mcp]. It currently serves four sources behind one uniform,
 read-only interface: the UNHCR Refugee Statistics API [@unhcr_rdf] (75 years
@@ -54,7 +54,7 @@ rather than errors. Researchers who point an AI assistant (or their own
 scripts) at these APIs re-discover the same traps in every session, and
 subtle failures produce plausible-looking but wrong numbers.
 
-`humanitarian-mcp` encodes these quirks once, at the provider layer, and
+`malja-mcp` encodes these quirks once, at the provider layer, and
 exposes only normalized records above it. Three design invariants hold
 throughout: nothing provider-specific leaks outside a provider's module;
 every tool is read-only and annotated as such; and errors reach the caller
@@ -71,7 +71,7 @@ The per-capita normalization addresses a recurring analytical error in
 public discussion of displacement: absolute hosting numbers dominate
 headlines, while the hosting _burden_ — refugees per 1,000 residents or per
 unit of GDP — reorders the picture toward countries such as Lebanon, Jordan
-and Chad. `humanitarian-mcp` matches denominators per year (2015 refugees
+and Chad. `malja-mcp` matches denominators per year (2015 refugees
 over 2015 population) and discloses the denominator year on every row.
 
 The intended users are (i) quantitative researchers in forced-migration
@@ -89,7 +89,7 @@ Existing open-source clients for these sources are per-source and
 per-language: the `refugees` R package [@refugees_r] and UNHCR's data
 packages wrap the Refugee Statistics API for R; `hdx-python-api`
 [@hdx_python] wraps HDX for Python; the World Bank has clients in most
-languages. `humanitarian-mcp` differs in three ways: it is _cross-source_
+languages. `malja-mcp` differs in three ways: it is _cross-source_
 (one normalized record shape and one country-code scheme across providers,
 with cross-source denominators built in); it is _protocol-first_ (any
 MCP-capable client — AI assistants, editors, agent frameworks — gets the
