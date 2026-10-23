@@ -56,7 +56,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "zod": "^3.25.76"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
@@ -68,5 +68,8 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.35.0",
     "vitest": "^5.0.5"
+  },
+  "overrides": {
+    "postcss-selector-parser": "^7.1.0"
   }
 }

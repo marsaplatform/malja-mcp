@@ -23,7 +23,7 @@ export const NormalizedRecordSchema = z.object({
   asylum_code: z.string().optional(),
   year: z.number(),
   population: z.number(),
-  metrics: z.record(z.number()),
+  metrics: z.record(z.string(), z.number()),
   source: z.string(),
   last_updated: z.string(),
   dataset: z.string(),

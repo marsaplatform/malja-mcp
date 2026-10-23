@@ -113,7 +113,7 @@ export function registerCrisisTools(server: McpServer, ctx: AppContext): void {
         country: z.string(),
         country_code: z.string(),
         year: z.number(),
-        phases: z.record(z.number()),
+        phases: z.record(z.string(), z.number()),
         people_crisis_or_worse: z.number(),
         source: z.string(),
       },

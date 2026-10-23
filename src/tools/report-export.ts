@@ -166,7 +166,7 @@ export function registerReportExportTools(server: McpServer, ctx: AppContext): v
         locale: z.string(),
         pdf_engine: z.string().optional(),
         fallback_reason: z.string().optional(),
-        manifest: z.record(z.unknown()).optional(),
+        manifest: z.record(z.string(), z.unknown()).optional(),
       },
     },
     async (args, extra, tr) => {

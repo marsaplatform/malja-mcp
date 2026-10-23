@@ -72,10 +72,10 @@ export function registerCountryTools(server: McpServer, ctx: AppContext): void {
         region: z.string().optional(),
         year: z.number().optional(),
         hosted: z
-          .record(z.number())
+          .record(z.string(), z.number())
           .describe('Latest people-of-concern figures hosted in the country'),
         displaced_abroad: z
-          .record(z.number())
+          .record(z.string(), z.number())
           .describe('Latest figures for people displaced FROM the country'),
         top_origins: z.array(
           z.object({ country: z.string(), country_code: z.string(), refugees: z.number() }),
@@ -168,7 +168,11 @@ export function registerCountryTools(server: McpServer, ctx: AppContext): void {
       description:
         'Compare a displacement metric across 2–5 countries over a year range. Defaults to refugees hosted (role "asylum") over the last 10 years. Set normalize_by to compare per 1,000 residents or per US$1bn GDP instead of absolute numbers.',
       inputSchema: {
-        countries: z.array(countryInput).min(2).max(5).describe('Two to five countries to compare'),
+        countries: z
+          .array(countryInput)
+          .min(2, 'Array must contain at least 2 element(s)')
+          .max(5)
+          .describe('Two to five countries to compare'),
         metric: z
           .string()
           .optional()
