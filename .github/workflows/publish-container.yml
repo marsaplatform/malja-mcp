@@ -1,7 +1,16 @@
 name: Publish company container
 
 on:
+  push:
+    tags: ['v*']
+  release:
+    types: [published]
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Optional numbered version; must match package.json (blank = snapshot)'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -21,7 +30,12 @@ jobs:
           node-version: 22
           cache: npm
       - name: Validate source
-        run: npm ci && npm run typecheck && npm test && npm run build
+        run: npm ci && npm run check && npm run build && npm audit --audit-level=high
+      - name: Validate release rules
+        run: node --test scripts/container-release.check.mjs
+      - name: Resolve release version
+        id: release
+        run: node scripts/container-release.mjs
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
@@ -33,10 +47,24 @@ jobs:
         id: meta
         with:
           images: ghcr.io/marsaplatform/malja-mcp
+          flavor: latest=false
           tags: |
-            type=sha
-            type=raw,value=latest
+            type=semver,pattern={{version}},value=${{ steps.release.outputs.version }},enable=${{ steps.release.outputs.version != '' }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.release.outputs.version }},enable=${{ steps.release.outputs.stable == 'true' }}
+            type=sha,format=long
+            type=raw,value=latest,enable=${{ steps.release.outputs.latest == 'true' }}
+      - name: Build runtime for pre-publication test
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          load: true
+          push: false
+          tags: company-container:smoke
+      - name: Test runtime before publication
+        run: bash scripts/smoke-container.sh company-container:smoke node 8642 /api/status
       - uses: docker/build-push-action@v6
+        id: build
         with:
           context: .
           platforms: linux/amd64,linux/arm64
@@ -45,3 +73,14 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           provenance: true
           sbom: true
+
+      - name: Verify public published runtime
+        env:
+          PUBLISHED_IMAGE: ghcr.io/marsaplatform/malja-mcp@${{ steps.build.outputs.digest }}
+          EXPECTED_SOURCE: https://github.com/marsaplatform/malja-mcp
+        run: |
+          docker logout ghcr.io
+          docker pull --platform linux/amd64 "$PUBLISHED_IMAGE"
+          source=$(docker image inspect --platform linux/amd64 "$PUBLISHED_IMAGE" --format '{{ index .Config.Labels "org.opencontainers.image.source" }}')
+          test "$source" = "$EXPECTED_SOURCE"
+          bash scripts/smoke-container.sh "$PUBLISHED_IMAGE" node 8642 /api/status
