@@ -161,3 +161,24 @@ Validation records are dated rather than embedded as permanent marketing counts:
 ## Attribution
 
 Independent project; not an official UN or World Bank product. Data retains its original publishers' attribution and terms. Cite both the software and the original datasets; preserve the extraction manifest when sharing results. The source code is [MIT licensed](LICENSE).
+
+## Existing GitHub Container package
+
+The original container package remains at `ghcr.io/ahmedvnabil/humanitarian-mcp`,
+while its maintained source is now [`marsaplatform/malja-mcp`](https://github.com/marsaplatform/malja-mcp).
+Its visibility remains **public**. Existing version tags are preserved.
+
+```sh
+docker pull ghcr.io/ahmedvnabil/humanitarian-mcp:latest
+```
+
+The manually triggered **Refresh existing GHCR package** workflow validates
+the current source and publishes `latest` plus an immutable `sha-<full-commit>`
+tag to this same package. It labels the image with the current repository URL.
+For reproducible installations, use that SHA tag instead of `latest`.
+
+The workflow needs a repository secret named `GHCR_COMPAT_TOKEN`, containing
+a classic token for the package owner with `read:packages` and `write:packages`.
+The moved repository's default `GITHUB_TOKEN` cannot by itself publish to the
+original personal-account namespace. The workflow verifies the existing package
+is public before publishing; it never changes package visibility.
