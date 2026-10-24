@@ -161,3 +161,17 @@ Validation records are dated rather than embedded as permanent marketing counts:
 ## Attribution
 
 Independent project; not an official UN or World Bank product. Data retains its original publishers' attribution and terms. Cite both the software and the original datasets; preserve the extraction manifest when sharing results. The source code is [MIT licensed](LICENSE).
+
+## Company container image
+
+The maintained container is published under the company account and linked to
+[`marsaplatform/malja-mcp`](https://github.com/marsaplatform/malja-mcp).
+
+```sh
+docker pull ghcr.io/marsaplatform/malja-mcp:latest
+```
+
+Use the **Publish company container** workflow to publish the current source.
+`latest` tracks the latest manual publication; immutable `sha-…` tags identify
+the source commit. Historical packages in the old personal namespace are not
+the maintained installation target. Publishing does not change repository visibility.
