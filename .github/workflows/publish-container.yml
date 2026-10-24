@@ -81,6 +81,4 @@ jobs:
         run: |
           docker logout ghcr.io
           docker pull --platform linux/amd64 "$PUBLISHED_IMAGE"
-          source=$(docker image inspect --platform linux/amd64 "$PUBLISHED_IMAGE" --format '{{ index .Config.Labels "org.opencontainers.image.source" }}')
-          test "$source" = "$EXPECTED_SOURCE"
-          bash scripts/smoke-container.sh "$PUBLISHED_IMAGE" node 8642 /api/status
+          bash scripts/smoke-container.sh "$PUBLISHED_IMAGE" node 8642 /api/status "$EXPECTED_SOURCE"
