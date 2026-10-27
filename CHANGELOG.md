@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.8.0] — 2026-10-28
+
 ### Added
 
 - **Full Arabic output (`locale: "ar"`)**. Every tool accepts an optional
