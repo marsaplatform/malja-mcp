@@ -1,6 +1,6 @@
 {
   "name": "malja-mcp",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Malja MCP (ملجأ, \"refuge\") — Model Context Protocol server for humanitarian open data: UNHCR, World Bank, HDX and ReliefWeb. Semantic tools, resources and prompts over trusted public datasets.",
   "keywords": [
     "malja",
