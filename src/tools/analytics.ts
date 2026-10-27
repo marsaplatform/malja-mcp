@@ -311,7 +311,10 @@ export function registerAnalyticsTools(server: McpServer, ctx: AppContext): void
         intervals: z.string(),
         caveat: z.string(),
         chart: z
-          .object({ format: z.string(), spec: z.union([z.record(z.unknown()), z.string()]) })
+          .object({
+            format: z.string(),
+            spec: z.union([z.record(z.string(), z.unknown()), z.string()]),
+          })
           .optional(),
       },
     },

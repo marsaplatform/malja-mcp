@@ -50,7 +50,7 @@ export function registerChartTools(server: McpServer, ctx: AppContext): void {
         title: z.string(),
         unit: z.string(),
         /** The spec: an object for chartjs/vega-lite, a string for mermaid/svg. */
-        spec: z.union([z.record(z.unknown()), z.string()]),
+        spec: z.union([z.record(z.string(), z.unknown()), z.string()]),
       },
     },
     async (
@@ -207,7 +207,7 @@ export function registerChartTools(server: McpServer, ctx: AppContext): void {
         metric: z.string(),
         feature_count: z.number(),
         skipped_countries: z.array(z.string()),
-        geojson: z.record(z.unknown()),
+        geojson: z.record(z.string(), z.unknown()),
       },
     },
     async ({ year, metric, by, limit }, _extra, tr) => {

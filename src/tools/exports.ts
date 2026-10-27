@@ -96,8 +96,8 @@ export function registerExportTools(server: McpServer, ctx: AppContext): void {
         row_count: z.number(),
         truncated: z.boolean(),
         /** The serialized payload: a string for csv/markdown, an object for json/geojson. */
-        data: z.union([z.string(), z.record(z.unknown())]),
-        manifest: z.record(z.unknown()).optional(),
+        data: z.union([z.string(), z.record(z.string(), z.unknown())]),
+        manifest: z.record(z.string(), z.unknown()).optional(),
         codebook: z
           .array(z.object({ field: z.string(), description: z.string(), unit: z.string() }))
           .optional(),

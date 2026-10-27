@@ -7,7 +7,9 @@
 # For stdio mode (desktop clients), override the command:
 #   docker run -i ghcr.io/marsaplatform/malja-mcp node dist/index.js
 
-FROM node:22-alpine AS build
+# The build stage contains TypeScript and JS-only production dependencies.
+# Run Node on the builder architecture instead of under QEMU.
+FROM --platform=$BUILDPLATFORM node:22-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci

@@ -41,14 +41,14 @@ export function defineTool<I extends ZodRawShape, O extends ZodRawShape>(
   name: string,
   config: ToolConfig<I, O>,
   handler: (
-    args: z.objectOutputType<I, z.ZodTypeAny>,
+    args: z.output<z.ZodObject<I>>,
     extra: ToolExtra,
     tr: Translator,
   ) => Promise<CallToolResult>,
 ): void {
   const inputSchema = { ...config.inputSchema, locale: LocaleSchema.optional() } as I;
   const wrapped = (async (
-    args: z.objectOutputType<I, z.ZodTypeAny>,
+    args: z.output<z.ZodObject<I>>,
     extra: ToolExtra,
   ): Promise<CallToolResult> => {
     const started = Date.now();
